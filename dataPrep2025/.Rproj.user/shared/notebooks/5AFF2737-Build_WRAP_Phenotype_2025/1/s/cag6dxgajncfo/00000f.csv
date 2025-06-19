@@ -1,0 +1,7 @@
+"0","## load data"
+"0","Sleep_MentalAct <- read.csv(paste0(my_directory, ""Sleep_MentalAct_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
+"0","info(Sleep_MentalAct,""wrapnum"")"
+"1","#obs:4208, cols:64, inds:1462"
+"1"," "
+"1","
+"

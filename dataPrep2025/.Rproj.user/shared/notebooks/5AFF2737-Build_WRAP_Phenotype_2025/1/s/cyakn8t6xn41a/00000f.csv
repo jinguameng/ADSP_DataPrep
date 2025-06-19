@@ -1,0 +1,2 @@
+"0","## drop update_stamp column"
+"0","WRAP_to_DBID <- subset(WRAP_to_DBID,select = -c(update_stamp))"

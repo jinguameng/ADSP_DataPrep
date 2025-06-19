@@ -1,0 +1,4 @@
+"0","## check table frequency for all variables"
+"0",""
+"0","## drop update_stamp column"
+"0","CES_D_Scale <- subset(CES_D_Scale,select = -c(update_stamp)) ## 24 columns left"

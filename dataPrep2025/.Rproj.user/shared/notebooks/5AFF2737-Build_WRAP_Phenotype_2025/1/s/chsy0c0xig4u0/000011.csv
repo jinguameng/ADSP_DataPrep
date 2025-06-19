@@ -1,0 +1,8 @@
+"0","## check table frequency for all variables"
+"0",""
+"0","## convert """" to NA for chr columns"
+"0","chrcols <- colnames(PFMB_SibWAD_or_OtherMemIssue)[sapply(PFMB_SibWAD_or_OtherMemIssue, is.character)]"
+"0","PFMB_SibWAD_or_OtherMemIssue[chrcols] <- lapply(PFMB_SibWAD_or_OtherMemIssue[chrcols], function(x) ifelse(x == """", NA, x))"
+"0",""
+"0","## drop update_stamp column"
+"0","PFMB_SibWAD_or_OtherMemIssue <- subset(PFMB_SibWAD_or_OtherMemIssue,select = -c(update_stamp))"

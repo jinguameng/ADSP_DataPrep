@@ -1,0 +1,2881 @@
+---
+title: "WRAP Data Prep"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+    css: "style.css"
+---
+
+Author: Mengna Zhang
+Date: June 12th, 2025
+
+# Set Path
+
+```{r}
+#directory
+directory <- "/Users/mengnazhang/Desktop/"
+my_directory <- paste0(directory, "ADSP_DataPrep_local/WRAP/Phenotype/2025/Raw/")
+```
+
+<br>
+
+# Load Packages
+```{r,message=FALSE,warning=FALSE}
+require(dplyr)
+source("/Users/mengnazhang/Desktop/ADSP_DataPrep/dataPrep2025/helperScripts.R")
+```
+
+<br>
+<br>
+
+# Variable Check Per File
+
+## Abnormal_Factor_Flags_long
+
+Indicator variables indicating low scores on FactorScores factors, adjusting for demographics.
+
+```{r}
+## load data
+Abnormal_Factor_Flags_long <- read.csv(paste0(my_directory, "Abnormal_Factor_Flags_long_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Abnormal_Factor_Flags_long,"wrapnum")
+```
+
+```{r, eval=FALSE}
+str(Abnormal_Factor_Flags_long)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Abnormal_Factor_Flags_long)
+```
+</details> 
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+Abnormal_Factor_Flags_long <- subset(Abnormal_Factor_Flags_long,select = -c(update_stamp)) ## 6 columns left
+```
+
+```{r,eval=FALSE}
+str(Abnormal_Factor_Flags_long)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Abnormal_Factor_Flags_long)
+```
+</details> 
+
+
+<br>
+<br>
+
+## Abnormal_Factor_Flags_wide
+
+Indicator variables indicating low scores on FactorScores factors, adjusting for demographics.
+
+```{r}
+## load data
+Abnormal_Factor_Flags_wide <- read.csv(paste0(my_directory, "Abnormal_Factor_Flags_wide_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Abnormal_Factor_Flags_wide,"wrapnum")
+```
+
+```{r,eval=FALSE}
+str(Abnormal_Factor_Flags_wide)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Abnormal_Factor_Flags_wide)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+Abnormal_Factor_Flags_wide <- subset(Abnormal_Factor_Flags_wide,select = -c(update_stamp))
+```
+
+```{r,eval=FALSE}
+str(Abnormal_Factor_Flags_wide)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Abnormal_Factor_Flags_wide)
+```
+</details> 
+
+
+<br>
+<br>
+
+## AnimalNaming_ItemLevel
+
+Animal Naming Item Level Data
+
+```{r}
+## load data
+AnimalNaming_ItemLevel <- read.csv(paste0(my_directory, "AnimalNaming_ItemLevel_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(AnimalNaming_ItemLevel,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(AnimalNaming_ItemLevel)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(AnimalNaming_ItemLevel)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(AnimalNaming_ItemLevel)[sapply(AnimalNaming_ItemLevel, is.character)]
+AnimalNaming_ItemLevel[chrcols] <- lapply(AnimalNaming_ItemLevel[chrcols], function(x) ifelse(x == "", NA, x))
+
+## convert from logi to character for columns: AN_45 - AN_50
+## these columns were confirmed to only have NA values in the raw data
+logicols <- paste0("AN_",seq(45,50))
+AnimalNaming_ItemLevel[logicols] <- lapply(AnimalNaming_ItemLevel[logicols], as.character)
+
+## drop update_stamp column
+AnimalNaming_ItemLevel <- subset(AnimalNaming_ItemLevel,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(AnimalNaming_ItemLevel)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(AnimalNaming_ItemLevel)
+```
+</details> 
+
+
+<br>
+<br>
+
+## APG
+
+APOE genotype
+
+```{r}
+## load data
+APG <- read.csv(paste0(my_directory, "APG_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(APG,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(APG)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(APG)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+APG <- subset(APG,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(APG)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(APG)
+```
+</details> 
+
+<br>
+<br>
+
+## AVLTPositionScores
+
+Serial position of answers given per trial on Rey AVLT
+
+```{r}
+## load data
+AVLTPositionScores <- read.csv(paste0(my_directory, "AVLTPositionScores_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(AVLTPositionScores,"wrapnum")
+```
+
+```{r,eval=FALSE}
+str(AVLTPositionScores, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(AVLTPositionScores, max.level = 99, list.len = 99999)
+```
+</details> 
+
+```{r}
+
+## convert column B.15 from logistic to integer
+## this column was confirmed to only have NA values in the raw data
+AVLTPositionScores[,"B.15"] <- as.integer(AVLTPositionScores[,"B.15"])
+
+## check table frequency for all variables
+
+## values in columns ["T1.1" - "D.15"] should be 1-15 (integer)
+cols = c(paste0("T1.",seq(1:15)),paste0("T2.",seq(1:15)),paste0("T3.",seq(1:15)),
+         paste0("T4.",seq(1:15)),paste0("T5.",seq(1:15)),paste0("B.",seq(1:15)),
+         paste0("SD.",seq(1:15)),paste0("D.",seq(1:15)))
+
+for (col in cols) {
+  vals <- unique(AVLTPositionScores[[col]])
+  invalid_vals <- vals[!vals %in% c(1:15, NA)]
+  
+  if (length(invalid_vals) > 0) {
+    cat("Column:", col, "- Invalid values:", paste(invalid_vals, collapse = ", "), "\n")
+  }
+}
+
+## drop update_stamp column
+AVLTPositionScores <- subset(AVLTPositionScores,select = -c(update_stamp)) ## 124 columns left
+```
+
+```{r,eval=FALSE}
+str(AVLTPositionScores, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(AVLTPositionScores, max.level = 99, list.len = 99999)
+```
+</details> 
+
+
+<br>
+<br>
+
+## BehavioralObservationChecklist
+
+Behavioral Observation Checklist
+
+```{r}
+## load data
+BehavioralObservationChecklist <- read.csv(paste0(my_directory, "BehavioralObservationChecklist_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+
+info(BehavioralObservationChecklist,"wrapnum")
+```
+
+```{r,eval=FALSE}
+str(BehavioralObservationChecklist, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(BehavioralObservationChecklist, max.level = 99, list.len = 99999)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## values in columns [BOC_Rapport_EasilyEstab - BOC_Address_Not_PM] should be {1,2}
+## 1=selected;2=other value selected;null=no values in set selected
+cols = names(BehavioralObservationChecklist)[5:84]
+
+for (col in cols) {
+  vals <- unique(BehavioralObservationChecklist[[col]])
+  invalid_vals <- vals[!vals %in% c(1:2, NA)]
+  
+  if (length(invalid_vals) > 0) {
+    cat("Column:", col, "- Invalid values:", paste(invalid_vals, collapse = ", "), "\n")
+  }
+}
+## Column: BOC_Motor_Handedness - Invalid values: 3 
+
+table(BehavioralObservationChecklist$BOC_Motor_Handedness, useNA = "ifany")
+#    1    2    3 <NA> 
+# 2020  214    2  365 
+
+## covert value 3 to NA for column BOC_Motor_Handedness
+BehavioralObservationChecklist$BOC_Motor_Handedness[BehavioralObservationChecklist$BOC_Motor_Handedness == 3] <- NA
+table(BehavioralObservationChecklist$BOC_Motor_Handedness, useNA = "ifany")
+#    1    2 <NA> 
+# 2020  214  367 
+
+## drop update_stamp column
+BehavioralObservationChecklist <- subset(BehavioralObservationChecklist,select = -c(update_stamp)) ## 84 columns left
+```
+
+```{r,eval=FALSE}
+str(BehavioralObservationChecklist, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(BehavioralObservationChecklist, max.level = 99, list.len = 99999)
+```
+</details> 
+
+
+<br>
+<br>
+
+## CA_Genome
+
+TOMM40 genotype
+
+```{r}
+## load data
+CA_Genome <- read.csv(paste0(my_directory, "CA_Genome_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(CA_Genome,"wrapnum")
+```
+
+```{r,eval=FALSE}
+str(CA_Genome)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CA_Genome)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+CA_Genome <- subset(CA_Genome,select = -c(update_stamp))
+```
+
+```{r,eval=FALSE}
+str(CA_Genome)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CA_Genome)
+```
+</details> 
+
+
+<br>
+<br>
+
+## CDR
+
+Clinical Dementia Rating
+
+```{r}
+## load data
+CDR <- read.csv(paste0(my_directory, "CDR_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(CDR,"wrapnum")
+```
+
+```{r,eval=FALSE}
+str(CDR)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CDR)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## DD has 1=yes,2=no coding but data has 0/1 coding. 
+## Confirmed with other 0/1 variables that 0 is no and 1 stays yes, so will update the dataset to match the DD
+CDR$RelLive[CDR$RelLive==0] <- 2
+CDR$RelLive <- as.integer(CDR$RelLive)
+
+## drop update_stamp column
+CDR <- subset(CDR,select = -c(update_stamp)) ## 15 columns left
+```
+
+```{r,eval=FALSE}
+str(CDR)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CDR)
+```
+</details> 
+
+<br>
+<br>
+
+## CERAD
+
+Consortium to Establish a Registry for Alzheimer's Disease Data (CERAD)
+
+```{r}
+## load data
+CERAD <- read.csv(paste0(my_directory, "CERAD_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(CERAD,"wrapnum")
+```
+
+
+
+```{r,eval=FALSE}
+str(CERAD)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CERAD)
+```
+</details> 
+
+
+```{r}
+## convert "" to NA for column OverImp
+CERAD$OverImp[CERAD$OverImp == ""] <- NA
+
+## drop update_stamp column
+CERAD <- subset(CERAD,select = -c(update_stamp)) ## 19 columns left
+```
+
+```{r,eval=FALSE}
+str(CERAD)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CERAD)
+```
+</details> 
+
+
+<br>
+<br>
+
+## CES_D_Scale
+
+Center for Epidemiologic Studies-Depression Scale
+
+```{r}
+## load data
+CES_D_Scale <- read.csv(paste0(my_directory, "CES_D_Scale_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(CES_D_Scale,"wrapnum")
+```
+
+```{r,eval=FALSE}
+str(CES_D_Scale)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CES_D_Scale)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+CES_D_Scale <- subset(CES_D_Scale,select = -c(update_stamp)) ## 24 columns left
+```
+
+
+```{r,eval=FALSE}
+str(CES_D_Scale)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CES_D_Scale)
+```
+</details> 
+
+
+<br>
+<br>
+
+## CHAMPS
+
+Community Healthy Activities Model Program for Seniors (CHAMPS)
+
+```{r}
+## load data
+CHAMPS <- read.csv(paste0(my_directory, "CHAMPS_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(CHAMPS,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(CHAMPS, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CHAMPS, max.level = 99, list.len = 99999)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+CHAMPS <- subset(CHAMPS,select = -c(update_stamp)) ## 126 columns left
+```
+
+
+```{r,eval=FALSE}
+str(CHAMPS, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CHAMPS, max.level = 99, list.len = 99999)
+```
+</details> 
+
+
+
+<br>
+<br>
+
+## CogStateData
+
+Cogstate Testing Data
+
+```{r}
+## load data
+CogStateData <- read.csv(paste0(my_directory, "CogStateData_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(CogStateData,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(CogStateData, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CogStateData, max.level = 99, list.len = 99999)
+```
+</details> 
+
+
+
+```{r}
+## check table frequency for all variables
+
+## convert logi columns to int
+## these columns were confirmed to only have NA values in the raw data
+logicols <- colnames(CogStateData)[sapply(CogStateData, is.logical)]
+CogStateData[logicols] <- lapply(CogStateData[logicols], as.integer)
+
+## drop update_stamp column
+CogStateData <- subset(CogStateData,select = -c(update_stamp)) ## 227 columns left
+```
+
+
+```{r,eval=FALSE}
+str(CogStateData, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CogStateData, max.level = 99, list.len = 99999)
+```
+</details> 
+
+
+
+<br>
+<br>
+
+## CompositeScoreCalcValues
+
+Raw scores used in computation of CompositeScores values
+
+```{r}
+## load data
+CompositeScoreCalcValues <- read.csv(paste0(my_directory, "CompositeScoreCalcValues_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(CompositeScoreCalcValues,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(CompositeScoreCalcValues)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CompositeScoreCalcValues)
+```
+</details> 
+
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+CompositeScoreCalcValues <- subset(CompositeScoreCalcValues,select = -c(update_stamp)) ## 16 columns left
+```
+
+```{r,eval=FALSE}
+str(CompositeScoreCalcValues)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CompositeScoreCalcValues)
+```
+</details> 
+
+
+<br>
+<br>
+
+## CompositeScores
+
+Domain-specific and global cognitive composite scores (see Jonaitis et al 2019)
+
+```{r}
+## load data
+CompositeScores <- read.csv(paste0(my_directory, "CompositeScores_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(CompositeScores,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(CompositeScores)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CompositeScores)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+CompositeScores <- subset(CompositeScores,select = -c(update_stamp)) ## 31 columns left
+```
+
+
+```{r,eval=FALSE}
+str(CompositeScores)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(CompositeScores)
+```
+</details> 
+
+
+<br>
+<br>
+
+## ConsensusConference
+
+Consensus Conference Results
+
+```{r}
+## load data
+ConsensusConference <- read.csv(paste0(my_directory, "ConsensusConference_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(ConsensusConference,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(ConsensusConference)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(ConsensusConference)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert logi columns to int
+## these columns were confirmed to only have NA values in the raw data
+logicols <- colnames(ConsensusConference)[sapply(ConsensusConference, is.logical)]
+ConsensusConference[logicols] <- lapply(ConsensusConference[logicols], as.integer)
+
+## drop update_stamp column
+ConsensusConference <- subset(ConsensusConference,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(ConsensusConference)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(ConsensusConference)
+```
+</details> 
+
+
+<br>
+<br>
+
+## DailyActivity
+
+Legacy - Daily Activities (Prior to inclusion in General Health and Daily Activities)
+
+```{r}
+## load data
+DailyActivity <- read.csv(paste0(my_directory, "DailyActivity_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(DailyActivity,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(DailyActivity)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(DailyActivity)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert logi columns to int
+## ## these columns were confirmed to only have NA values in the raw data
+logicols <- colnames(DailyActivity)[sapply(DailyActivity, is.logical)]
+DailyActivity[logicols] <- lapply(DailyActivity[logicols], as.integer)
+
+## extract all chr columns and recode "" to NA
+chrcols <- colnames(DailyActivity)[sapply(DailyActivity, is.character)]
+DailyActivity[chrcols] <- lapply(DailyActivity[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+DailyActivity <- subset(DailyActivity,select = -c(update_stamp)) ## 84 columns left
+```
+
+
+```{r,eval=FALSE}
+str(DailyActivity)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(DailyActivity)
+```
+</details> 
+
+
+<br>
+<br>
+
+## Demographics
+
+Participant Demographic Information
+
+```{r}
+## load data
+Demographics <- read.csv(paste0(my_directory, "Demographics_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Demographics,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(Demographics)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Demographics)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## DD has 1=yes,2=no coding but data has 0/1 coding.
+## Confirmed with other 0/1 variables that 0 is no and 1 stays yes, so will update the dataset to match the DD
+Demographics$OC_Imputed_grade[Demographics$OC_Imputed_grade] <- 2
+Demographics$OC_Imputed_grade <- as.integer(Demographics$OC_Imputed_grade)
+
+## convert logi columns to int
+logicols <- colnames(Demographics)[sapply(Demographics, is.logical)]
+Demographics[logicols] <- lapply(Demographics[logicols], as.integer)
+
+## convert parntres from num to int
+Demographics$parntres <- as.integer(Demographics$parntres)
+
+## convert "" to NA for chr columns
+chrcols <- colnames(Demographics)[sapply(Demographics, is.character)]
+Demographics[chrcols] <- lapply(Demographics[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+Demographics <- subset(Demographics,select = -c(update_stamp)) ## 84 columns left
+```
+
+
+```{r,eval=FALSE}
+str(Demographics)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Demographics)
+```
+</details> 
+
+<br>
+<br>
+
+## FactorScores
+
+Factor scores based on analysis of Wave 1 and Wave 2 neuropsychological test data (see Dowling et al. 2010).
+
+```{r}
+## load data
+FactorScores <- read.csv(paste0(my_directory, "FactorScores_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(FactorScores,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(FactorScores)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(FactorScores)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+FactorScores <- subset(FactorScores,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(FactorScores)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(FactorScores)
+```
+</details> 
+
+
+<br>
+<br>
+
+## fqryStatisticalData
+
+Participant/Visit-level study data
+
+```{r}
+## load data
+fqryStatisticalData <- read.csv(paste0(my_directory, "fqryStatisticalData_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(fqryStatisticalData,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(fqryStatisticalData)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(fqryStatisticalData)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(fqryStatisticalData)[sapply(fqryStatisticalData, is.character)]
+fqryStatisticalData[chrcols] <- lapply(fqryStatisticalData[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+fqryStatisticalData <- subset(fqryStatisticalData,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(fqryStatisticalData)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(fqryStatisticalData)
+```
+</details> 
+
+
+<br>
+<br>
+
+## Gene_DataCollection
+
+Gene Data Collection
+
+```{r}
+## load data
+Gene_DataCollection <- read.csv(paste0(my_directory, "Gene_DataCollection_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Gene_DataCollection,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(Gene_DataCollection)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Gene_DataCollection)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(Gene_DataCollection)[sapply(Gene_DataCollection, is.character)]
+Gene_DataCollection[chrcols] <- lapply(Gene_DataCollection[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+Gene_DataCollection <- subset(Gene_DataCollection,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(Gene_DataCollection)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Gene_DataCollection)
+```
+</details> 
+
+
+<br>
+<br>
+
+## GenHealthDailyAct
+
+General Health and Daily Activities
+
+```{r}
+## load data
+GenHealthDailyAct <- read.csv(paste0(my_directory, "GenHealthDailyAct_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(GenHealthDailyAct,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(GenHealthDailyAct,max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(GenHealthDailyAct,max.level = 99, list.len = 99999)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert 6 to NA for columns: YardHrs,FTFFAMPL,FTFMEETINSSPL,FTFSTRANGERPL
+tmp <- c("YardHrs","FTFFAMPL","FTFMEETINSSPL","FTFSTRANGERPL")
+GenHealthDailyAct[tmp] <- lapply(GenHealthDailyAct[tmp], function(x) {
+  x[x == 6] <- NA
+  return(x)
+})
+
+## convert 5 to NA for column: FTFOTHER
+GenHealthDailyAct$FTFOTHER[GenHealthDailyAct$FTFOTHER==5] <- NA
+
+## convert 8 to NA for column: FTFSPPARTPL
+GenHealthDailyAct$FTFSPPARTPL[GenHealthDailyAct$FTFSPPARTPL==8] <- NA
+
+## convert "" to NA for chr columns
+chrcols <- colnames(GenHealthDailyAct)[sapply(GenHealthDailyAct, is.character)]
+GenHealthDailyAct[chrcols] <- lapply(GenHealthDailyAct[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+GenHealthDailyAct <- subset(GenHealthDailyAct,select = -c(update_stamp)) ## 219 columns left
+```
+
+
+```{r,eval=FALSE}
+str(GenHealthDailyAct,max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(GenHealthDailyAct,max.level = 99, list.len = 99999)
+```
+</details> 
+
+
+<br>
+<br>
+
+## HeadInjuries
+
+Head Injuries
+
+```{r}
+## load data
+HeadInjuries <- read.csv(paste0(my_directory, "HeadInjuries_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(HeadInjuries,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(HeadInjuries)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(HeadInjuries)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+HeadInjuries <- subset(HeadInjuries,select = -c(update_stamp)) ## 4 columns left
+```
+
+
+```{r,eval=FALSE}
+str(HeadInjuries)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(HeadInjuries)
+```
+</details> 
+
+<br>
+<br>
+
+## HeadInjurySub
+
+Head Injuries - Additional Data
+
+```{r}
+## load data
+HeadInjurySub <- read.csv(paste0(my_directory, "HeadInjurySub_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(HeadInjurySub,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(HeadInjurySub)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(HeadInjurySub)
+```
+</details> 
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+HeadInjurySub <- subset(HeadInjurySub,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(HeadInjurySub)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(HeadInjurySub)
+```
+</details> 
+
+
+<br>
+<br>
+
+## IADL
+
+Lawton Instrumental Activities of Daily Living (IADL)
+
+```{r}
+## load data
+IADL <- read.csv(paste0(my_directory, "IADL_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(IADL,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(IADL)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(IADL)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## DD has 1=yes,2=no coding but data has 0/1 coding. 
+## Confirmed with other 0/1 variables that 0 is no and 1 stays yes, so will update the dataset to match the DD
+IADL$RelLive[IADL$RelLive==0] <- 2
+IADL$RelLive <- as.integer(IADL$RelLive)
+
+## drop update_stamp column
+IADL <- subset(IADL,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(IADL)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(IADL)
+```
+</details> 
+
+
+<br>
+<br>
+
+## IQCode
+
+```{r}
+## load data
+IQCode <- read.csv(paste0(my_directory, "IQCode_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(IQCode,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(IQCode)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(IQCode)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## DD has 1=yes,2=no coding but data has 0/1 coding. 
+## Confirmed with other 0/1 variables that 0 is no and 1 stays yes, so will update the dataset to match the DD
+IQCode$RelLive[IQCode$RelLive==0] <- 2
+IQCode$RelLive <- as.integer(IQCode$RelLive)
+
+## drop update_stamp column
+IQCode <- subset(IQCode,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(IQCode)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(IQCode)
+```
+</details> 
+
+
+<br>
+<br>
+
+## LearningDifficulties
+
+Learning Difficulties interview
+
+```{r}
+## load data
+LearningDifficulties <- read.csv(paste0(my_directory, "LearningDifficulties_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(LearningDifficulties,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(LearningDifficulties)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(LearningDifficulties)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert logi columns to int
+## these columns were confirmed to only have NA values in the raw data
+logicols <- colnames(LearningDifficulties)[sapply(LearningDifficulties, is.logical)]
+LearningDifficulties[logicols] <- lapply(LearningDifficulties[logicols], as.integer)
+
+## convert "" to NA for chr columns
+chrcols <- colnames(LearningDifficulties)[sapply(LearningDifficulties, is.character)]
+LearningDifficulties[chrcols] <- lapply(LearningDifficulties[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+LearningDifficulties <- subset(LearningDifficulties,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(LearningDifficulties)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(LearningDifficulties)
+```
+</details> 
+
+
+<br>
+<br>
+
+## LIBRA
+
+Lifestyle for BRAin health
+
+```{r}
+## load data
+LIBRA <- read.csv(paste0(my_directory, "LIBRA_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(LIBRA,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(LIBRA)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(LIBRA)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+LIBRA <- subset(LIBRA,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(LIBRA)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(LIBRA)
+```
+</details> 
+
+
+<br>
+<br>
+
+## Med_Lab
+
+Med/Lab Scores
+
+```{r}
+## load data
+Med_Lab <- read.csv(paste0(my_directory, "Med_Lab_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Med_Lab,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(Med_Lab)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Med_Lab)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## DD has 1=Yes;0=No;3=Unknown coding but data has 0/1/2 coding. 
+## I will convert 2 to 3 in the dataset
+Med_Lab$antipsychotic_reaction[Med_Lab$antipsychotic_reaction==2] <- 3
+Med_Lab$antipsychotic_reaction <- as.integer(Med_Lab$antipsychotic_reaction)
+
+## convert "" to NA for chr columns
+chrcols <- colnames(Med_Lab)[sapply(Med_Lab, is.character)]
+Med_Lab[chrcols] <- lapply(Med_Lab[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+Med_Lab <- subset(Med_Lab,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(Med_Lab)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Med_Lab)
+```
+</details> 
+
+
+<br>
+<br>
+
+## Med_Lab_NPDC
+
+Med/Lab Non-Prescription Drug Therapy
+
+```{r}
+## load data
+Med_Lab_NPDC <- read.csv(paste0(my_directory, "Med_Lab_NPDC_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Med_Lab_NPDC,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(Med_Lab_NPDC)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Med_Lab_NPDC)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(Med_Lab_NPDC)[sapply(Med_Lab_NPDC, is.character)]
+Med_Lab_NPDC[chrcols] <- lapply(Med_Lab_NPDC[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+Med_Lab_NPDC <- subset(Med_Lab_NPDC,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(Med_Lab_NPDC)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Med_Lab_NPDC)
+```
+</details> 
+
+
+<br>
+<br>
+
+## Med_Lab_PDC
+
+Med/Lab Prescription Drug Therapy
+
+```{r}
+## load data
+Med_Lab_PDC <- read.csv(paste0(my_directory, "Med_Lab_PDC_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Med_Lab_PDC,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(Med_Lab_PDC)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Med_Lab_PDC)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(Med_Lab_PDC)[sapply(Med_Lab_PDC, is.character)]
+Med_Lab_PDC[chrcols] <- lapply(Med_Lab_PDC[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+Med_Lab_PDC <- subset(Med_Lab_PDC,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(Med_Lab_PDC)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Med_Lab_PDC)
+```
+</details> 
+
+
+<br>
+<br>
+
+## MedHistory
+
+Medical History
+
+```{r}
+## load data
+MedHistory <- read.csv(paste0(my_directory, "MedHistory_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(MedHistory,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(MedHistory)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MedHistory)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## values in columns [AdmitS,SurgS - HeadInj_E, Unc_E, Stroke_E - Neuro_E, Sleep_E - TumorOrCancer_E, seehear] should be in {1,2,3}
+cols = c("AdmitS",
+         names(MedHistory)[which(names(MedHistory) == "SurgS") : which(names(MedHistory) == "HeadInj_E")],
+         "Unc_E",
+         names(MedHistory)[which(names(MedHistory) == "Stroke_E") : which(names(MedHistory) == "Neuro_E")],
+         names(MedHistory)[which(names(MedHistory) == "Sleep_E") : which(names(MedHistory) == "TumorOrCancer_E")],
+         "seehear"
+        )
+
+for (col in cols) {
+  vals <- unique(MedHistory[[col]])
+  invalid_vals <- vals[!vals %in% c(1,2,3, NA)]
+  
+  if (length(invalid_vals) > 0) {
+    cat("Column:", col, "- Invalid values:", paste(invalid_vals, collapse = ", "), "\n")
+  }
+}
+
+## drop update_stamp column
+MedHistory <- subset(MedHistory,select = -c(update_stamp))
+```
+
+```{r,eval=FALSE}
+str(MedHistory)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MedHistory)
+```
+</details> 
+
+
+<br>
+<br>
+
+## Morbidity_Mortality
+
+Participant Morbidity and Mortality Details
+
+```{r}
+## load data
+Morbidity_Mortality <- read.csv(paste0(my_directory, "Morbidity_Mortality_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Morbidity_Mortality,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(Morbidity_Mortality)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Morbidity_Mortality)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(Morbidity_Mortality)[sapply(Morbidity_Mortality, is.character)]
+Morbidity_Mortality[chrcols] <- lapply(Morbidity_Mortality[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+Morbidity_Mortality <- subset(Morbidity_Mortality,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(Morbidity_Mortality)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Morbidity_Mortality)
+```
+</details> 
+
+
+<br>
+<br>
+
+## MedHistory_Admit
+
+Medical History (Admitted to Hospital)
+
+```{r}
+## load data
+MedHistory_Admit <- read.csv(paste0(my_directory, "MedHistory_Admit_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(MedHistory_Admit,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(MedHistory_Admit)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MedHistory_Admit)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(MedHistory_Admit)[sapply(MedHistory_Admit, is.character)]
+MedHistory_Admit[chrcols] <- lapply(MedHistory_Admit[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+MedHistory_Admit <- subset(MedHistory_Admit,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(MedHistory_Admit)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MedHistory_Admit)
+```
+</details> 
+
+
+<br>
+<br>
+
+## MedHistory_SurgBF
+
+Medical History (Surgery since last visit)
+
+```{r}
+## load data
+MedHistory_SurgBF <- read.csv(paste0(my_directory, "MedHistory_SurgBF_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(MedHistory_SurgBF,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(MedHistory_SurgBF)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MedHistory_SurgBF)
+```
+</details> 
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(MedHistory_SurgBF)[sapply(MedHistory_SurgBF, is.character)]
+MedHistory_SurgBF[chrcols] <- lapply(MedHistory_SurgBF[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+MedHistory_SurgBF <- subset(MedHistory_SurgBF,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(MedHistory_SurgBF)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MedHistory_SurgBF)
+```
+
+
+<br>
+<br>
+
+## MedHistory_SurgS
+
+Medical History (Surgery since last visit)
+
+```{r}
+## load data
+MedHistory_SurgS <- read.csv(paste0(my_directory, "MedHistory_SurgS_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(MedHistory_SurgS,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(MedHistory_SurgS)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MedHistory_SurgS)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(MedHistory_SurgS)[sapply(MedHistory_SurgS, is.character)]
+MedHistory_SurgS[chrcols] <- lapply(MedHistory_SurgS[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+MedHistory_SurgS <- subset(MedHistory_SurgS,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(MedHistory_SurgS)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MedHistory_SurgS)
+```
+
+
+<br>
+<br>
+
+## MIND_Diet
+
+MIND Diet
+
+```{r}
+## load data
+MIND_Diet <- read.csv(paste0(my_directory, "MIND_Diet_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(MIND_Diet,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(MIND_Diet)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MIND_Diet)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+MIND_Diet <- subset(MIND_Diet,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(MIND_Diet)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MIND_Diet)
+```
+
+
+
+<br>
+<br>
+
+## MIND_Diet_ScoredValues
+
+MIND Diet Scored Values
+
+```{r}
+## load data
+MIND_Diet_ScoredValues <- read.csv(paste0(my_directory, "MIND_Diet_ScoredValues_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(MIND_Diet_ScoredValues,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(MIND_Diet_ScoredValues)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MIND_Diet_ScoredValues)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+MIND_Diet <- subset(MIND_Diet_ScoredValues,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(MIND_Diet_ScoredValues)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MIND_Diet_ScoredValues)
+```
+
+
+
+<br>
+<br>
+
+## MOCA
+
+Montreal Cognitive Assessment-Blind. Administered as part of remote assessment (T-Cog)
+
+```{r}
+## load data
+MOCA <- read.csv(paste0(my_directory, "MOCA_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(MOCA,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(MOCA)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MOCA)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+MOCA <- subset(MOCA,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(MOCA)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(MOCA)
+```
+
+
+<br>
+<br>
+
+## NeuropsychScores
+
+Neuropsych Testing Scores
+
+```{r}
+## load data
+NeuropsychScores <- read.csv(paste0(my_directory, "NeuropsychScores_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(NeuropsychScores,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(NeuropsychScores, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(NeuropsychScores, max.level = 99, list.len = 99999)
+```
+
+
+```{r}
+## convert "" to NA for chr columns
+chrcols <- colnames(NeuropsychScores)[sapply(NeuropsychScores, is.character)]
+NeuropsychScores[chrcols] <- lapply(NeuropsychScores[chrcols], function(x) ifelse(x == "", NA, x))
+
+## convert from logi to int for columns: wmfacpr wmfacps animPhoMean animPhoSwi cflTotRaw cflSemMean cflSemSwi
+## these columns were confirmed to only have NA values in the raw data
+logicols <- c("wmfacpr","wmfacps","animPhoMean","animPhoSwi","cflTotRaw","cflSemMean","cflSemSwi")
+NeuropsychScores[logicols] <- lapply(NeuropsychScores[logicols], as.integer)
+
+## drop update_stamp column
+NeuropsychScores <- subset(NeuropsychScores,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(NeuropsychScores, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(NeuropsychScores, max.level = 99, list.len = 99999)
+```
+
+
+<br>
+<br>
+
+## PersFamMedBack
+
+Personal Family Medical Background
+
+```{r}
+## load data
+PersFamMedBack <- read.csv(paste0(my_directory, "PersFamMedBack_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(PersFamMedBack,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(PersFamMedBack)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(PersFamMedBack)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## for column PersFamMedBack, in DD it got values:1=Yes;0=No
+## but in the dataset, it has value:
+# table(PersFamMedBack$Volunt,useNA = "ifany")
+# 
+#    0    1    2 <NA> 
+#  114 1935 1530 4597
+## by comparing with how other value being coded, I decide to convert 2 to 0
+PersFamMedBack$Volunt[PersFamMedBack$Volunt==2] <- 0
+
+## convert "" to NA for chr columns
+chrcols <- colnames(PersFamMedBack)[sapply(PersFamMedBack, is.character)]
+PersFamMedBack[chrcols] <- lapply(PersFamMedBack[chrcols], function(x) ifelse(x == "", NA, x))
+
+## convert logi to chr for column: gender_other,gender_identity_other
+logicols <- c("gender_other","gender_identity_other")
+PersFamMedBack[logicols] <- lapply(PersFamMedBack[logicols], as.character)
+
+## drop update_stamp column
+PersFamMedBack <- subset(PersFamMedBack,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(PersFamMedBack)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(PersFamMedBack)
+```
+
+
+<br>
+<br>
+
+
+## PFMB_SibWAD_or_OtherMemIssue
+
+Personal Family Medical Background - Siblings with AD or Other Memory Issue
+
+```{r}
+## load data
+PFMB_SibWAD_or_OtherMemIssue <- read.csv(paste0(my_directory, "PFMB_SibWAD_or_OtherMemIssue_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(PFMB_SibWAD_or_OtherMemIssue,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(PFMB_SibWAD_or_OtherMemIssue)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(PFMB_SibWAD_or_OtherMemIssue)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(PFMB_SibWAD_or_OtherMemIssue)[sapply(PFMB_SibWAD_or_OtherMemIssue, is.character)]
+PFMB_SibWAD_or_OtherMemIssue[chrcols] <- lapply(PFMB_SibWAD_or_OtherMemIssue[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+PFMB_SibWAD_or_OtherMemIssue <- subset(PFMB_SibWAD_or_OtherMemIssue,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(PFMB_SibWAD_or_OtherMemIssue)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(PFMB_SibWAD_or_OtherMemIssue)
+```
+
+
+<br>
+<br>
+
+
+## QuickDementia
+
+Quick Dementia Rating Scale
+
+```{r}
+## load data
+QuickDementia <- read.csv(paste0(my_directory, "QuickDementia_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(QuickDementia,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(QuickDementia)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(QuickDementia)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## DD has 1=yes,2=no coding but data has 0/1 coding. 
+## Confirmed with other 0/1 variables that 0 is no and 1 stays yes, so will update the dataset to match the DD
+QuickDementia$RelLive[QuickDementia$RelLive==0] <- 2
+QuickDementia$RelLive <- as.integer(QuickDementia$RelLive)
+
+## drop update_stamp column
+QuickDementia <- subset(QuickDementia,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(QuickDementia)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(QuickDementia)
+```
+
+
+<br>
+<br>
+
+
+## RobustNormZScores
+
+Demographically-adjusted robust norm z scores (see Koscik et al. 2014, Clark et al. 2016)
+
+```{r}
+## load data
+RobustNormZScores <- read.csv(paste0(my_directory, "RobustNormZScores_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(RobustNormZScores,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(RobustNormZScores)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(RobustNormZScores)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+RobustNormZScores <- subset(RobustNormZScores,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(RobustNormZScores)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(RobustNormZScores)
+```
+
+
+<br>
+<br>
+
+
+## Sleep_MentalAct
+
+Sleep/Mental Activities
+
+```{r}
+## load data
+Sleep_MentalAct <- read.csv(paste0(my_directory, "Sleep_MentalAct_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Sleep_MentalAct,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(Sleep_MentalAct)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Sleep_MentalAct)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+Sleep_MentalAct <- subset(Sleep_MentalAct,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(Sleep_MentalAct)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Sleep_MentalAct)
+```
+
+
+<br>
+<br>
+
+
+## Sleep_MentalAct_OthDevice
+
+Sleep/Mental Activities - Sleep Apnea Other Devices
+
+```{r}
+## load data
+Sleep_MentalAct_OthDevice <- read.csv(paste0(my_directory, "Sleep_MentalAct_OthDevice_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Sleep_MentalAct_OthDevice,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(Sleep_MentalAct_OthDevice)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Sleep_MentalAct_OthDevice)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+Sleep_MentalAct_OthDevice <- subset(Sleep_MentalAct_OthDevice,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(Sleep_MentalAct_OthDevice)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Sleep_MentalAct_OthDevice)
+```
+
+<br>
+<br>
+
+## SubjectiveHearing
+
+Subjective Hearing Complaints
+
+```{r}
+## load data
+SubjectiveHearing <- read.csv(paste0(my_directory, "SubjectiveHearing_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(SubjectiveHearing,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(SubjectiveHearing)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(SubjectiveHearing)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+SubjectiveHearing <- subset(SubjectiveHearing,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(SubjectiveHearing)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(SubjectiveHearing)
+```
+
+
+<br>
+<br>
+
+## TICSM
+
+Modified Telephone Interview of Cognitive Status
+
+```{r}
+## load data
+TICSM <- read.csv(paste0(my_directory, "TICSM_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(TICSM,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(TICSM)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(TICSM)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## drop update_stamp column
+TICSM <- subset(TICSM,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(TICSM)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(TICSM)
+```
+
+<br>
+<br>
+
+## VisitVitals
+
+WRAP Visit Vitals
+
+```{r}
+## load data
+VisitVitals <- read.csv(paste0(my_directory, "VisitVitals_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(VisitVitals,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(VisitVitals)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(VisitVitals)
+```
+
+```{r}
+## convert "" to NA for chr columns
+chrcols <- colnames(VisitVitals)[sapply(VisitVitals, is.character)]
+VisitVitals[chrcols] <- lapply(VisitVitals[chrcols], function(x) ifelse(x == "", NA, x))
+
+## convert logi to chr for columns: BP_not_ordered BP_single_measurement
+logicols <- c("BP_not_ordered","BP_single_measurement")
+VisitVitals[logicols] <- lapply(VisitVitals[logicols], as.character)
+
+## drop update_stamp column
+VisitVitals <- subset(VisitVitals,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(VisitVitals)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(VisitVitals)
+```
+
+<br>
+<br>
+
+## WomenQuestions
+
+Women Questions
+
+```{r}
+## load data
+WomenQuestions <- read.csv(paste0(my_directory, "WomenQuestions_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(WomenQuestions,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## in the DD, column nowhrt have three values: 1=Yes;2=No;3=Don't Know
+## in the data, it got addition value 0:
+# table(WomenQuestions$nowhrt,useNA="ifany")
+# 
+#    0    1    2    3 <NA> 
+#    1  150  292    3 5098 
+
+## I am going to convert 0 to NA:
+WomenQuestions$nowhrt[WomenQuestions$nowhrt==0] <- NA
+
+## convert "" to NA for chr columns
+chrcols <- colnames(WomenQuestions)[sapply(WomenQuestions, is.character)]
+WomenQuestions[chrcols] <- lapply(WomenQuestions[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+WomenQuestions <- subset(WomenQuestions,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions)
+```
+
+
+<br>
+<br>
+
+## WomenQuestions_BCP
+
+Women Questions
+
+```{r}
+## load data
+WomenQuestions_BCP <- read.csv(paste0(my_directory, "WomenQuestions_BCP_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(WomenQuestions_BCP,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions_BCP)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions_BCP)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(WomenQuestions_BCP)[sapply(WomenQuestions_BCP, is.character)]
+WomenQuestions_BCP[chrcols] <- lapply(WomenQuestions_BCP[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+WomenQuestions_BCP <- subset(WomenQuestions_BCP,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions_BCP)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions_BCP)
+```
+
+
+<br>
+<br>
+
+## WomenQuestions_Current_HormoneTherapy
+
+Women Questions - Current Hormone Therapy
+
+```{r}
+## load data
+WomenQuestions_Current_HormoneTherapy <- read.csv(paste0(my_directory, "WomenQuestions_Current_HormoneTherapy_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(WomenQuestions_Current_HormoneTherapy,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions_Current_HormoneTherapy)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions_Current_HormoneTherapy)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## DD has 1=yes,2=no coding but data has 0/1 coding. 
+## Confirmed with other 0/1 variables that 0 is no and 1 stays yes, so will update the dataset to match the DD
+WomenQuestions_Current_HormoneTherapy$CurCur[WomenQuestions_Current_HormoneTherapy$CurCur==0] <- 2
+WomenQuestions_Current_HormoneTherapy$CurCur <- as.integer(WomenQuestions_Current_HormoneTherapy$CurCur)
+
+## convert "" to NA for chr columns
+chrcols <- colnames(WomenQuestions_Current_HormoneTherapy)[sapply(WomenQuestions_Current_HormoneTherapy, is.character)]
+WomenQuestions_Current_HormoneTherapy[chrcols] <- lapply(WomenQuestions_Current_HormoneTherapy[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+WomenQuestions_Current_HormoneTherapy <- subset(WomenQuestions_Current_HormoneTherapy,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions_Current_HormoneTherapy)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions_Current_HormoneTherapy)
+```
+
+
+
+<br>
+<br>
+
+## WomenQuestions_NonPresc_HormoneTherapy
+
+Women Questions - Non-Prescription Hormone Therapy
+```{r}
+## load data
+WomenQuestions_NonPresc_HormoneTherapy <- read.csv(paste0(my_directory, "WomenQuestions_NonPresc_HormoneTherapy_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(WomenQuestions_NonPresc_HormoneTherapy,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions_NonPresc_HormoneTherapy)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions_NonPresc_HormoneTherapy)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## for column HormCur, it has additional value 0 in the data. I did not modify it for now.
+table(WomenQuestions_NonPresc_HormoneTherapy$HormCur,useNA = "ifany")
+
+## convert "" to NA for chr columns
+chrcols <- colnames(WomenQuestions_NonPresc_HormoneTherapy)[sapply(WomenQuestions_NonPresc_HormoneTherapy, is.character)]
+WomenQuestions_NonPresc_HormoneTherapy[chrcols] <- lapply(WomenQuestions_NonPresc_HormoneTherapy[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+WomenQuestions_NonPresc_HormoneTherapy <- subset(WomenQuestions_NonPresc_HormoneTherapy,select = -c(update_stamp))
+
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions_NonPresc_HormoneTherapy)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions_NonPresc_HormoneTherapy)
+```
+
+<br>
+<br>
+
+## WomenQuestions_Past_HormoneTherapy
+
+Women Questions - Past Hormone Therapy
+
+```{r}
+## load data
+WomenQuestions_Past_HormoneTherapy <- read.csv(paste0(my_directory, "WomenQuestions_Past_HormoneTherapy_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(WomenQuestions_Past_HormoneTherapy,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions_Past_HormoneTherapy)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions_Past_HormoneTherapy)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## for column PastCur, it has additional value 0 in the data. I did not modify it for now.
+table(WomenQuestions_Past_HormoneTherapy$PastCur,useNA = "ifany")
+
+## convert "" to NA for chr columns
+chrcols <- colnames(WomenQuestions_Past_HormoneTherapy)[sapply(WomenQuestions_Past_HormoneTherapy, is.character)]
+WomenQuestions_Past_HormoneTherapy[chrcols] <- lapply(WomenQuestions_Past_HormoneTherapy[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+WomenQuestions_Past_HormoneTherapy <- subset(WomenQuestions_Past_HormoneTherapy,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions_Past_HormoneTherapy)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions_Past_HormoneTherapy)
+```
+
+<br>
+<br>
+
+## WomenQuestions_SERM
+
+Women Questions - SERM (Antiestrogen medication)
+
+```{r}
+## load data
+WomenQuestions_SERM <- read.csv(paste0(my_directory, "WomenQuestions_SERM_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(WomenQuestions_SERM,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(WomenQuestions_SERM)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions_SERM)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## for column SERMCur, it has additional value 0 in the data. I did not modify it for now.
+table(WomenQuestions_SERM$SERMCur,useNA = "ifany")
+
+## convert "" to NA for chr columns
+chrcols <- colnames(WomenQuestions_SERM)[sapply(WomenQuestions_SERM, is.character)]
+WomenQuestions_SERM[chrcols] <- lapply(WomenQuestions_SERM[chrcols], function(x) ifelse(x == "", NA, x))
+
+## convert column SERMType from logi to chr
+WomenQuestions_SERM[["SERMType"]] <- as.character(WomenQuestions_SERM[["SERMType"]])
+
+## drop update_stamp column
+WomenQuestions_SERM <- subset(WomenQuestions_SERM,select = -c(update_stamp))
+```
+
+
+
+```{r,eval=FALSE}
+str(WomenQuestions_SERM)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WomenQuestions_SERM)
+```
+
+
+<br>
+<br>
+
+## WorkHistory
+
+Participant Work History
+
+```{r}
+## load data
+WorkHistory <- read.csv(paste0(my_directory, "WorkHistory_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(WorkHistory,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(WorkHistory)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WorkHistory)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(WorkHistory)[sapply(WorkHistory, is.character)]
+WorkHistory[chrcols] <- lapply(WorkHistory[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+WorkHistory <- subset(WorkHistory,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(WorkHistory)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WorkHistory)
+```
+
+
+<br>
+<br>
+
+## WorkHistory_Family
+
+Participant Family Work History
+
+```{r}
+## load data
+WorkHistory_Family <- read.csv(paste0(my_directory, "WorkHistory_Family_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(WorkHistory_Family,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(WorkHistory_Family)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WorkHistory_Family)
+```
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(WorkHistory_Family)[sapply(WorkHistory_Family, is.character)]
+WorkHistory_Family[chrcols] <- lapply(WorkHistory_Family[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+WorkHistory_Family <- subset(WorkHistory_Family,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(WorkHistory_Family)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WorkHistory_Family)
+```
+
+
+<br>
+<br>
+
+## WRAP_to_DBID
+
+WRAP to DBID Identifier crosswalk table
+
+```{r}
+## load data
+WRAP_to_DBID <- read.csv(paste0(my_directory, "WRAP_to_DBID_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(WRAP_to_DBID,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(WRAP_to_DBID)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WRAP_to_DBID)
+```
+
+
+```{r}
+## drop update_stamp column
+WRAP_to_DBID <- subset(WRAP_to_DBID,select = -c(update_stamp))
+```
+
+
+```{r,eval=FALSE}
+str(WRAP_to_DBID)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(WRAP_to_DBID)
+```
+
+<br>
+<br>
+
+## Imaging_metadata
+
+WRAP Imaging Metadata
+
+```{r}
+## load data
+Imaging_metadata <- read.csv(paste0(my_directory, "Imaging_metadata_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+info(Imaging_metadata,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+str(Imaging_metadata)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Imaging_metadata)
+```
+
+
+
+```{r}
+## check table frequency for all variables
+
+## convert "" to NA for chr columns
+chrcols <- colnames(Imaging_metadata)[sapply(Imaging_metadata, is.character)]
+Imaging_metadata[chrcols] <- lapply(Imaging_metadata[chrcols], function(x) ifelse(x == "", NA, x))
+
+## drop update_stamp column
+Imaging_metadata <- subset(Imaging_metadata,select = -c(update_stamp))
+```
+
+
+
+```{r,eval=FALSE}
+str(Imaging_metadata)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Imaging_metadata)
+```
+
+
+<br>
+<br>
+
+
+# Merge Data
+
+```{r}
+# Get names of all data frames in the environment
+df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
+ 
+# Loop through each data frame
+for (df_name in df_names) {
+  # Get the actual data frame
+  df <- get(df_name)
+  # Check if columns ID and Visit exist
+  if (all(c("wrapnum", "VisNo") %in% colnames(df))) {
+    # Find duplicates using dplyr
+    dup_rows <- df %>% 
+      dplyr::group_by(wrapnum, VisNo) %>% 
+      dplyr::filter(n() > 1) %>% 
+      dplyr::ungroup()
+    # If any duplicates found, assign to new data frame with _Duplicates
+    if (nrow(dup_rows) > 0) {
+      new_name <- paste0("Duplicates_",df_name)
+      assign(new_name, dup_rows)
+      cat("Duplicates found and saved to:", new_name, "\n")
+    } else {
+      cat("No duplicates found in:", df_name, "\n")
+    }
+  } else {
+    cat("Skipping", df_name, "- ID and/or Visit column not found\n")
+  }
+}
+```
+
+
+```{r,eval=FALSE}
+## get the names of all data frames in the current environment
+df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
+
+# Initialize mergedDat with the first data frame
+mergedDat <- get(df_names[1])
+
+# Iteratively merge the rest
+for (i in 2:length(df_names)) {
+  mergedDat <- merge(mergedDat, get(df_names[i]), all = TRUE)
+}
+
+info(mergedDat,"wrapnum")
+```
+
+
+```{r,eval=FALSE}
+# Get all data frame names in the environment
+df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
+
+# Create the summary table
+df_summary <- data.frame(
+  Rows = sapply(df_names, function(x) nrow(get(x))),
+  Columns = sapply(df_names, function(x) ncol(get(x))),
+  Individuals = sapply(df_names, function(x) {
+    dat <- get(x)
+    length(unique(dat$wrapnum))
+  })
+)
+
+# Print the table
+print(df_summary)
+```
+
+

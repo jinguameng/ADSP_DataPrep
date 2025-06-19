@@ -1,0 +1,7 @@
+"0","## load data"
+"0","IADL <- read.csv(paste0(my_directory, ""IADL_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
+"0","info(IADL,""wrapnum"")"
+"1","#obs:5913, cols:17, inds:1496"
+"1"," "
+"1","
+"

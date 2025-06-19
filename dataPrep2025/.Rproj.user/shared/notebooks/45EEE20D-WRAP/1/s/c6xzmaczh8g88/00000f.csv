@@ -1,0 +1,7 @@
+"0","## load data"
+"0","Imaging_metadata <- read.csv(paste0(my_directory, ""Imaging_metadata_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
+"0","info(Imaging_metadata,""wrapnum"")"
+"1","#obs:14999, cols:45, inds:818"
+"1"," "
+"1","
+"

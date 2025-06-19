@@ -1,0 +1,7 @@
+"0","## load data"
+"0","MedHistory_Admit <- read.csv(paste0(my_directory, ""MedHistory_Admit_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
+"0","info(MedHistory_Admit,""wrapnum"")"
+"1","#obs:1052, cols:6, inds:603"
+"1"," "
+"1","
+"

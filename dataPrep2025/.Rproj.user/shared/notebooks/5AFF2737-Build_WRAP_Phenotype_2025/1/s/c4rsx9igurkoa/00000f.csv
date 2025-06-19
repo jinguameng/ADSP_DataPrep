@@ -1,0 +1,7 @@
+"0","## load data"
+"0","PFMB_SibWAD_or_OtherMemIssue <- read.csv(paste0(my_directory, ""PFMB_SibWAD_or_OtherMemIssue_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
+"0","info(PFMB_SibWAD_or_OtherMemIssue,""wrapnum"")"
+"1","#obs:297, cols:6, inds:175"
+"1"," "
+"1","
+"

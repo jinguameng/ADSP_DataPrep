@@ -1,0 +1,7 @@
+"0","## load data"
+"0","AnimalNaming_ItemLevel <- read.csv(paste0(my_directory, ""AnimalNaming_ItemLevel_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
+"0","info(AnimalNaming_ItemLevel,""wrapnum"")"
+"1","#obs:1096, cols:54, inds:944"
+"1"," "
+"1","
+"

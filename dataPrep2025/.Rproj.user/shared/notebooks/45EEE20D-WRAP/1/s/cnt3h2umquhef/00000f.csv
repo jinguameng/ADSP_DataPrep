@@ -1,0 +1,7 @@
+"0","## load data"
+"0","ConsensusConference <- read.csv(paste0(my_directory, ""ConsensusConference_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
+"0","info(ConsensusConference,""wrapnum"")"
+"1","#obs:8176, cols:96, inds:1808"
+"1"," "
+"1","
+"

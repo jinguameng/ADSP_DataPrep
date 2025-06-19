@@ -1,0 +1,7 @@
+"0","## load data"
+"0","DailyActivity <- read.csv(paste0(my_directory, ""DailyActivity_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
+"0","info(DailyActivity,""wrapnum"")"
+"1","#obs:1263, cols:85, inds:1263"
+"1"," "
+"1","
+"

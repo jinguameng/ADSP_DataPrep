@@ -1,0 +1,10 @@
+#Title
+#Alaina Durant - MM YYYY
+
+#directory
+directory <- "C:/Users/durantam/VUMC/Research - Hohman - CNT/"
+my_directory <- paste0(directory, "Team/Alaina_Durant/")
+
+#library and functions
+source(paste0(my_directory, "Scripts/load_libraries.R"))
+source(paste0(my_directory, "Scripts/load_functions.R"))

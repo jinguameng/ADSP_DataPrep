@@ -1,0 +1,11 @@
+name: "Brin Aging and Amyloid Chronicity"
+navbar:
+  title: "Brin Aging and Amyloid Chronicity"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Preliminary Analysis"
+      href: EDA.html
+    - text: "Main Analysis"
+      href: main.html
+

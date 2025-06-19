@@ -1,0 +1,8 @@
+"0","## check table frequency for all variables"
+"0",""
+"0","## convert """" to NA for chr columns"
+"0","chrcols <- colnames(MedHistory_Admit)[sapply(MedHistory_Admit, is.character)]"
+"0","MedHistory_Admit[chrcols] <- lapply(MedHistory_Admit[chrcols], function(x) ifelse(x == """", NA, x))"
+"0",""
+"0","## drop update_stamp column"
+"0","MedHistory_Admit <- subset(MedHistory_Admit,select = -c(update_stamp))"

@@ -1,0 +1,7 @@
+"0","## load data"
+"0","IQCode <- read.csv(paste0(my_directory, ""IQCode_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
+"0","info(IQCode,""wrapnum"")"
+"1","#obs:5896, cols:25, inds:1497"
+"1"," "
+"1","
+"

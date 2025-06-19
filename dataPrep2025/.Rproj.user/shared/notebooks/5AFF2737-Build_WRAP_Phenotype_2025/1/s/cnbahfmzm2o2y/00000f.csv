@@ -1,0 +1,7 @@
+"0","## load data"
+"0","fqryStatisticalData <- read.csv(paste0(my_directory, ""fqryStatisticalData_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
+"0","info(fqryStatisticalData,""wrapnum"")"
+"1","#obs:8212, cols:10, inds:1814"
+"1"," "
+"1","
+"

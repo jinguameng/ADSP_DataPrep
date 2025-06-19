@@ -1,0 +1,8 @@
+"0","## check table frequency for all variables"
+"0",""
+"0","## convert """" to NA for chr columns"
+"0","chrcols <- colnames(Med_Lab_PDC)[sapply(Med_Lab_PDC, is.character)]"
+"0","Med_Lab_PDC[chrcols] <- lapply(Med_Lab_PDC[chrcols], function(x) ifelse(x == """", NA, x))"
+"0",""
+"0","## drop update_stamp column"
+"0","Med_Lab_PDC <- subset(Med_Lab_PDC,select = -c(update_stamp))"

@@ -1,0 +1,4 @@
+"0","## check table frequency for all variables"
+"0",""
+"0","## drop update_stamp column"
+"0","CA_Genome <- subset(CA_Genome,select = -c(update_stamp))"

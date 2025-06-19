@@ -1,0 +1,4 @@
+"0","## check table frequency for all variables"
+"0",""
+"0","## drop update_stamp column"
+"0","APG <- subset(APG,select = -c(update_stamp))"
