@@ -1,7 +1,0 @@
-"0","## load data"
-"0","Morbidity_Mortality <- read.csv(paste0(my_directory, ""Morbidity_Mortality_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(Morbidity_Mortality,""wrapnum"")"
-"1","#obs:94, cols:18, inds:94"
-"1"," "
-"1","
-"

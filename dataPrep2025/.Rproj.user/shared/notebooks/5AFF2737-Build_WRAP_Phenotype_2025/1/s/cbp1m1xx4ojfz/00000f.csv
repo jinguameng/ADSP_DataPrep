@@ -1,7 +1,0 @@
-"0","## load data"
-"0","Gene_DataCollection <- read.csv(paste0(my_directory, ""Gene_DataCollection_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(Gene_DataCollection,""wrapnum"")"
-"1","#obs:1018, cols:15, inds:1018"
-"1"," "
-"1","
-"

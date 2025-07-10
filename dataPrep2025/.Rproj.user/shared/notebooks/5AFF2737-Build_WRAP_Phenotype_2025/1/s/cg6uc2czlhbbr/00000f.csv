@@ -1,7 +1,0 @@
-"0","## load data"
-"0","TICSM <- read.csv(paste0(my_directory, ""TICSM_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(TICSM,""wrapnum"")"
-"1","#obs:65, cols:45, inds:64"
-"1"," "
-"1","
-"

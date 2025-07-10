@@ -1,7 +1,0 @@
-"0","## load data"
-"0","MOCA <- read.csv(paste0(my_directory, ""MOCA_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(MOCA,""wrapnum"")"
-"1","#obs:316, cols:66, inds:309"
-"1"," "
-"1","
-"

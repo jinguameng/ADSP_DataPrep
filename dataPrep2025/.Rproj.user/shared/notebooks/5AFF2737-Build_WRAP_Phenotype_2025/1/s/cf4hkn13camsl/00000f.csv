@@ -1,4 +1,0 @@
-"0","## check table frequency for all variables"
-"0",""
-"0","## drop update_stamp column"
-"0","HeadInjuries <- subset(HeadInjuries,select = -c(update_stamp)) ## 4 columns left"

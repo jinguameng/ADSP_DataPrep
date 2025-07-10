@@ -1,7 +1,0 @@
-"0","## load data"
-"0","QuickDementia <- read.csv(paste0(my_directory, ""QuickDementia_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(QuickDementia,""wrapnum"")"
-"1","#obs:3006, cols:23, inds:1303"
-"1"," "
-"1","
-"

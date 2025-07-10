@@ -1,7 +1,0 @@
-"0","## load data"
-"0","MIND_Diet_ScoredValues <- read.csv(paste0(my_directory, ""MIND_Diet_ScoredValues_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(MIND_Diet_ScoredValues,""wrapnum"")"
-"1","#obs:3621, cols:22, inds:1416"
-"1"," "
-"1","
-"

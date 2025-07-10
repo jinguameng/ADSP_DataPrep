@@ -1,7 +1,0 @@
-"0","## load data"
-"0","APG <- read.csv(paste0(my_directory, ""APG_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(APG,""wrapnum"")"
-"1","#obs:1638, cols:7, inds:1638"
-"1"," "
-"1","
-"

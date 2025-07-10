@@ -1,7 +1,0 @@
-"0","## load data"
-"0","PersFamMedBack <- read.csv(paste0(my_directory, ""PersFamMedBack_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(PersFamMedBack,""wrapnum"")"
-"1","#obs:8176, cols:50, inds:1802"
-"1"," "
-"1","
-"

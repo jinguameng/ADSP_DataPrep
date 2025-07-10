@@ -1,4 +1,0 @@
-"0","## check table frequency for all variables"
-"0",""
-"0","## drop update_stamp column"
-"0","CompositeScoreCalcValues <- subset(CompositeScoreCalcValues,select = -c(update_stamp)) ## 16 columns left"
