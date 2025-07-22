@@ -1,7 +1,0 @@
-"0","## load data"
-"0","LearningDifficulties <- read.csv(paste0(my_directory, ""LearningDifficulties_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(LearningDifficulties,""wrapnum"")"
-"1","#obs:213, cols:27, inds:204"
-"1"," "
-"1","
-"

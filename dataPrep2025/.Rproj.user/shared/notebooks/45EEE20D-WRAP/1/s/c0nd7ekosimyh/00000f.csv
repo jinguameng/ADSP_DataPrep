@@ -1,4 +1,0 @@
-"0","## check table frequency for all variables"
-"0",""
-"0","## drop update_stamp column"
-"0","Abnormal_Factor_Flags_long <- subset(Abnormal_Factor_Flags_long,select = -c(update_stamp)) ## 6 columns left"

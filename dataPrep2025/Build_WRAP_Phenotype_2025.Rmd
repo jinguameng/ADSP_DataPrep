@@ -27,8 +27,17 @@ my_directory <- paste0(directory, "ADSP_DataPrep_local/WRAP/Phenotype/2025/Raw/"
 # Load Packages
 ```{r,message=FALSE,warning=FALSE}
 require(dplyr)
+require(tidyr)
+require(stringr)
+```
+
+<br>
+
+# Load Helper Scripts
+```{r}
 source("/Users/mengnazhang/Desktop/ADSP_DataPrep/dataPrep2025/helperScripts.R")
 ```
+
 
 <br>
 <br>
@@ -1788,6 +1797,7 @@ str(MIND_Diet)
 
 MIND Diet Scored Values
 
+This dataset is exactly same as the NIND_Diet dataset. So I won't be including this file when do the final merge
 ```{r}
 ## load data
 MIND_Diet_ScoredValues <- read.csv(paste0(my_directory, "MIND_Diet_ScoredValues_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
@@ -2783,8 +2793,6 @@ str(Imaging_metadata)
 str(Imaging_metadata)
 ```
 
-
-
 ```{r}
 ## check table frequency for all variables
 
@@ -2809,16 +2817,49 @@ str(Imaging_metadata)
 
 
 <br>
-<br>
 
 
-# Merge Data
+# Get Sub-Dataset Names
+```{r}
+df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
+```
+
+
+# Duplicates Handling
+
+## Duplicates Detection
 
 ```{r}
 # Get names of all data frames in the environment
 df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
- 
+dfwithDuplicates <- c()
+
+## CODE provided by Alaina
 # Loop through each data frame
+# for (df_name in df_names) {
+#   # Get the actual data frame
+#   df <- get(df_name)
+#   # Check if columns ID and Visit exist
+#   if (all(c("wrapnum", "VisNo") %in% colnames(df))) {
+#     # Find duplicates using dplyr
+#     dup_rows <- df %>% 
+#       dplyr::group_by(wrapnum, VisNo) %>% 
+#       dplyr::filter(n() > 1) %>% 
+#       dplyr::ungroup()
+#     # If any duplicates found, assign to new data frame with _Duplicates
+#     if (nrow(dup_rows) > 0) {
+#       new_name <- paste0("Duplicates_",df_name)
+#       assign(new_name, dup_rows)
+#       cat("Duplicates found and saved to:", new_name, "\n")
+#     } else {
+#       cat("No duplicates found in:", df_name, "\n")
+#     }
+#   } else {
+#     cat("Skipping", df_name, "- ID and/or Visit column not found\n")
+#   }
+# }
+
+## Modified Code
 for (df_name in df_names) {
   # Get the actual data frame
   df <- get(df_name)
@@ -2831,9 +2872,9 @@ for (df_name in df_names) {
       dplyr::ungroup()
     # If any duplicates found, assign to new data frame with _Duplicates
     if (nrow(dup_rows) > 0) {
-      new_name <- paste0("Duplicates_",df_name)
-      assign(new_name, dup_rows)
-      cat("Duplicates found and saved to:", new_name, "\n")
+      
+      dfwithDuplicates <- c(dfwithDuplicates,df_name)
+      
     } else {
       cat("No duplicates found in:", df_name, "\n")
     }
@@ -2844,38 +2885,594 @@ for (df_name in df_names) {
 ```
 
 
-```{r,eval=FALSE}
-## get the names of all data frames in the current environment
-df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
+check each skipped file, making sure there is no duplicates
 
-# Initialize mergedDat with the first data frame
-mergedDat <- get(df_names[1])
-
-# Iteratively merge the rest
-for (i in 2:length(df_names)) {
-  mergedDat <- merge(mergedDat, get(df_names[i]), all = TRUE)
+```{r}
+for (datname in c("Abnormal_Factor_Flags_wide","APG","CA_Genome","CERAD","Demographics","Gene_DataCollection","Imaging_metadata","Morbidity_Mortality","WorkHistory","WorkHistory_Family","WRAP_to_DBID")) {
+  
+  dat <- get(datname)
+  
+  cat(datname,": ", length(unique(dat[["wrapnum"]])) == nrow(dat),"\n")
 }
 
-info(mergedDat,"wrapnum")
 ```
 
 
-```{r,eval=FALSE}
-# Get all data frame names in the environment
-df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
-
-# Create the summary table
-df_summary <- data.frame(
-  Rows = sapply(df_names, function(x) nrow(get(x))),
-  Columns = sapply(df_names, function(x) ncol(get(x))),
-  Individuals = sapply(df_names, function(x) {
-    dat <- get(x)
-    length(unique(dat$wrapnum))
-  })
-)
-
-# Print the table
-print(df_summary)
+```{r}
+print(dfwithDuplicates)
 ```
 
+## Duplicates Handling Per Study
+
+###  Imaging_metadata
+
+```{r}
+## the imaging_visit is coded inconsistenly across the observations, so I generated a new numeric column for visit index
+Imaging_metadata <- Imaging_metadata %>%
+  mutate(
+    VisNo = str_extract(imaging_visit, "\\d+") %>% as.numeric()
+  )
+
+## group by subject ID and visit index, we are going to retain only one obs per group. The selection criteria is as following: 
+## 1. pick the obs with least missing values
+## 2. if same, then randomly pick one
+
+Imaging_metadata <- Imaging_metadata %>%
+  mutate(missing_count = rowSums(is.na(.))) %>%  # Count missing values per row
+  group_by(wrapnum, VisNo) %>%
+  arrange(missing_count) %>%
+  slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %>%
+  ungroup() %>%
+  select(-missing_count)  # Remove helper column
+
+info(Imaging_metadata,"wrapnum")
+```
+
+
+<br>
+
+### WorkHistory
+
+```{r}
+## check unique values for each columns, for columns with just one unique value,
+## we leave it out from the pivot_wider function
+result <- lapply(names(WorkHistory), function(x) {
+  cat(x, " ", length(unique(WorkHistory[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(WorkHistory),"\n")
+
+tmp <- WorkHistory %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo),
+    names_from = work_history_repeat_key,
+    values_from = c(JobYrs:OccZone),
+    names_sep = "_"
+  )
+## drop columns if all obs are missing
+WorkHistory <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(WorkHistory),"\n")
+
+```
+
+<br>
+
+
+### HeadInjurySub
+
+```{r}
+## check unique values for each columns, for columns with just one unique value,
+## we leave it out from the pivot_wider function
+result <- lapply(names(HeadInjurySub), function(x) {
+  cat(x, " ", length(unique(HeadInjurySub[[x]])), "\n")
+})
+```
+
+
+```{r}
+cat("Before duplicates handling: ",dim(HeadInjurySub),"\n")
+
+tmp <- HeadInjurySub %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = RowNumber,
+    values_from = c(agehi:cognow),
+    names_sep = "_"
+  )
+## drop columns if all obs are missing
+HeadInjurySub <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(HeadInjurySub),"\n")
+
+```
+
+
+<br>
+
+### Med_Lab_NPDC
+
+```{r}
+result <- lapply(names(Med_Lab_NPDC), function(x) {
+  cat(x, " ", length(unique(Med_Lab_NPDC[[x]])), "\n")
+})
+```
+
+
+```{r}
+cat("Before duplicates handling: ",dim(Med_Lab_NPDC),"\n")
+
+tmp <- Med_Lab_NPDC %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = npdc_repeat_key,
+    values_from = c(npdcd:npdcclass),
+    names_sep = "_"
+  )
+## drop columns if all obs are missing
+Med_Lab_NPDC <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(Med_Lab_NPDC),"\n")
+```
+
+<br>
+
+### Med_Lab_PDC
+
+```{r}
+result <- lapply(names(Med_Lab_PDC), function(x) {
+  cat(x, " ", length(unique(Med_Lab_PDC[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(Med_Lab_PDC),"\n")
+
+tmp <- Med_Lab_PDC %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = pdc_repeat_key,
+    values_from = c(pdcd:pdcclass),
+    names_sep = "_"
+  )
+## drop columns if all obs are missing
+Med_Lab_PDC <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(Med_Lab_PDC),"\n")
+```
+
+<br>
+
+### MedHistory_Admit
+
+```{r}
+result <- lapply(names(MedHistory_Admit), function(x) {
+  cat(x, " ", length(unique(MedHistory_Admit[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(MedHistory_Admit),"\n")
+
+tmp <- MedHistory_Admit %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = AdmitS_Repeat_Key,
+    values_from = c(AdmitSRsn),
+    names_prefix = "AdmitSRsn_"
+  )
+## drop columns if all obs are missing
+MedHistory_Admit <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(MedHistory_Admit),"\n")
+```
+
+<br>
+
+### MedHistory_SurgBF
+
+```{r}
+result <- lapply(names(MedHistory_SurgBF), function(x) {
+  cat(x, " ", length(unique(MedHistory_SurgBF[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(MedHistory_SurgBF),"\n")
+
+tmp <- MedHistory_SurgBF %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = SurgBF_Repeat_Key,
+    values_from = c(SurgBfRsn),
+    names_prefix = "SurgBfRsn_"
+  )
+## drop columns if all obs are missing
+MedHistory_SurgBF <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(MedHistory_SurgBF),"\n")
+```
+
+<br>
+
+### MedHistory_SurgS
+
+```{r}
+result <- lapply(names(MedHistory_SurgS), function(x) {
+  cat(x, " ", length(unique(MedHistory_SurgS[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(MedHistory_SurgS),"\n")
+
+tmp <- MedHistory_SurgS %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = SurgS_Repeat_Key,
+    values_from = c(SurgSRsn),
+    names_prefix = "SurgSRsn_"
+  )
+## drop columns if all obs are missing
+MedHistory_SurgS <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(MedHistory_SurgS),"\n")
+```
+
+<br>
+
+### PFMB_SibWAD_or_OtherMemIssue
+
+```{r}
+result <- lapply(names(PFMB_SibWAD_or_OtherMemIssue), function(x) {
+  cat(x, " ", length(unique(PFMB_SibWAD_or_OtherMemIssue[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(PFMB_SibWAD_or_OtherMemIssue),"\n")
+
+tmp <- PFMB_SibWAD_or_OtherMemIssue %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = FH7SiblingWithAD_OtherMemIssue_Repeat_Key,
+    values_from = c(FH7BS1),
+    names_prefix = "FH7BS1_"
+  )
+## drop columns if all obs are missing
+PFMB_SibWAD_or_OtherMemIssue <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(PFMB_SibWAD_or_OtherMemIssue),"\n")
+```
+
+<br>
+
+### Sleep_MentalAct_OthDevice
+
+```{r}
+result <- lapply(names(Sleep_MentalAct_OthDevice), function(x) {
+  cat(x, " ", length(unique(Sleep_MentalAct_OthDevice[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(Sleep_MentalAct_OthDevice),"\n")
+
+tmp <- Sleep_MentalAct_OthDevice %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = oth_device_repeat_key,
+    values_from = c(SA_OthDevFrq),
+    names_prefix = "SA_OthDevFrq_"
+  )
+## drop columns if all obs are missing
+Sleep_MentalAct_OthDevice <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(Sleep_MentalAct_OthDevice),"\n")
+```
+
+<br>
+
+### WomenQuestions_BCP
+
+```{r}
+result <- lapply(names(WomenQuestions_BCP), function(x) {
+  cat(x, " ", length(unique(WomenQuestions_BCP[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(WomenQuestions_BCP),"\n")
+
+tmp <- WomenQuestions_BCP %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = BCP_Repeat_Key,
+    values_from = c(BCPName:BCPSide),
+    names_sep = "_"
+  )
+## drop columns if all obs are missing
+WomenQuestions_BCP <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(WomenQuestions_BCP),"\n")
+```
+
+
+<br>
+
+### WomenQuestions_Current_HormoneTherapy
+
+```{r}
+result <- lapply(names(WomenQuestions_Current_HormoneTherapy), function(x) {
+  cat(x, " ", length(unique(WomenQuestions_Current_HormoneTherapy[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(WomenQuestions_Current_HormoneTherapy),"\n")
+
+tmp <- WomenQuestions_Current_HormoneTherapy %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = Cur_HT_Repeat_Key,
+    values_from = c(CurMed:CurSide),
+    names_sep = "_"
+  )
+## drop columns if all obs are missing
+WomenQuestions_Current_HormoneTherapy <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(WomenQuestions_Current_HormoneTherapy),"\n")
+```
+
+<br>
+
+### WomenQuestions_NonPresc_HormoneTherapy
+
+```{r}
+result <- lapply(names(WomenQuestions_NonPresc_HormoneTherapy), function(x) {
+  cat(x, " ", length(unique(WomenQuestions_NonPresc_HormoneTherapy[[x]])), "\n")
+})
+```
+
+
+```{r}
+cat("Before duplicates handling: ",dim(WomenQuestions_NonPresc_HormoneTherapy),"\n")
+
+tmp <- WomenQuestions_NonPresc_HormoneTherapy %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = NonPresc_HT_Repeat_Key,
+    values_from = c(Horm:HormSide),
+    names_sep = "_"
+  )
+## drop columns if all obs are missing
+WomenQuestions_NonPresc_HormoneTherapy <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(WomenQuestions_NonPresc_HormoneTherapy),"\n")
+```
+
+<br>
+
+### WomenQuestions_Past_HormoneTherapy
+
+```{r}
+result <- lapply(names(WomenQuestions_Past_HormoneTherapy), function(x) {
+  cat(x, " ", length(unique(WomenQuestions_Past_HormoneTherapy[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(WomenQuestions_Past_HormoneTherapy),"\n")
+
+tmp <- WomenQuestions_Past_HormoneTherapy %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = Past_HT_Repeat_Key,
+    values_from = c(PastMed:PastStop),
+    names_sep = "_"
+  )
+## drop columns if all obs are missing
+WomenQuestions_Past_HormoneTherapy <- tmp[, colSums(!is.na(tmp)) > 0]
+
+cat("After duplicates handling: ",dim(WomenQuestions_Past_HormoneTherapy),"\n")
+```
+
+
+<br>
+
+### WomenQuestions_SERM
+
+```{r}
+result <- lapply(names(WomenQuestions_SERM), function(x) {
+  cat(x, " ", length(unique(WomenQuestions_SERM[[x]])), "\n")
+})
+```
+
+```{r}
+cat("Before duplicates handling: ",dim(WomenQuestions_SERM),"\n")
+
+tmp <- WomenQuestions_SERM %>%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo,SERMType),
+    names_from = SERM_Repeat_Key,
+    values_from = c(SERM:SERMSide,-SERMType),
+    names_sep = "_"
+  )
+## drop columns if all obs are missing
+WomenQuestions_SERM <- tmp[, colSums(!is.na(tmp)) > 0 | names(tmp) %in% c("SERMType")]
+
+cat("After duplicates handling: ",dim(WomenQuestions_SERM),"\n")
+```
+
+<br>
+<br>
+
+
+# Common Columns Detection
+```{r}
+commonColsDetect(df_names)
+```
+
+<br>
+
+## Remove Explanation Column from all Datasets
+
+```{r}
+## This column is recording the WRAP webseite link. We remove it to avoid duplicated cases in the merge step
+for (df_name in df_names) {
+  if ("Explanation" %in% names(get(df_name))) {
+    assign(df_name, get(df_name)[ , !(names(get(df_name)) %in% "Explanation") ])
+  }
+}
+```
+
+
+## Med_Lab_PDC | Med_Lab_NPDC
+```{r}
+## the common columns between these two data framed are caused by the piovot_wider, mg is the Dose measurement
+intersect(names(Med_Lab_PDC),names(Med_Lab_NPDC))
+```
+
+```{r}
+## I decided to add prefix in each file
+colnames(Med_Lab_PDC)[grepl("^mg_", colnames(Med_Lab_PDC))] <- paste0("PDC", colnames(Med_Lab_PDC)[grepl("^mg_", colnames(Med_Lab_PDC))])
+
+colnames(Med_Lab_NPDC)[grepl("^mg_", colnames(Med_Lab_NPDC))] <- paste0("NPDC", colnames(Med_Lab_NPDC)[grepl("^mg_", colnames(Med_Lab_NPDC))])
+
+```
+
+<br>
+
+## IQCode | IADL | CDR | QuickDementia
+
+```{r}
+intersect(names(IQCode),names(IADL))
+```
+
+```{r}
+intersect(names(CDR),names(IADL))
+```
+
+```{r}
+intersect(names(CDR),names(QuickDementia))
+```
+
+```{r}
+## add prefix to IQCode and IADL
+tNames <- intersect(names(IQCode),names(IADL))[4:8]
+colnames(IQCode)[colnames(IQCode) %in% tNames] <-  paste0("IQCode_", colnames(IQCode)[colnames(IQCode) %in% tNames])
+colnames(IADL)[colnames(IADL) %in% tNames] <-  paste0("IADL_", colnames(IADL)[colnames(IADL) %in% tNames])
+
+## add prefix to CDR and QuickDementia as well
+tNames2 <- tNames[2:5]
+colnames(QuickDementia)[colnames(QuickDementia) %in% tNames2] <-  paste0("QuickDementia_", colnames(QuickDementia)[colnames(QuickDementia) %in% tNames2])
+colnames(CDR)[colnames(CDR) %in% tNames2] <-  paste0("CDR_", colnames(CDR)[colnames(CDR) %in% tNames2])
+
+## rerun the Common Columns Detection code
+commonColsDetect(df_names)
+```
+
+
+<br>
+
+## NeuropsychScores | CompositeScoreCalcValues
+
+```{r}
+intersect(names(NeuropsychScores),names(CompositeScoreCalcValues))
+```
+
+```{r}
+## add prefix to CompositeScoreCalcValues
+tNames <- c("flucfl","drraw","stroocw","stroocwe","trlb")
+colnames(CompositeScoreCalcValues)[colnames(CompositeScoreCalcValues) %in% tNames] <-  paste0("CompositeScoreCalcValues_", colnames(CompositeScoreCalcValues)[colnames(CompositeScoreCalcValues) %in% tNames])
+```
+
+<br>
+
+## IADL | GenHealthDailyAct
+
+```{r}
+intersect(names(IADL),names(GenHealthDailyAct))
+```
+
+```{r}
+## add prefix to GenHealthDailyAct
+colnames(GenHealthDailyAct)[colnames(GenHealthDailyAct) == "Money"] <- "GenHealthDailyAct_Money"
+```
+<br>
+
+## Morbidity_Mortality | GenHealthDailyAct
+
+```{r}
+intersect(names(Morbidity_Mortality),names(GenHealthDailyAct))
+```
+
+```{r}
+colnames(GenHealthDailyAct)[colnames(GenHealthDailyAct) == "MemProb"] <- "GenHealthDailyAct_MemProb"
+```
+
+<br>
+
+## NeuropsychScores | Demographics
+
+```{r}
+intersect(names(NeuropsychScores),names(Demographics))
+```
+
+```{r}
+colnames(NeuropsychScores)[colnames(NeuropsychScores) == "interv"] <- "NeuropsychScores_interv"
+```
+
+<br>
+
+## PersFamMedBack | Demographics
+
+```{r}
+intersect(names(PersFamMedBack),names(Demographics))
+
+## I did not modify anything here since gender has same coding on these two datasets
+```
+
+<br>
+
+## Imaging_metadata | fqryStatisticalData
+
+```{r}
+intersect(names(Imaging_metadata),names(fqryStatisticalData))
+```
+
+```{r}
+colnames(Imaging_metadata)[colnames(Imaging_metadata) == "Days_Since_Baseline"] <- "Imaging_metadata_Since_Baseline"
+```
+
+
+<br>
+<br>
+
+
+# Merge Sub-Datasets
+
+Exclude the MIND_Diet_ScoreValues as this exactly the same as the MIND_Diet data frame.
+
+```{r}
+# Start with the first dataset
+
+remove <- c("MIND_Diet_ScoredValues") ## this dataset is exactly same as MIND_Diet
+df_names2 <- setdiff(df_names,remove)
+
+merged_data <- get(df_names2[1])
+cat("Info for", df_names2[1], ":\n")
+info(get(df_names2[1]), "wrapnum")
+
+for (i in 2:length(df_names2)) {
+  merged_data <- merge_with_info(merged_data, df_names2[i], id_col = "wrapnum")
+}
+```
+
+```{r}
+## clean space: remove everything except final merged data frame
+rm(list = setdiff(ls(), "merged_data"))
+```
 

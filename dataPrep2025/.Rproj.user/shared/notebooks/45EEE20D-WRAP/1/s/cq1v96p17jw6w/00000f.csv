@@ -1,7 +1,0 @@
-"0","## load data"
-"0","CES_D_Scale <- read.csv(paste0(my_directory, ""CES_D_Scale_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(CES_D_Scale,""wrapnum"")"
-"1","#obs:6566, cols:25, inds:1590"
-"1"," "
-"1","
-"

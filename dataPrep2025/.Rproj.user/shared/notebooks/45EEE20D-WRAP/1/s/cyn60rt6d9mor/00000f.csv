@@ -1,5 +1,0 @@
-"0","## convert """" to NA for column OverImp"
-"0","CERAD$OverImp[CERAD$OverImp == """"] <- NA"
-"0",""
-"0","## drop update_stamp column"
-"0","CERAD <- subset(CERAD,select = -c(update_stamp)) ## 19 columns left"

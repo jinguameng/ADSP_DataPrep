@@ -35,6 +35,15 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -356,7 +365,13 @@ my_directory &lt;- paste0(directory, &quot;ADSP_DataPrep_local/WRAP/Phenotype/20
 <div id="load-packages" class="section level1">
 <h1>Load Packages</h1>
 <pre class="r"><code>require(dplyr)
-source(&quot;/Users/mengnazhang/Desktop/ADSP_DataPrep/dataPrep2025/helperScripts.R&quot;)</code></pre>
+require(tidyr)
+require(stringr)</code></pre>
+<p><br></p>
+</div>
+<div id="load-helper-scripts" class="section level1">
+<h1>Load Helper Scripts</h1>
+<pre class="r"><code>source(&quot;/Users/mengnazhang/Desktop/ADSP_DataPrep/dataPrep2025/helperScripts.R&quot;)</code></pre>
 <p><br> <br></p>
 </div>
 <div id="variable-check-per-file" class="section level1">
@@ -4591,6 +4606,8 @@ Click for details
 <div id="mind_diet_scoredvalues" class="section level2">
 <h2>MIND_Diet_ScoredValues</h2>
 <p>MIND Diet Scored Values</p>
+<p>This dataset is exactly same as the NIND_Diet dataset. So I won’t be
+including this file when do the final merge</p>
 <pre class="r"><code>## load data
 MIND_Diet_ScoredValues &lt;- read.csv(paste0(my_directory, &quot;MIND_Diet_ScoredValues_05Jun2025.csv&quot;),stringsAsFactors = FALSE) %&gt;% as.data.frame()
 info(MIND_Diet_ScoredValues,&quot;wrapnum&quot;)</code></pre>
@@ -6634,15 +6651,47 @@ Click for details
 ##  $ SoftwareVersion            : chr  NA NA NA NA ...
 ##  $ LONIImageID                : int  10896049 10920338 10914935 10914941 10920337 10920330 10914934 10914933 10914942 10914931 ...
 ##  $ CorrectedImage             : chr  NA NA NA NA ...</code></pre>
-<p><br> <br></p>
+<p><br></p>
 </div>
 </div>
-<div id="merge-data" class="section level1">
-<h1>Merge Data</h1>
+<div id="get-sub-dataset-names" class="section level1">
+<h1>Get Sub-Dataset Names</h1>
+<pre class="r"><code>df_names &lt;- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]</code></pre>
+</div>
+<div id="duplicates-handling" class="section level1">
+<h1>Duplicates Handling</h1>
+<div id="duplicates-detection" class="section level2">
+<h2>Duplicates Detection</h2>
 <pre class="r"><code># Get names of all data frames in the environment
 df_names &lt;- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
- 
+dfwithDuplicates &lt;- c()
+
+## CODE provided by Alaina
 # Loop through each data frame
+# for (df_name in df_names) {
+#   # Get the actual data frame
+#   df &lt;- get(df_name)
+#   # Check if columns ID and Visit exist
+#   if (all(c(&quot;wrapnum&quot;, &quot;VisNo&quot;) %in% colnames(df))) {
+#     # Find duplicates using dplyr
+#     dup_rows &lt;- df %&gt;% 
+#       dplyr::group_by(wrapnum, VisNo) %&gt;% 
+#       dplyr::filter(n() &gt; 1) %&gt;% 
+#       dplyr::ungroup()
+#     # If any duplicates found, assign to new data frame with _Duplicates
+#     if (nrow(dup_rows) &gt; 0) {
+#       new_name &lt;- paste0(&quot;Duplicates_&quot;,df_name)
+#       assign(new_name, dup_rows)
+#       cat(&quot;Duplicates found and saved to:&quot;, new_name, &quot;\n&quot;)
+#     } else {
+#       cat(&quot;No duplicates found in:&quot;, df_name, &quot;\n&quot;)
+#     }
+#   } else {
+#     cat(&quot;Skipping&quot;, df_name, &quot;- ID and/or Visit column not found\n&quot;)
+#   }
+# }
+
+## Modified Code
 for (df_name in df_names) {
   # Get the actual data frame
   df &lt;- get(df_name)
@@ -6655,9 +6704,9 @@ for (df_name in df_names) {
       dplyr::ungroup()
     # If any duplicates found, assign to new data frame with _Duplicates
     if (nrow(dup_rows) &gt; 0) {
-      new_name &lt;- paste0(&quot;Duplicates_&quot;,df_name)
-      assign(new_name, dup_rows)
-      cat(&quot;Duplicates found and saved to:&quot;, new_name, &quot;\n&quot;)
+      
+      dfwithDuplicates &lt;- c(dfwithDuplicates,df_name)
+      
     } else {
       cat(&quot;No duplicates found in:&quot;, df_name, &quot;\n&quot;)
     }
@@ -6665,133 +6714,1012 @@ for (df_name in df_names) {
     cat(&quot;Skipping&quot;, df_name, &quot;- ID and/or Visit column not found\n&quot;)
   }
 }</code></pre>
-<pre><code>## Skipping AAAD_GERIAT - ID and/or Visit column not found
-## Skipping AAAD_MEDCON - ID and/or Visit column not found
-## Skipping AAAD_SOCIO_DEMO - ID and/or Visit column not found
-## Skipping AAAD_TRAILS - ID and/or Visit column not found
-## No duplicates found in: Abnormal_Factor_Flags_long 
+<pre><code>## No duplicates found in: Abnormal_Factor_Flags_long 
 ## Skipping Abnormal_Factor_Flags_wide - ID and/or Visit column not found
-## Skipping ALZ_B9_JUDGE_RC - ID and/or Visit column not found
-## Skipping ALZ_CLINICALSUM - ID and/or Visit column not found
-## Skipping ALZ_CSDD - ID and/or Visit column not found
-## Skipping ALZ_EXAM - ID and/or Visit column not found
-## Skipping ALZ_GAI_SP - ID and/or Visit column not found
-## Skipping ALZ_LOAD_COG - ID and/or Visit column not found
-## Skipping ALZ_NCRAD - ID and/or Visit column not found
-## Skipping ALZ_NEURO_CDR - ID and/or Visit column not found
-## Skipping ALZ_NPIQ_CBRS - ID and/or Visit column not found
-## Skipping ALZ_RPFQ - ID and/or Visit column not found
-## Skipping ALZ_SCREENING - ID and/or Visit column not found
-## Skipping ALZ_SCREENING_RC - ID and/or Visit column not found
-## Skipping ALZ_STICK_D_RC - ID and/or Visit column not found
 ## No duplicates found in: AnimalNaming_ItemLevel 
 ## Skipping APG - ID and/or Visit column not found
 ## No duplicates found in: AVLTPositionScores 
-## Skipping B4_CDR_RC - ID and/or Visit column not found
-## Skipping B5_NPIQ_RC - ID and/or Visit column not found
-## Skipping B6_GDS_RC - ID and/or Visit column not found
-## Skipping B7_FAS_RC - ID and/or Visit column not found
-## Skipping BCF_RECOG_RC - ID and/or Visit column not found
-## Skipping BCFCD_RC - ID and/or Visit column not found
-## Skipping BCFCI_RC - ID and/or Visit column not found
 ## No duplicates found in: BehavioralObservationChecklist 
-## Skipping BILINGUAL_SCALE_RC - ID and/or Visit column not found
 ## Skipping CA_Genome - ID and/or Visit column not found
-## Skipping CAT_FLUENCY_RC - ID and/or Visit column not found
 ## No duplicates found in: CDR 
 ## Skipping CERAD - ID and/or Visit column not found
-## Skipping CERAD_DEL_RC - ID and/or Visit column not found
-## Skipping CERAD_IMM_RC - ID and/or Visit column not found
-## Skipping CERAD_RECOG_RC - ID and/or Visit column not found
 ## No duplicates found in: CES_D_Scale 
 ## No duplicates found in: CHAMPS 
 ## No duplicates found in: CogStateData 
 ## No duplicates found in: CompositeScoreCalcValues 
 ## No duplicates found in: CompositeScores 
-## Skipping CONSENSUS_DX - ID and/or Visit column not found
 ## No duplicates found in: ConsensusConference 
-## Skipping CRAFT_21_DEL_RC - ID and/or Visit column not found
-## Skipping CRAFT_21_IMM_RC - ID and/or Visit column not found
 ## No duplicates found in: DailyActivity 
-## Skipping DD_AAAD_MEDCON - ID and/or Visit column not found
 ## Skipping Demographics - ID and/or Visit column not found
-## Skipping dismatchChrs - ID and/or Visit column not found
 ## No duplicates found in: FactorScores 
 ## No duplicates found in: fqryStatisticalData 
 ## Skipping Gene_DataCollection - ID and/or Visit column not found
 ## No duplicates found in: GenHealthDailyAct 
 ## No duplicates found in: HeadInjuries 
-## Duplicates found and saved to: Duplicates_HeadInjurySub 
 ## No duplicates found in: IADL 
 ## Skipping Imaging_metadata - ID and/or Visit column not found
 ## No duplicates found in: IQCode 
 ## No duplicates found in: LearningDifficulties 
 ## No duplicates found in: LIBRA 
 ## No duplicates found in: Med_Lab 
-## Duplicates found and saved to: Duplicates_Med_Lab_NPDC 
-## Duplicates found and saved to: Duplicates_Med_Lab_PDC 
-## Skipping MEDCON_RC - ID and/or Visit column not found
 ## No duplicates found in: MedHistory 
-## Duplicates found and saved to: Duplicates_MedHistory_Admit 
-## Duplicates found and saved to: Duplicates_MedHistory_SurgBF 
-## Duplicates found and saved to: Duplicates_MedHistory_SurgS 
-## Skipping MEDICAL_HIST - ID and/or Visit column not found
 ## No duplicates found in: MIND_Diet 
 ## No duplicates found in: MIND_Diet_ScoredValues 
-## Skipping MINT_RC - ID and/or Visit column not found
-## Skipping MINT_SP_RC - ID and/or Visit column not found
-## Skipping mismatchNums - ID and/or Visit column not found
 ## No duplicates found in: MOCA 
-## Skipping MOCA_RC - ID and/or Visit column not found
 ## Skipping Morbidity_Mortality - ID and/or Visit column not found
 ## No duplicates found in: NeuropsychScores 
-## Skipping NUMBER_SPAN_RC - ID and/or Visit column not found
-## Skipping numcolsFromDD - ID and/or Visit column not found
 ## No duplicates found in: PersFamMedBack 
-## Duplicates found and saved to: Duplicates_PFMB_SibWAD_or_OtherMemIssue 
 ## No duplicates found in: QuickDementia 
 ## No duplicates found in: RobustNormZScores 
 ## No duplicates found in: Sleep_MentalAct 
-## Duplicates found and saved to: Duplicates_Sleep_MentalAct_OthDevice 
 ## No duplicates found in: SubjectiveHearing 
 ## No duplicates found in: TICSM 
 ## No duplicates found in: VisitVitals 
 ## No duplicates found in: WomenQuestions 
-## Duplicates found and saved to: Duplicates_WomenQuestions_BCP 
-## Duplicates found and saved to: Duplicates_WomenQuestions_Current_HormoneTherapy 
-## Duplicates found and saved to: Duplicates_WomenQuestions_NonPresc_HormoneTherapy 
-## Duplicates found and saved to: Duplicates_WomenQuestions_Past_HormoneTherapy 
-## Duplicates found and saved to: Duplicates_WomenQuestions_SERM 
 ## Skipping WorkHistory - ID and/or Visit column not found
 ## Skipping WorkHistory_Family - ID and/or Visit column not found
 ## Skipping WRAP_to_DBID - ID and/or Visit column not found</code></pre>
-<pre class="r"><code>## get the names of all data frames in the current environment
-df_names &lt;- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
+<p>check each skipped file, making sure there is no duplicates</p>
+<pre class="r"><code>for (datname in c(&quot;Abnormal_Factor_Flags_wide&quot;,&quot;APG&quot;,&quot;CA_Genome&quot;,&quot;CERAD&quot;,&quot;Demographics&quot;,&quot;Gene_DataCollection&quot;,&quot;Imaging_metadata&quot;,&quot;Morbidity_Mortality&quot;,&quot;WorkHistory&quot;,&quot;WorkHistory_Family&quot;,&quot;WRAP_to_DBID&quot;)) {
+  
+  dat &lt;- get(datname)
+  
+  cat(datname,&quot;: &quot;, length(unique(dat[[&quot;wrapnum&quot;]])) == nrow(dat),&quot;\n&quot;)
+}</code></pre>
+<pre><code>## Abnormal_Factor_Flags_wide :  TRUE 
+## APG :  TRUE 
+## CA_Genome :  TRUE 
+## CERAD :  TRUE 
+## Demographics :  TRUE 
+## Gene_DataCollection :  TRUE 
+## Imaging_metadata :  FALSE 
+## Morbidity_Mortality :  TRUE 
+## WorkHistory :  FALSE 
+## WorkHistory_Family :  TRUE 
+## WRAP_to_DBID :  TRUE</code></pre>
+<pre class="r"><code>print(dfwithDuplicates)</code></pre>
+<pre><code>##  [1] &quot;HeadInjurySub&quot;                         
+##  [2] &quot;Med_Lab_NPDC&quot;                          
+##  [3] &quot;Med_Lab_PDC&quot;                           
+##  [4] &quot;MedHistory_Admit&quot;                      
+##  [5] &quot;MedHistory_SurgBF&quot;                     
+##  [6] &quot;MedHistory_SurgS&quot;                      
+##  [7] &quot;PFMB_SibWAD_or_OtherMemIssue&quot;          
+##  [8] &quot;Sleep_MentalAct_OthDevice&quot;             
+##  [9] &quot;WomenQuestions_BCP&quot;                    
+## [10] &quot;WomenQuestions_Current_HormoneTherapy&quot; 
+## [11] &quot;WomenQuestions_NonPresc_HormoneTherapy&quot;
+## [12] &quot;WomenQuestions_Past_HormoneTherapy&quot;    
+## [13] &quot;WomenQuestions_SERM&quot;</code></pre>
+</div>
+<div id="duplicates-handling-per-study" class="section level2">
+<h2>Duplicates Handling Per Study</h2>
+<div id="imaging_metadata-1" class="section level3">
+<h3>Imaging_metadata</h3>
+<pre class="r"><code>## the imaging_visit is coded inconsistenly across the observations, so I generated a new numeric column for visit index
+Imaging_metadata &lt;- Imaging_metadata %&gt;%
+  mutate(
+    VisNo = str_extract(imaging_visit, &quot;\\d+&quot;) %&gt;% as.numeric()
+  )
 
-# Initialize mergedDat with the first data frame
-mergedDat &lt;- get(df_names[1])
+## group by subject ID and visit index, we are going to retain only one obs per group. The selection criteria is as following: 
+## 1. pick the obs with least missing values
+## 2. if same, then randomly pick one
 
-# Iteratively merge the rest
-for (i in 2:length(df_names)) {
-  mergedDat &lt;- merge(mergedDat, get(df_names[i]), all = TRUE)
-}
+Imaging_metadata &lt;- Imaging_metadata %&gt;%
+  mutate(missing_count = rowSums(is.na(.))) %&gt;%  # Count missing values per row
+  group_by(wrapnum, VisNo) %&gt;%
+  arrange(missing_count) %&gt;%
+  slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %&gt;%
+  ungroup() %&gt;%
+  select(-missing_count)  # Remove helper column
 
-info(mergedDat,&quot;wrapnum&quot;)</code></pre>
-<pre class="r"><code># Get all data frame names in the environment
-df_names &lt;- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
+info(Imaging_metadata,&quot;wrapnum&quot;)</code></pre>
+<pre><code>## #obs:3443, cols:45, inds:818</code></pre>
+<p><br></p>
+</div>
+<div id="workhistory-1" class="section level3">
+<h3>WorkHistory</h3>
+<pre class="r"><code>## check unique values for each columns, for columns with just one unique value,
+## we leave it out from the pivot_wider function
+result &lt;- lapply(names(WorkHistory), function(x) {
+  cat(x, &quot; &quot;, length(unique(WorkHistory[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   1685 
+## WRAPNo   1685 
+## work_history_repeat_key   6 
+## JobYrs   127 
+## OccSoc   568 
+## OccDOT   934 
+## ComData   8 
+## ComPeop   10 
+## ComThg   9 
+## OccZone   7</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(WorkHistory),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  3752 10</code></pre>
+<pre class="r"><code>tmp &lt;- WorkHistory %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo),
+    names_from = work_history_repeat_key,
+    values_from = c(JobYrs:OccZone),
+    names_sep = &quot;_&quot;
+  )
+## drop columns if all obs are missing
+WorkHistory &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
 
-# Create the summary table
-df_summary &lt;- data.frame(
-  Rows = sapply(df_names, function(x) nrow(get(x))),
-  Columns = sapply(df_names, function(x) ncol(get(x))),
-  Individuals = sapply(df_names, function(x) {
-    dat &lt;- get(x)
-    length(unique(dat$wrapnum))
-  })
-)
+cat(&quot;After duplicates handling: &quot;,dim(WorkHistory),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  1685 44</code></pre>
+<p><br></p>
+</div>
+<div id="headinjurysub-1" class="section level3">
+<h3>HeadInjurySub</h3>
+<pre class="r"><code>## check unique values for each columns, for columns with just one unique value,
+## we leave it out from the pivot_wider function
+result &lt;- lapply(names(HeadInjurySub), function(x) {
+  cat(x, &quot; &quot;, length(unique(HeadInjurySub[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   489 
+## WRAPNo   489 
+## VisNo   9 
+## RowNumber   10 
+## agehi   80 
+## hicause   5 
+## memhi   4 
+## loc   4 
+## locdur   8 
+## awake   4 
+## mdhi   4 
+## scanhi   4 
+## hosphi   4 
+## othinj   6 
+## treata   7 
+## treatb   7 
+## treatc   7 
+## cognhi   4 
+## cognow   4</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(HeadInjurySub),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  759 19</code></pre>
+<pre class="r"><code>tmp &lt;- HeadInjurySub %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = RowNumber,
+    values_from = c(agehi:cognow),
+    names_sep = &quot;_&quot;
+  )
+## drop columns if all obs are missing
+HeadInjurySub &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
 
-# Print the table
-print(df_summary)</code></pre>
+cat(&quot;After duplicates handling: &quot;,dim(HeadInjurySub),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  578 83</code></pre>
+<p><br></p>
+</div>
+<div id="med_lab_npdc-1" class="section level3">
+<h3>Med_Lab_NPDC</h3>
+<pre class="r"><code>result &lt;- lapply(names(Med_Lab_NPDC), function(x) {
+  cat(x, &quot; &quot;, length(unique(Med_Lab_NPDC[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   1631 
+## WRAPNo   1631 
+## VisNo   9 
+## npdc_repeat_key   33 
+## npdcd   1005 
+## mg   6 
+## npdcf   8 
+## npdcname   12437 
+## npdcclass   377</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(Med_Lab_NPDC),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  30019 9</code></pre>
+<pre class="r"><code>tmp &lt;- Med_Lab_NPDC %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = npdc_repeat_key,
+    values_from = c(npdcd:npdcclass),
+    names_sep = &quot;_&quot;
+  )
+## drop columns if all obs are missing
+Med_Lab_NPDC &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(Med_Lab_NPDC),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  6882 167</code></pre>
+<p><br></p>
+</div>
+<div id="med_lab_pdc-1" class="section level3">
+<h3>Med_Lab_PDC</h3>
+<pre class="r"><code>result &lt;- lapply(names(Med_Lab_PDC), function(x) {
+  cat(x, &quot; &quot;, length(unique(Med_Lab_PDC[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   1577 
+## WRAPNo   1577 
+## VisNo   9 
+## pdc_repeat_key   32 
+## pdcd   754 
+## mg   6 
+## pdcf   8 
+## pdcname   3723 
+## pdcclass   440</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(Med_Lab_PDC),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  24379 9</code></pre>
+<pre class="r"><code>tmp &lt;- Med_Lab_PDC %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = pdc_repeat_key,
+    values_from = c(pdcd:pdcclass),
+    names_sep = &quot;_&quot;
+  )
+## drop columns if all obs are missing
+Med_Lab_PDC &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(Med_Lab_PDC),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  6298 163</code></pre>
+<p><br></p>
+</div>
+<div id="medhistory_admit-1" class="section level3">
+<h3>MedHistory_Admit</h3>
+<pre class="r"><code>result &lt;- lapply(names(MedHistory_Admit), function(x) {
+  cat(x, &quot; &quot;, length(unique(MedHistory_Admit[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   603 
+## WRAPNo   603 
+## VisNo   9 
+## AdmitSRsn   763 
+## AdmitS_Repeat_Key   8</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(MedHistory_Admit),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  1052 5</code></pre>
+<pre class="r"><code>tmp &lt;- MedHistory_Admit %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = AdmitS_Repeat_Key,
+    values_from = c(AdmitSRsn),
+    names_prefix = &quot;AdmitSRsn_&quot;
+  )
+## drop columns if all obs are missing
+MedHistory_Admit &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(MedHistory_Admit),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  782 11</code></pre>
+<p><br></p>
+</div>
+<div id="medhistory_surgbf-1" class="section level3">
+<h3>MedHistory_SurgBF</h3>
+<pre class="r"><code>result &lt;- lapply(names(MedHistory_SurgBF), function(x) {
+  cat(x, &quot; &quot;, length(unique(MedHistory_SurgBF[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   1115 
+## WRAPNo   1115 
+## VisNo   3 
+## SurgBfRsn   811 
+## SurgBF_Repeat_Key   7</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(MedHistory_SurgBF),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  1327 5</code></pre>
+<pre class="r"><code>tmp &lt;- MedHistory_SurgBF %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = SurgBF_Repeat_Key,
+    values_from = c(SurgBfRsn),
+    names_prefix = &quot;SurgBfRsn_&quot;
+  )
+## drop columns if all obs are missing
+MedHistory_SurgBF &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(MedHistory_SurgBF),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  1115 10</code></pre>
+<p><br></p>
+</div>
+<div id="medhistory_surgs-1" class="section level3">
+<h3>MedHistory_SurgS</h3>
+<pre class="r"><code>result &lt;- lapply(names(MedHistory_SurgS), function(x) {
+  cat(x, &quot; &quot;, length(unique(MedHistory_SurgS[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   1116 
+## WRAPNo   1116 
+## VisNo   8 
+## SurgSRsn   1959 
+## SurgS_Repeat_Key   7</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(MedHistory_SurgS),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  3438 5</code></pre>
+<pre class="r"><code>tmp &lt;- MedHistory_SurgS %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = SurgS_Repeat_Key,
+    values_from = c(SurgSRsn),
+    names_prefix = &quot;SurgSRsn_&quot;
+  )
+## drop columns if all obs are missing
+MedHistory_SurgS &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(MedHistory_SurgS),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  2503 10</code></pre>
+<p><br></p>
+</div>
+<div id="pfmb_sibwad_or_othermemissue-1" class="section level3">
+<h3>PFMB_SibWAD_or_OtherMemIssue</h3>
+<pre class="r"><code>result &lt;- lapply(names(PFMB_SibWAD_or_OtherMemIssue), function(x) {
+  cat(x, &quot; &quot;, length(unique(PFMB_SibWAD_or_OtherMemIssue[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   175 
+## WRAPNo   175 
+## VisNo   8 
+## FH7SiblingWithAD_OtherMemIssue_Repeat_Key   3 
+## FH7BS1   5</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(PFMB_SibWAD_or_OtherMemIssue),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  297 5</code></pre>
+<pre class="r"><code>tmp &lt;- PFMB_SibWAD_or_OtherMemIssue %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = FH7SiblingWithAD_OtherMemIssue_Repeat_Key,
+    values_from = c(FH7BS1),
+    names_prefix = &quot;FH7BS1_&quot;
+  )
+## drop columns if all obs are missing
+PFMB_SibWAD_or_OtherMemIssue &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(PFMB_SibWAD_or_OtherMemIssue),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  265 6</code></pre>
+<p><br></p>
+</div>
+<div id="sleep_mentalact_othdevice-1" class="section level3">
+<h3>Sleep_MentalAct_OthDevice</h3>
+<pre class="r"><code>result &lt;- lapply(names(Sleep_MentalAct_OthDevice), function(x) {
+  cat(x, &quot; &quot;, length(unique(Sleep_MentalAct_OthDevice[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   37 
+## WRAPNo   37 
+## VisNo   8 
+## oth_device_repeat_key   2 
+## SA_OthDevFrq   5</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(Sleep_MentalAct_OthDevice),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  49 5</code></pre>
+<pre class="r"><code>tmp &lt;- Sleep_MentalAct_OthDevice %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = oth_device_repeat_key,
+    values_from = c(SA_OthDevFrq),
+    names_prefix = &quot;SA_OthDevFrq_&quot;
+  )
+## drop columns if all obs are missing
+Sleep_MentalAct_OthDevice &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(Sleep_MentalAct_OthDevice),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  46 5</code></pre>
+<p><br></p>
+</div>
+<div id="womenquestions_bcp-1" class="section level3">
+<h3>WomenQuestions_BCP</h3>
+<pre class="r"><code>result &lt;- lapply(names(WomenQuestions_BCP), function(x) {
+  cat(x, &quot; &quot;, length(unique(WomenQuestions_BCP[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   866 
+## WRAPNo   866 
+## VisNo   5 
+## BCP_Repeat_Key   3 
+## BCPName   289 
+## BCPCur   3 
+## BCPType   37 
+## BCPAge   52 
+## BCPLong   216 
+## BCPSide   3</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(WomenQuestions_BCP),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  1112 10</code></pre>
+<pre class="r"><code>tmp &lt;- WomenQuestions_BCP %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = BCP_Repeat_Key,
+    values_from = c(BCPName:BCPSide),
+    names_sep = &quot;_&quot;
+  )
+## drop columns if all obs are missing
+WomenQuestions_BCP &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(WomenQuestions_BCP),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  885 21</code></pre>
+<p><br></p>
+</div>
+<div id="womenquestions_current_hormonetherapy-1"
+class="section level3">
+<h3>WomenQuestions_Current_HormoneTherapy</h3>
+<pre class="r"><code>result &lt;- lapply(names(WomenQuestions_Current_HormoneTherapy), function(x) {
+  cat(x, &quot; &quot;, length(unique(WomenQuestions_Current_HormoneTherapy[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   210 
+## WRAPNo   210 
+## VisNo   5 
+## Cur_HT_Repeat_Key   3 
+## CurMed   69 
+## CurCur   3 
+## CurType   20 
+## CurAge   36 
+## CurLong   73 
+## CurSide   3</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(WomenQuestions_Current_HormoneTherapy),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  466 10</code></pre>
+<pre class="r"><code>tmp &lt;- WomenQuestions_Current_HormoneTherapy %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = Cur_HT_Repeat_Key,
+    values_from = c(CurMed:CurSide),
+    names_sep = &quot;_&quot;
+  )
+## drop columns if all obs are missing
+WomenQuestions_Current_HormoneTherapy &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(WomenQuestions_Current_HormoneTherapy),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  367 21</code></pre>
+<p><br></p>
+</div>
+<div id="womenquestions_nonpresc_hormonetherapy-1"
+class="section level3">
+<h3>WomenQuestions_NonPresc_HormoneTherapy</h3>
+<pre class="r"><code>result &lt;- lapply(names(WomenQuestions_NonPresc_HormoneTherapy), function(x) {
+  cat(x, &quot; &quot;, length(unique(WomenQuestions_NonPresc_HormoneTherapy[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   198 
+## WRAPNo   198 
+## VisNo   5 
+## NonPresc_HT_Repeat_Key   3 
+## Horm   131 
+## HormCur   4 
+## HormType   13 
+## HormAge   31 
+## HormLong   97 
+## HormSide   3</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(WomenQuestions_NonPresc_HormoneTherapy),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  300 10</code></pre>
+<pre class="r"><code>tmp &lt;- WomenQuestions_NonPresc_HormoneTherapy %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = NonPresc_HT_Repeat_Key,
+    values_from = c(Horm:HormSide),
+    names_sep = &quot;_&quot;
+  )
+## drop columns if all obs are missing
+WomenQuestions_NonPresc_HormoneTherapy &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(WomenQuestions_NonPresc_HormoneTherapy),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  239 21</code></pre>
+<p><br></p>
+</div>
+<div id="womenquestions_past_hormonetherapy-1" class="section level3">
+<h3>WomenQuestions_Past_HormoneTherapy</h3>
+<pre class="r"><code>result &lt;- lapply(names(WomenQuestions_Past_HormoneTherapy), function(x) {
+  cat(x, &quot; &quot;, length(unique(WomenQuestions_Past_HormoneTherapy[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   379 
+## WRAPNo   379 
+## VisNo   2 
+## Past_HT_Repeat_Key   3 
+## PastMed   154 
+## PastCur   3 
+## PastType   33 
+## PastAge   40 
+## PastLong   126 
+## PastSide   3 
+## PastStop   348</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(WomenQuestions_Past_HormoneTherapy),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  492 11</code></pre>
+<pre class="r"><code>tmp &lt;- WomenQuestions_Past_HormoneTherapy %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo),
+    names_from = Past_HT_Repeat_Key,
+    values_from = c(PastMed:PastStop),
+    names_sep = &quot;_&quot;
+  )
+## drop columns if all obs are missing
+WomenQuestions_Past_HormoneTherapy &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0]
+
+cat(&quot;After duplicates handling: &quot;,dim(WomenQuestions_Past_HormoneTherapy),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  380 24</code></pre>
+<p><br></p>
+</div>
+<div id="womenquestions_serm-1" class="section level3">
+<h3>WomenQuestions_SERM</h3>
+<pre class="r"><code>result &lt;- lapply(names(WomenQuestions_SERM), function(x) {
+  cat(x, &quot; &quot;, length(unique(WomenQuestions_SERM[[x]])), &quot;\n&quot;)
+})</code></pre>
+<pre><code>## wrapnum   58 
+## WRAPNo   58 
+## VisNo   5 
+## SERM_Repeat_Key   3 
+## SERM   19 
+## SERMCur   4 
+## SERMType   1 
+## SERMAge   27 
+## SERMLong   32 
+## SERMSide   2</code></pre>
+<pre class="r"><code>cat(&quot;Before duplicates handling: &quot;,dim(WomenQuestions_SERM),&quot;\n&quot;)</code></pre>
+<pre><code>## Before duplicates handling:  76 10</code></pre>
+<pre class="r"><code>tmp &lt;- WomenQuestions_SERM %&gt;%
+  pivot_wider(
+    id_cols = c(wrapnum, WRAPNo, VisNo,SERMType),
+    names_from = SERM_Repeat_Key,
+    values_from = c(SERM:SERMSide,-SERMType),
+    names_sep = &quot;_&quot;
+  )
+## drop columns if all obs are missing
+WomenQuestions_SERM &lt;- tmp[, colSums(!is.na(tmp)) &gt; 0 | names(tmp) %in% c(&quot;SERMType&quot;)]
+
+cat(&quot;After duplicates handling: &quot;,dim(WomenQuestions_SERM),&quot;\n&quot;)</code></pre>
+<pre><code>## After duplicates handling:  72 19</code></pre>
+<p><br> <br></p>
+</div>
+</div>
+</div>
+<div id="common-columns-detection" class="section level1">
+<h1>Common Columns Detection</h1>
+<pre class="r"><code>commonColsDetect(df_names)</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-b50571d345d812ef2e3a" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-b50571d345d812ef2e3a">{"x":{"filter":"none","vertical":false,"data":[["465","666","324","754","261","308","869","885","887","274","1","4","5","295","724","758","797"],["Med_Lab_PDC","MIND_Diet_ScoredValues","IQCode","NeuropsychScores","IADL","IQCode","QuickDementia","QuickDementia","QuickDementia","IADL","Abnormal_Factor_Flags_wide","APG","APG","Imaging_metadata","Morbidity_Mortality","NeuropsychScores","PersFamMedBack"],["Med_Lab_NPDC","MIND_Diet","IADL","CompositeScoreCalcValues","CDR","CDR","CDR","IADL","IQCode","GenHealthDailyAct","Abnormal_Factor_Flags_long","Abnormal_Factor_Flags_long","Abnormal_Factor_Flags_wide","fqryStatisticalData","GenHealthDailyAct","Demographics","Demographics"],[35,21,8,8,7,7,7,7,7,4,3,3,3,3,3,3,3],["wrapnum, WRAPNo, VisNo, mg_1, mg_3, mg_2, mg_5, mg_4, mg_6, mg_8, mg_7, mg_15, mg_14, mg_13, mg_12, mg_11, mg_10, mg_9, mg_16, mg_18, mg_17, mg_20, mg_19, mg_30, mg_29, mg_27, mg_25, mg_24, mg_23, mg_22, mg_21, mg_31, mg_28, mg_26, mg_32","wrapnum, WRAPNo, VisNo, MINDScoredValue_GrnLfyVg, MINDScoredValue_OthrVg, MINDScoredValue_Berries, MINDScoredValue_RedMeat, MINDScoredValue_Fish, MINDScoredValue_Chicken, MINDScoredValue_Cheese, MINDScoredValue_Butter, MINDScoredValue_Beans, MINDScoredValue_WhlGrn, MINDScoredValue_Sweets, MINDScoredValue_Nuts, MINDScoredValue_FastFood, MINDScoredValue_Alcohol, MINDScoredValue_OliveOil, MIND_Straight_Sum, MIND_Extrapolated_Sum, MIND_NumberItemsMissing","wrapnum, WRAPNo, VisNo, Total, Returned_Days_From_Visit, estimated_questionnaire_days_after_baseline, RelPPT, RelLive","wrapnum, WRAPNo, VisNo, flucfl, drraw, stroocw, stroocwe, trlb","wrapnum, WRAPNo, VisNo, Returned_Days_From_Visit, estimated_questionnaire_days_after_baseline, RelPPT, RelLive","wrapnum, WRAPNo, VisNo, Returned_Days_From_Visit, estimated_questionnaire_days_after_baseline, RelPPT, RelLive","wrapnum, WRAPNo, VisNo, Returned_Days_From_Visit, estimated_questionnaire_days_after_baseline, RelPPT, RelLive","wrapnum, WRAPNo, VisNo, Returned_Days_From_Visit, estimated_questionnaire_days_after_baseline, RelPPT, RelLive","wrapnum, WRAPNo, VisNo, Returned_Days_From_Visit, estimated_questionnaire_days_after_baseline, RelPPT, RelLive","wrapnum, WRAPNo, VisNo, Money","wrapnum, WRAPNo, Explanation","wrapnum, WRAPNo, Explanation","wrapnum, WRAPNo, Explanation","wrapnum, Days_Since_Baseline, VisNo","wrapnum, WRAPNo, MemProb","wrapnum, WRAPNo, interv","wrapnum, WRAPNo, gender"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>df1<\/th>\n      <th>df2<\/th>\n      <th>n_common<\/th>\n      <th>common_cols<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"df1","targets":1},{"name":"df2","targets":2},{"name":"n_common","targets":3},{"name":"common_cols","targets":4}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p><br></p>
+<div id="remove-explanation-column-from-all-datasets"
+class="section level2">
+<h2>Remove Explanation Column from all Datasets</h2>
+<pre class="r"><code>## This column is recording the WRAP webseite link. We remove it to avoid duplicated cases in the merge step
+for (df_name in df_names) {
+  if (&quot;Explanation&quot; %in% names(get(df_name))) {
+    assign(df_name, get(df_name)[ , !(names(get(df_name)) %in% &quot;Explanation&quot;) ])
+  }
+}</code></pre>
+</div>
+<div id="med_lab_pdc-med_lab_npdc" class="section level2">
+<h2>Med_Lab_PDC | Med_Lab_NPDC</h2>
+<pre class="r"><code>## the common columns between these two data framed are caused by the piovot_wider, mg is the Dose measurement
+intersect(names(Med_Lab_PDC),names(Med_Lab_NPDC))</code></pre>
+<pre><code>##  [1] &quot;wrapnum&quot; &quot;WRAPNo&quot;  &quot;VisNo&quot;   &quot;mg_1&quot;    &quot;mg_3&quot;    &quot;mg_2&quot;    &quot;mg_5&quot;   
+##  [8] &quot;mg_4&quot;    &quot;mg_6&quot;    &quot;mg_8&quot;    &quot;mg_7&quot;    &quot;mg_15&quot;   &quot;mg_14&quot;   &quot;mg_13&quot;  
+## [15] &quot;mg_12&quot;   &quot;mg_11&quot;   &quot;mg_10&quot;   &quot;mg_9&quot;    &quot;mg_16&quot;   &quot;mg_18&quot;   &quot;mg_17&quot;  
+## [22] &quot;mg_20&quot;   &quot;mg_19&quot;   &quot;mg_30&quot;   &quot;mg_29&quot;   &quot;mg_27&quot;   &quot;mg_25&quot;   &quot;mg_24&quot;  
+## [29] &quot;mg_23&quot;   &quot;mg_22&quot;   &quot;mg_21&quot;   &quot;mg_31&quot;   &quot;mg_28&quot;   &quot;mg_26&quot;   &quot;mg_32&quot;</code></pre>
+<pre class="r"><code>## I decided to add prefix in each file
+colnames(Med_Lab_PDC)[grepl(&quot;^mg_&quot;, colnames(Med_Lab_PDC))] &lt;- paste0(&quot;PDC&quot;, colnames(Med_Lab_PDC)[grepl(&quot;^mg_&quot;, colnames(Med_Lab_PDC))])
+
+colnames(Med_Lab_NPDC)[grepl(&quot;^mg_&quot;, colnames(Med_Lab_NPDC))] &lt;- paste0(&quot;NPDC&quot;, colnames(Med_Lab_NPDC)[grepl(&quot;^mg_&quot;, colnames(Med_Lab_NPDC))])</code></pre>
+<p><br></p>
+</div>
+<div id="iqcode-iadl-cdr-quickdementia" class="section level2">
+<h2>IQCode | IADL | CDR | QuickDementia</h2>
+<pre class="r"><code>intersect(names(IQCode),names(IADL))</code></pre>
+<pre><code>## [1] &quot;wrapnum&quot;                                    
+## [2] &quot;WRAPNo&quot;                                     
+## [3] &quot;VisNo&quot;                                      
+## [4] &quot;Total&quot;                                      
+## [5] &quot;Returned_Days_From_Visit&quot;                   
+## [6] &quot;estimated_questionnaire_days_after_baseline&quot;
+## [7] &quot;RelPPT&quot;                                     
+## [8] &quot;RelLive&quot;</code></pre>
+<pre class="r"><code>intersect(names(CDR),names(IADL))</code></pre>
+<pre><code>## [1] &quot;wrapnum&quot;                                    
+## [2] &quot;WRAPNo&quot;                                     
+## [3] &quot;VisNo&quot;                                      
+## [4] &quot;estimated_questionnaire_days_after_baseline&quot;
+## [5] &quot;Returned_Days_From_Visit&quot;                   
+## [6] &quot;RelPPT&quot;                                     
+## [7] &quot;RelLive&quot;</code></pre>
+<pre class="r"><code>intersect(names(CDR),names(QuickDementia))</code></pre>
+<pre><code>## [1] &quot;wrapnum&quot;                                    
+## [2] &quot;WRAPNo&quot;                                     
+## [3] &quot;VisNo&quot;                                      
+## [4] &quot;estimated_questionnaire_days_after_baseline&quot;
+## [5] &quot;Returned_Days_From_Visit&quot;                   
+## [6] &quot;RelPPT&quot;                                     
+## [7] &quot;RelLive&quot;</code></pre>
+<pre class="r"><code>## add prefix to IQCode and IADL
+tNames &lt;- intersect(names(IQCode),names(IADL))[4:8]
+colnames(IQCode)[colnames(IQCode) %in% tNames] &lt;-  paste0(&quot;IQCode_&quot;, colnames(IQCode)[colnames(IQCode) %in% tNames])
+colnames(IADL)[colnames(IADL) %in% tNames] &lt;-  paste0(&quot;IADL_&quot;, colnames(IADL)[colnames(IADL) %in% tNames])
+
+## add prefix to CDR and QuickDementia as well
+tNames2 &lt;- tNames[2:5]
+colnames(QuickDementia)[colnames(QuickDementia) %in% tNames2] &lt;-  paste0(&quot;QuickDementia_&quot;, colnames(QuickDementia)[colnames(QuickDementia) %in% tNames2])
+colnames(CDR)[colnames(CDR) %in% tNames2] &lt;-  paste0(&quot;CDR_&quot;, colnames(CDR)[colnames(CDR) %in% tNames2])
+
+## rerun the Common Columns Detection code
+commonColsDetect(df_names)</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-322976da6656b8d59f26" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-322976da6656b8d59f26">{"x":{"filter":"none","vertical":false,"data":[["666","754","274","295","724","758","797"],["MIND_Diet_ScoredValues","NeuropsychScores","IADL","Imaging_metadata","Morbidity_Mortality","NeuropsychScores","PersFamMedBack"],["MIND_Diet","CompositeScoreCalcValues","GenHealthDailyAct","fqryStatisticalData","GenHealthDailyAct","Demographics","Demographics"],[21,8,4,3,3,3,3],["wrapnum, WRAPNo, VisNo, MINDScoredValue_GrnLfyVg, MINDScoredValue_OthrVg, MINDScoredValue_Berries, MINDScoredValue_RedMeat, MINDScoredValue_Fish, MINDScoredValue_Chicken, MINDScoredValue_Cheese, MINDScoredValue_Butter, MINDScoredValue_Beans, MINDScoredValue_WhlGrn, MINDScoredValue_Sweets, MINDScoredValue_Nuts, MINDScoredValue_FastFood, MINDScoredValue_Alcohol, MINDScoredValue_OliveOil, MIND_Straight_Sum, MIND_Extrapolated_Sum, MIND_NumberItemsMissing","wrapnum, WRAPNo, VisNo, flucfl, drraw, stroocw, stroocwe, trlb","wrapnum, WRAPNo, VisNo, Money","wrapnum, Days_Since_Baseline, VisNo","wrapnum, WRAPNo, MemProb","wrapnum, WRAPNo, interv","wrapnum, WRAPNo, gender"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>df1<\/th>\n      <th>df2<\/th>\n      <th>n_common<\/th>\n      <th>common_cols<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"df1","targets":1},{"name":"df2","targets":2},{"name":"n_common","targets":3},{"name":"common_cols","targets":4}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p><br></p>
+</div>
+<div id="neuropsychscores-compositescorecalcvalues"
+class="section level2">
+<h2>NeuropsychScores | CompositeScoreCalcValues</h2>
+<pre class="r"><code>intersect(names(NeuropsychScores),names(CompositeScoreCalcValues))</code></pre>
+<pre><code>## [1] &quot;wrapnum&quot;  &quot;WRAPNo&quot;   &quot;VisNo&quot;    &quot;flucfl&quot;   &quot;drraw&quot;    &quot;stroocw&quot;  &quot;stroocwe&quot;
+## [8] &quot;trlb&quot;</code></pre>
+<pre class="r"><code>## add prefix to CompositeScoreCalcValues
+tNames &lt;- c(&quot;flucfl&quot;,&quot;drraw&quot;,&quot;stroocw&quot;,&quot;stroocwe&quot;,&quot;trlb&quot;)
+colnames(CompositeScoreCalcValues)[colnames(CompositeScoreCalcValues) %in% tNames] &lt;-  paste0(&quot;CompositeScoreCalcValues_&quot;, colnames(CompositeScoreCalcValues)[colnames(CompositeScoreCalcValues) %in% tNames])</code></pre>
+<p><br></p>
+</div>
+<div id="iadl-genhealthdailyact" class="section level2">
+<h2>IADL | GenHealthDailyAct</h2>
+<pre class="r"><code>intersect(names(IADL),names(GenHealthDailyAct))</code></pre>
+<pre><code>## [1] &quot;wrapnum&quot; &quot;WRAPNo&quot;  &quot;VisNo&quot;   &quot;Money&quot;</code></pre>
+<pre class="r"><code>## add prefix to GenHealthDailyAct
+colnames(GenHealthDailyAct)[colnames(GenHealthDailyAct) == &quot;Money&quot;] &lt;- &quot;GenHealthDailyAct_Money&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="morbidity_mortality-genhealthdailyact" class="section level2">
+<h2>Morbidity_Mortality | GenHealthDailyAct</h2>
+<pre class="r"><code>intersect(names(Morbidity_Mortality),names(GenHealthDailyAct))</code></pre>
+<pre><code>## [1] &quot;wrapnum&quot; &quot;WRAPNo&quot;  &quot;MemProb&quot;</code></pre>
+<pre class="r"><code>colnames(GenHealthDailyAct)[colnames(GenHealthDailyAct) == &quot;MemProb&quot;] &lt;- &quot;GenHealthDailyAct_MemProb&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="neuropsychscores-demographics" class="section level2">
+<h2>NeuropsychScores | Demographics</h2>
+<pre class="r"><code>intersect(names(NeuropsychScores),names(Demographics))</code></pre>
+<pre><code>## [1] &quot;wrapnum&quot; &quot;WRAPNo&quot;  &quot;interv&quot;</code></pre>
+<pre class="r"><code>colnames(NeuropsychScores)[colnames(NeuropsychScores) == &quot;interv&quot;] &lt;- &quot;NeuropsychScores_interv&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="persfammedback-demographics" class="section level2">
+<h2>PersFamMedBack | Demographics</h2>
+<pre class="r"><code>intersect(names(PersFamMedBack),names(Demographics))</code></pre>
+<pre><code>## [1] &quot;wrapnum&quot; &quot;WRAPNo&quot;  &quot;gender&quot;</code></pre>
+<pre class="r"><code>## I did not modify anything here since gender has same coding on these two datasets</code></pre>
+<p><br></p>
+</div>
+<div id="imaging_metadata-fqrystatisticaldata" class="section level2">
+<h2>Imaging_metadata | fqryStatisticalData</h2>
+<pre class="r"><code>intersect(names(Imaging_metadata),names(fqryStatisticalData))</code></pre>
+<pre><code>## [1] &quot;wrapnum&quot;             &quot;Days_Since_Baseline&quot; &quot;VisNo&quot;</code></pre>
+<pre class="r"><code>colnames(Imaging_metadata)[colnames(Imaging_metadata) == &quot;Days_Since_Baseline&quot;] &lt;- &quot;Imaging_metadata_Since_Baseline&quot;</code></pre>
+<p><br> <br></p>
+</div>
+</div>
+<div id="merge-sub-datasets" class="section level1">
+<h1>Merge Sub-Datasets</h1>
+<p>Exclude the MIND_Diet_ScoreValues as this exactly the same as the
+MIND_Diet data frame.</p>
+<pre class="r"><code># Start with the first dataset
+
+remove &lt;- c(&quot;MIND_Diet_ScoredValues&quot;) ## this dataset is exactly same as MIND_Diet
+df_names2 &lt;- setdiff(df_names,remove)
+
+merged_data &lt;- get(df_names2[1])
+cat(&quot;Info for&quot;, df_names2[1], &quot;:\n&quot;)</code></pre>
+<pre><code>## Info for Abnormal_Factor_Flags_long :</code></pre>
+<pre class="r"><code>info(get(df_names2[1]), &quot;wrapnum&quot;)</code></pre>
+<pre><code>## #obs:8212, cols:5, inds:1814</code></pre>
+<pre class="r"><code>for (i in 2:length(df_names2)) {
+  merged_data &lt;- merge_with_info(merged_data, df_names2[i], id_col = &quot;wrapnum&quot;)
+}</code></pre>
+<pre><code>## Info for Abnormal_Factor_Flags_wide :
+## #obs:1815, cols:4, inds:1815 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:7, inds:1815 
+## =======================================================================
+## Info for AnimalNaming_ItemLevel :
+## #obs:1096, cols:53, inds:944 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:57, inds:1815 
+## =======================================================================
+## Info for APG :
+## #obs:1638, cols:5, inds:1638 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:60, inds:1815 
+## =======================================================================
+## Info for AVLTPositionScores :
+## #obs:7946, cols:123, inds:1795 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:180, inds:1815 
+## =======================================================================
+## Info for BehavioralObservationChecklist :
+## #obs:2601, cols:84, inds:1322 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:261, inds:1815 
+## =======================================================================
+## Info for CA_Genome :
+## #obs:1405, cols:4, inds:1405 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:263, inds:1815 
+## =======================================================================
+## Info for CDR :
+## #obs:1361, cols:15, inds:886 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:275, inds:1815 
+## =======================================================================
+## Info for CERAD :
+## #obs:372, cols:19, inds:372 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:292, inds:1815 
+## =======================================================================
+## Info for CES_D_Scale :
+## #obs:6566, cols:24, inds:1590 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:313, inds:1815 
+## =======================================================================
+## Info for CHAMPS :
+## #obs:1888, cols:126, inds:1181 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:436, inds:1815 
+## =======================================================================
+## Info for CogStateData :
+## #obs:2283, cols:227, inds:1224 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:660, inds:1815 
+## =======================================================================
+## Info for CompositeScoreCalcValues :
+## #obs:7996, cols:16, inds:1799 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:673, inds:1815 
+## =======================================================================
+## Info for CompositeScores :
+## #obs:7996, cols:31, inds:1799 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:701, inds:1815 
+## =======================================================================
+## Info for ConsensusConference :
+## #obs:8176, cols:95, inds:1808 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:793, inds:1815 
+## =======================================================================
+## Info for DailyActivity :
+## #obs:1263, cols:84, inds:1263 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:874, inds:1815 
+## =======================================================================
+## Info for Demographics :
+## #obs:1811, cols:65, inds:1811 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:937, inds:1815 
+## =======================================================================
+## Info for FactorScores :
+## #obs:7996, cols:13, inds:1799 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:947, inds:1815 
+## =======================================================================
+## Info for fqryStatisticalData :
+## #obs:8212, cols:9, inds:1814 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:953, inds:1815 
+## =======================================================================
+## Info for Gene_DataCollection :
+## #obs:1018, cols:14, inds:1018 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:965, inds:1815 
+## =======================================================================
+## Info for GenHealthDailyAct :
+## #obs:8168, cols:219, inds:1796 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:1181, inds:1815 
+## =======================================================================
+## Info for HeadInjuries :
+## #obs:551, cols:4, inds:468 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:1182, inds:1815 
+## =======================================================================
+## Info for HeadInjurySub :
+## #obs:578, cols:83, inds:489 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:1262, inds:1815 
+## =======================================================================
+## Info for IADL :
+## #obs:5913, cols:16, inds:1496 
+## 
+## Info for merged dataset:
+## #obs:8213, cols:1275, inds:1815 
+## =======================================================================
+## Info for Imaging_metadata :
+## #obs:3443, cols:45, inds:818 
+## 
+## Info for merged dataset:
+## #obs:8903, cols:1318, inds:1817 
+## =======================================================================
+## Info for IQCode :
+## #obs:5896, cols:24, inds:1497 
+## 
+## Info for merged dataset:
+## #obs:8903, cols:1339, inds:1817 
+## =======================================================================
+## Info for LearningDifficulties :
+## #obs:213, cols:26, inds:204 
+## 
+## Info for merged dataset:
+## #obs:8903, cols:1362, inds:1817 
+## =======================================================================
+## Info for LIBRA :
+## #obs:8173, cols:17, inds:1818 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1376, inds:1837 
+## =======================================================================
+## Info for Med_Lab :
+## #obs:8094, cols:30, inds:1797 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1403, inds:1837 
+## =======================================================================
+## Info for Med_Lab_NPDC :
+## #obs:6882, cols:167, inds:1631 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1567, inds:1837 
+## =======================================================================
+## Info for Med_Lab_PDC :
+## #obs:6298, cols:163, inds:1577 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1727, inds:1837 
+## =======================================================================
+## Info for MedHistory :
+## #obs:8205, cols:70, inds:1810 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1794, inds:1837 
+## =======================================================================
+## Info for MedHistory_Admit :
+## #obs:782, cols:11, inds:603 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1802, inds:1837 
+## =======================================================================
+## Info for MedHistory_SurgBF :
+## #obs:1115, cols:10, inds:1115 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1809, inds:1837 
+## =======================================================================
+## Info for MedHistory_SurgS :
+## #obs:2503, cols:10, inds:1116 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1816, inds:1837 
+## =======================================================================
+## Info for MIND_Diet :
+## #obs:3621, cols:21, inds:1416 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1834, inds:1837 
+## =======================================================================
+## Info for MOCA :
+## #obs:316, cols:65, inds:309 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1896, inds:1837 
+## =======================================================================
+## Info for Morbidity_Mortality :
+## #obs:94, cols:17, inds:94 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:1911, inds:1837 
+## =======================================================================
+## Info for NeuropsychScores :
+## #obs:7996, cols:156, inds:1799 
+## 
+## Info for merged dataset:
+## #obs:8983, cols:2064, inds:1837 
+## =======================================================================
+## Info for PersFamMedBack :
+## #obs:8176, cols:49, inds:1802 
+## 
+## Info for merged dataset:
+## #obs:10751, cols:2109, inds:1837 
+## =======================================================================
+## Info for PFMB_SibWAD_or_OtherMemIssue :
+## #obs:265, cols:6, inds:175 
+## 
+## Info for merged dataset:
+## #obs:10751, cols:2112, inds:1837 
+## =======================================================================
+## Info for QuickDementia :
+## #obs:3006, cols:22, inds:1303 
+## 
+## Info for merged dataset:
+## #obs:10751, cols:2131, inds:1837 
+## =======================================================================
+## Info for RobustNormZScores :
+## #obs:7996, cols:21, inds:1799 
+## 
+## Info for merged dataset:
+## #obs:10751, cols:2149, inds:1837 
+## =======================================================================
+## Info for Sleep_MentalAct :
+## #obs:4208, cols:63, inds:1462 
+## 
+## Info for merged dataset:
+## #obs:10751, cols:2209, inds:1837 
+## =======================================================================
+## Info for Sleep_MentalAct_OthDevice :
+## #obs:46, cols:5, inds:37 
+## 
+## Info for merged dataset:
+## #obs:10751, cols:2211, inds:1837 
+## =======================================================================
+## Info for SubjectiveHearing :
+## #obs:2732, cols:8, inds:1312 
+## 
+## Info for merged dataset:
+## #obs:10751, cols:2216, inds:1837 
+## =======================================================================
+## Info for TICSM :
+## #obs:65, cols:44, inds:64 
+## 
+## Info for merged dataset:
+## #obs:10752, cols:2257, inds:1837 
+## =======================================================================
+## Info for VisitVitals :
+## #obs:8205, cols:33, inds:1810 
+## 
+## Info for merged dataset:
+## #obs:10752, cols:2287, inds:1837 
+## =======================================================================
+## Info for WomenQuestions :
+## #obs:5544, cols:67, inds:1249 
+## 
+## Info for merged dataset:
+## #obs:10752, cols:2351, inds:1837 
+## =======================================================================
+## Info for WomenQuestions_BCP :
+## #obs:885, cols:21, inds:866 
+## 
+## Info for merged dataset:
+## #obs:10752, cols:2369, inds:1837 
+## =======================================================================
+## Info for WomenQuestions_Current_HormoneTherapy :
+## #obs:367, cols:21, inds:210 
+## 
+## Info for merged dataset:
+## #obs:10752, cols:2387, inds:1837 
+## =======================================================================
+## Info for WomenQuestions_NonPresc_HormoneTherapy :
+## #obs:239, cols:21, inds:198 
+## 
+## Info for merged dataset:
+## #obs:10752, cols:2405, inds:1837 
+## =======================================================================
+## Info for WomenQuestions_Past_HormoneTherapy :
+## #obs:380, cols:24, inds:379 
+## 
+## Info for merged dataset:
+## #obs:10752, cols:2426, inds:1837 
+## =======================================================================
+## Info for WomenQuestions_SERM :
+## #obs:72, cols:19, inds:58 
+## 
+## Info for merged dataset:
+## #obs:10752, cols:2442, inds:1837 
+## =======================================================================
+## Info for WorkHistory :
+## #obs:1685, cols:44, inds:1685 
+## 
+## Info for merged dataset:
+## #obs:10752, cols:2484, inds:1837 
+## =======================================================================
+## Info for WorkHistory_Family :
+## #obs:1242, cols:16, inds:1242 
+## 
+## Info for merged dataset:
+## #obs:10752, cols:2498, inds:1837 
+## =======================================================================
+## Info for WRAP_to_DBID :
+## #obs:1717, cols:3, inds:1717 
+## 
+## Info for merged dataset:
+## #obs:10753, cols:2499, inds:1838 
+## =======================================================================</code></pre>
+<pre class="r"><code>## clean space: remove everything except final merged data frame
+rm(list = setdiff(ls(), &quot;merged_data&quot;))</code></pre>
 </div>
 
 

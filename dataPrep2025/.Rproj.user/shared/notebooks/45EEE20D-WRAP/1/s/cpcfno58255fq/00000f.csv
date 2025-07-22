@@ -1,8 +1,0 @@
-"0","## check table frequency for all variables"
-"0",""
-"0","## convert """" to NA for chr columns"
-"0","chrcols <- colnames(WomenQuestions_BCP)[sapply(WomenQuestions_BCP, is.character)]"
-"0","WomenQuestions_BCP[chrcols] <- lapply(WomenQuestions_BCP[chrcols], function(x) ifelse(x == """", NA, x))"
-"0",""
-"0","## drop update_stamp column"
-"0","WomenQuestions_BCP <- subset(WomenQuestions_BCP,select = -c(update_stamp))"

@@ -1,7 +1,0 @@
-"0","## load data"
-"0","CERAD <- read.csv(paste0(my_directory, ""CERAD_05Jun2025.csv""),stringsAsFactors = FALSE) %>% as.data.frame()"
-"0","info(CERAD,""wrapnum"")"
-"1","#obs:372, cols:20, inds:372"
-"1"," "
-"1","
-"
