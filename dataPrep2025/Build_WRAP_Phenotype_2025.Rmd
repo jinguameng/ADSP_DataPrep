@@ -12,7 +12,8 @@ output:
 ---
 
 Author: Mengna Zhang
-Date: June 12th, 2025
+
+*Last updated on:* `r Sys.Date()`
 
 # Set Path
 
