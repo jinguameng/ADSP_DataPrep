@@ -3341,7 +3341,6 @@ intersect(names(Med_Lab_PDC),names(Med_Lab_NPDC))
 colnames(Med_Lab_PDC)[grepl("^mg_", colnames(Med_Lab_PDC))] <- paste0("PDC", colnames(Med_Lab_PDC)[grepl("^mg_", colnames(Med_Lab_PDC))])
 
 colnames(Med_Lab_NPDC)[grepl("^mg_", colnames(Med_Lab_NPDC))] <- paste0("NPDC", colnames(Med_Lab_NPDC)[grepl("^mg_", colnames(Med_Lab_NPDC))])
-
 ```
 
 <br>
@@ -3475,5 +3474,7 @@ for (i in 2:length(df_names2)) {
 ```{r}
 ## clean space: remove everything except final merged data frame
 rm(list = setdiff(ls(), "merged_data"))
+## save rds
+saveRDS(merged_data,"/Users/mengnazhang/Desktop/ADSP_DataPrep_local/WRAP/Phenotype/2025/Cleaned/Build_WRAP.rds")
 ```
 

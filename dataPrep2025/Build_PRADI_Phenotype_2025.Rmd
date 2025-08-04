@@ -244,7 +244,7 @@ unique(sapply(AAAD_MEDCON, class))
 
 <br>
 
-### Handling Chracter Variables
+### Handling Character Variables
 ```{r}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(AAAD_MEDCON)[sapply(AAAD_MEDCON, is.character)] ## 76 vars
@@ -331,4 +331,149 @@ lapply(AAAD_MEDCON[mismatchNums$VarNames], unique)
 ## I check the DD, for similar variables like SEEN15, SEEN13, the DD do code them as numeric with 0 means "No" and 1 means "Yes".
 ## those are pair variables: SEENx and SEENx_SPEC, my understanding is that SEENx should be numeric and SEENx_SPEC should be characteristics. But clearly, the DD make them not consistently across all the pairs. 
 ```
+
+<br>
+<br>
+
+## AAAD_SOCIO_DEMO
+
+```{r}
+AAAD_SOCIO_DEMO <- as.data.frame(read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Raw/PRADI_AAAD_SOCIO_DEMO_05122025.xlsx",sheet = "Export Worksheet"))
+
+df <- AAAD_SOCIO_DEMO
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r}
+dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "AAAD_SOCIO_DEMO")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)] ## 121
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to numeric
+convert2num <- dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("NUMBER", dfDD$`Data Type`)] ## 55 vars
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)]
+## [1] "REVIEW_DATE"
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## 65 vars
+
+## convert
+df[convert2num] <- lapply(df[convert2num], as.numeric)
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## REVIEW_DATE, can ignore, since it has been converted in last step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 89 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+check_valid_responses(tmp,df)
+
+```
+
+
+```{r}
+unique(df[["SDF8A"]]) ## DD: 8. Are you working now? Circle all that apply
+unique(df[["SDF8B"]]) ## DD: If participant says NO, ask Why not? If any of the following SKIP TO #20
+
+## NOTE: these two variables are good, as they being marked "Multiple" in the [Single, Multiple or Calculated Values] column of DD
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 69 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+check_valid_numeric_responses(tmp,df)
+
+```
+
 

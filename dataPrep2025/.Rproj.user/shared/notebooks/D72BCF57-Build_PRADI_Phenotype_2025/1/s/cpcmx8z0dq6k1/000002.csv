@@ -1,7 +1,0 @@
-"0","mypath=""/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Raw/""
-
-ls ${mypath} | grep "".xlsx"" > ${mypath}filelist.txt
-
-wc -l ${mypath}filelist.txt ## 38 sub files in total"
-"1","      38 /Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Raw/filelist.txt
-"

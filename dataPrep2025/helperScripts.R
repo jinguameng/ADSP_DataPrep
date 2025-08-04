@@ -68,7 +68,6 @@ commonColsDetect <- function(df_names) {
 }
 
 
-
 ## check unique values for character columns
 uniqueValforChrColumns <- function(df){
   chrcols <- colnames(df)[sapply(df, is.character)]
@@ -80,6 +79,7 @@ uniqueValforChrColumns <- function(df){
   }
   
 }
+
 
 ## check unique values for selected columns
 ## this function will return mismatched variables names
@@ -98,6 +98,7 @@ uniqueValCheck <- function(df, uniqueVals, cols2Bchecked) {
   }
 }
 
+
 ## merge function
 merge_with_info <- function(df1,df2_name, id_col) {
   
@@ -115,5 +116,114 @@ merge_with_info <- function(df1,df2_name, id_col) {
   cat("\n")
   
   return(merged)
+}
+
+
+## this function check mismatched chr columns between dataset and DD
+## df_valid: contains VarNames and Valid Responses
+## df_data: the dataset to check
+check_valid_responses <- function(df_valid, df_data) {
+  # Clean up Valid Responses: remove \r\n and split into list of valid values
+  df_valid <- df_valid %>%
+    mutate(
+      `Valid Responses` = gsub("\r\n", "", `Valid Responses`),
+      valid_list = strsplit(`Valid Responses`, ";\\s*")
+    )
+  
+  # Initialize a list to store results
+  result_list <- list()
+  
+  # Loop over each variable in df_valid
+  for (i in seq_len(nrow(df_valid))) {
+    varname <- df_valid$VarNames[i]
+    
+    # Skip if variable not in df_data
+    if (!varname %in% names(df_data)) next
+    
+    # Get unique non-NA values in data
+    observed <- unique(na.omit(df_data[[varname]]))
+    expected <- trimws(df_valid$valid_list[[i]])
+    
+    # Find unexpected values
+    invalid <- setdiff(as.character(observed), expected)
+    
+    if (length(invalid) > 0) {
+      result_list[[varname]] <- data.frame(
+        VarName = varname,
+        Invalid_Values = paste(invalid, collapse = ", ")
+      )
+    }
+  }
+  
+  # Combine results
+  if (length(result_list) > 0) {
+    do.call(rbind, result_list)
+  } else {
+    message("All values are within valid ranges.")
+    return(invisible(NULL))
+  }
+}
+
+
+
+## similar as above, but for numeric columns
+check_valid_numeric_responses <- function(df_valid, df_data) {
+  # Step 1: clean and normalize the Valid Responses column
+  df_valid <- df_valid %>%
+    mutate(
+      cleaned_response = gsub("\r\n", "", `Valid Responses`),
+      cleaned_response = str_replace_all(cleaned_response, "thru", "-"),
+      cleaned_response = str_replace_all(cleaned_response, ";\\s*", ";"),
+      cleaned_response = str_replace_all(cleaned_response, ";+$", ""),  # remove trailing semicolon
+      response_list = strsplit(cleaned_response, ";")
+    )
+  
+  # Initialize results
+  result_list <- list()
+  
+  # Step 2: loop and check
+  for (i in seq_len(nrow(df_valid))) {
+    varname <- df_valid$VarNames[i]
+    
+    if (!varname %in% names(df_data)) next  # skip if var not in data
+    
+    observed <- unique(na.omit(df_data[[varname]]))
+    valid_vals <- df_valid$response_list[[i]]
+    
+    # Prepare accepted values
+    accepted <- c()
+    
+    for (val in valid_vals) {
+      val <- trimws(val)
+      if (grepl("^-?\\d+-\\d+$", val)) {
+        # It's a range like 1-99999 or -2-5
+        bounds <- as.numeric(str_split(val, "-")[[1]])
+        accepted <- c(accepted, seq(bounds[1], bounds[2]))
+      } else if (grepl("^-?\\d+$", val)) {
+        # Single numeric value
+        accepted <- c(accepted, as.numeric(val))
+      }
+    }
+    
+    accepted <- unique(accepted)
+    
+    # Find unexpected values
+    invalid <- setdiff(observed, accepted)
+    
+    if (length(invalid) > 0) {
+      result_list[[varname]] <- data.frame(
+        VarName = varname,
+        Invalid_Values = paste(invalid, collapse = ", ")
+      )
+    }
+  }
+  
+  # Step 3: return result
+  if (length(result_list) > 0) {
+    return(do.call(rbind, result_list))
+  } else {
+    message("All numeric values are within valid ranges.")
+    return(invisible(NULL))
+  }
 }
 
