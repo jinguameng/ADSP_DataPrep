@@ -35,6 +35,7 @@ colnames_file <- "/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype
 require(dplyr)
 require(readxl)
 require(openxlsx)
+require(stringr)
 ```
 
 <br>
@@ -138,7 +139,6 @@ saveWorkbook(wb, file = colnames_file, overwrite = TRUE)
 <br>
 
 # Variable Check Per File
-
 
 ## AAAD_GERIAT
 
@@ -474,6 +474,146 @@ tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$
 
 check_valid_numeric_responses(tmp,df)
 
+## ignore GP and IND
 ```
 
 
+<br>
+<br>
+
+## AAAD_TRAILS
+
+```{r}
+df <- AAAD_TRAILS
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r}
+dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "AAAD_TRAILS")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)] ## 3
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)]
+## [1] "REVIEW_DATE"
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## 2 vars
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## REVIEW_DATE, can ignore, since it has been converted in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 8 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## [1] "TIME_AMISS" "ERR_AMISS"  "COR_AMISS"  "TIME_BMISS" "ERR_BMISS"  "COR_BMISS"
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## as those variables in mismatchChrs_2 all have numeric values as valid responses, I think they should be categorized as numeric variables.
+## so I decided to update the DD for those variables
+
+## reload the DD
+dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "AAAD_TRAILS")
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+check_valid_responses(tmp,df)
+
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 23 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+check_valid_numeric_responses(tmp,df)
+
+## ignore GP and IND
+```
