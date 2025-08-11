@@ -174,10 +174,10 @@ check_valid_numeric_responses <- function(df_valid, df_data) {
       cleaned_response = gsub("\r\n", "", `Valid Responses`),
       cleaned_response = str_replace_all(cleaned_response, "thru", "-"),
       cleaned_response = str_replace_all(cleaned_response, ";\\s*", ";"),
-      cleaned_response = str_replace_all(cleaned_response, ";+$", ""),  # remove trailing semicolon
-      response_list = strsplit(cleaned_response, ";")
+      cleaned_response = str_replace_all(cleaned_response, ";+$", ""),
+      response_list = str_split(cleaned_response, ";")
     )
-  
+
   # Initialize results
   result_list <- list()
   
@@ -194,11 +194,13 @@ check_valid_numeric_responses <- function(df_valid, df_data) {
     accepted <- c()
     
     for (val in valid_vals) {
+      
       val <- trimws(val)
-      if (grepl("^-?\\d+-\\d+$", val)) {
-        # It's a range like 1-99999 or -2-5
-        bounds <- as.numeric(str_split(val, "-")[[1]])
+      
+      if (grepl("^-?\\d+\\s*-\\s*-?\\d+$", val)) {
+        bounds <- as.numeric(str_split(val, "\\s*-\\s*")[[1]])
         accepted <- c(accepted, seq(bounds[1], bounds[2]))
+        
       } else if (grepl("^-?\\d+$", val)) {
         # Single numeric value
         accepted <- c(accepted, as.numeric(val))
