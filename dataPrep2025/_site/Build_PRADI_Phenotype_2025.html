@@ -355,7 +355,7 @@ div.tocify {
 
 
 <p>Author: Mengna Zhang</p>
-<p><em>Last updated on:</em> 2025-08-13</p>
+<p><em>Last updated on:</em> 2025-08-14</p>
 <div id="set-path" class="section level1">
 <h1>Set Path</h1>
 <pre class="r"><code>#directory
@@ -376,7 +376,7 @@ require(stringr)</code></pre>
 </div>
 <div id="load-helper-scripts" class="section level1">
 <h1>Load Helper Scripts</h1>
-<pre class="r"><code>source(&quot;/Users/mengnazhang/Desktop/ADSP_DataPrep/dataPrep2025/helperScripts.R&quot;)</code></pre>
+<pre class="r"><code>source(&quot;/Users/mengnazhang/Desktop/ADSP_DataPrep/dataPrep2025/helperScripts_PRADI.R&quot;)</code></pre>
 <p><br> <br></p>
 </div>
 <div id="sub-files-inspection" class="section level1">
@@ -643,8 +643,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-577430916a2244bcfa01" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-577430916a2244bcfa01">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["axr1589, v.rodriguez4, bxf258, avg55, ALEJANDRA BETACOURT, kxc672, RDW, sjt82, plb50, ascott2, prm72, mxp1257, erika negro, mxc2207, Erika Negro, MP, AS, PM, OG, M. prough, patricia, NIT, MICHAEL P, M PROUGH, UCC, CDel, NEREIDA FELICIANO, erica, erika, Maricarmen Contreras, xx, fxs121, MEDICAL RECORDS, jjs2031, axl4132, jmv184, cmanrique, gsv32, rmartinez1"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-82beb1014845a9bce369" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-82beb1014845a9bce369">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["axr1589, v.rodriguez4, bxf258, avg55, ALEJANDRA BETACOURT, kxc672, RDW, sjt82, plb50, ascott2, prm72, mxp1257, erika negro, mxc2207, Erika Negro, MP, AS, PM, OG, M. prough, patricia, NIT, MICHAEL P, M PROUGH, UCC, CDel, NEREIDA FELICIANO, erica, erika, Maricarmen Contreras, xx, fxs121, MEDICAL RECORDS, jjs2031, axl4132, jmv184, cmanrique, gsv32, rmartinez1"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore EXAMINER, as I assume we can have multiple examiners</code></pre>
 <p><br></p>
 </div>
@@ -668,8 +668,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-8ef6ea61ad799ec0b45d" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-8ef6ea61ad799ec0b45d">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104406, 104418, 104420, 104446, 104442, 104423, 104457, 104438, 104419, 104409, 104404, 104431, 104456, 104433, 104425, 104434, 104402, 104501, 104403, 104436, 104413, 104440, 104430, 104424, 104415, 104443, 104441, 104414, 104444, 104422, 104428, 104435, 104437, 104412, 104411, 104408, 104407, 104432, 104439, 104445, 104427, 104410, 104426, 104466, 104477, 104711"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-c6946a6bb1d29de8c87f" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-c6946a6bb1d29de8c87f">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104406, 104418, 104420, 104446, 104442, 104423, 104457, 104438, 104419, 104409, 104404, 104431, 104456, 104433, 104425, 104434, 104402, 104501, 104403, 104436, 104413, 104440, 104430, 104424, 104415, 104443, 104441, 104414, 104444, 104422, 104428, 104435, 104437, 104412, 104411, 104408, 104407, 104432, 104439, 104445, 104427, 104410, 104426, 104466, 104477, 104711"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -1065,8 +1065,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
 <pre><code>## All values are within valid ranges.</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-88ab3cd6b07a51a35f96" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-88ab3cd6b07a51a35f96">{"x":null,"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-94ebe2bb8d6338161e46" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-94ebe2bb8d6338161e46">{"x":null,"evals":[],"jsHooks":[]}</script>
 <p><br></p>
 </div>
 <div id="handling-numeric-variables-1" class="section level3">
@@ -1092,8 +1092,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-13c9ddcd83ff0a82e0c9" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-13c9ddcd83ff0a82e0c9">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104406, 104405, 104422, 104428, 104435, 104437, 104411, 104418, 104442, 104445, 104427, 104460, 104415, 104410, 104466, 104438, 104419, 104409, 104446, 104464, 104408, 104431, 104407, 104432, 104439, 104420, 104423, 104424, 104530, 104501, 104412, 104426, 104403, 104429, 104433, 104440, 104443, 104444, 104425, 104413, 104441, 104430, 104421, 104404, 104402, 104436, 104401"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-901300bef52019303992" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-901300bef52019303992">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104406, 104405, 104422, 104428, 104435, 104437, 104411, 104418, 104442, 104445, 104427, 104460, 104415, 104410, 104466, 104438, 104419, 104409, 104446, 104464, 104408, 104431, 104407, 104432, 104439, 104420, 104423, 104424, 104530, 104501, 104412, 104426, 104403, 104429, 104433, 104440, 104443, 104444, 104425, 104413, 104441, 104430, 104421, 104404, 104402, 104436, 104401"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP and IND</code></pre>
 <p><br></p>
 </div>
@@ -1393,8 +1393,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-2c9494f92637031e2d7a" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-2c9494f92637031e2d7a">{"x":{"filter":"none","vertical":false,"data":[["SDF8A","SDF8B"],["SDF8A","SDF8B"],["FT  PT","FT  PD, R  O, U  R, T  R, R  PD"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-d8549fa93b9d619bfd91" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d8549fa93b9d619bfd91">{"x":{"filter":"none","vertical":false,"data":[["SDF8A","SDF8B"],["SDF8A","SDF8B"],["FT  PT","FT  PD, R  O, U  R, T  R, R  PD"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>unique(df[[&quot;SDF8A&quot;]]) ## DD: 8. Are you working now? Circle all that apply</code></pre>
 <pre><code>## [1] &quot;PT&quot;     NA       &quot;FT&quot;     &quot;V&quot;      &quot;FT  PT&quot;</code></pre>
 <pre class="r"><code>unique(df[[&quot;SDF8B&quot;]]) ## DD: If participant says NO, ask Why not? If any of the following SKIP TO #20</code></pre>
@@ -1429,8 +1429,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-a378f20690f1b631a3a2" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-a378f20690f1b631a3a2">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104406, 104422, 104435, 104437, 104411, 104418, 104445, 104427, 104410, 104420, 104438, 104415, 104419, 104409, 104421, 104428, 104405, 104446, 104431, 104408, 104407, 104432, 104439, 104423, 104424, 104442, 104412, 104426"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-eb0f11a25eee3ccb62ac" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-eb0f11a25eee3ccb62ac">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104406, 104422, 104435, 104437, 104411, 104418, 104445, 104427, 104410, 104420, 104438, 104415, 104419, 104409, 104421, 104428, 104405, 104446, 104431, 104408, 104407, 104432, 104439, 104423, 104424, 104442, 104412, 104426"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -1601,8 +1601,8 @@ mismatchChrs_2 &lt;- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
 <pre><code>## All values are within valid ranges.</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-5d5f427390de685805f8" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-5d5f427390de685805f8">{"x":null,"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-c1baff5d1f0b722809b0" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-c1baff5d1f0b722809b0">{"x":null,"evals":[],"jsHooks":[]}</script>
 <p><br></p>
 </div>
 <div id="handling-numeric-variables-3" class="section level3">
@@ -1627,8 +1627,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-c27dd1c23fd745f0714e" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-c27dd1c23fd745f0714e">{"x":{"filter":"none","vertical":false,"data":[["GP","TIME_A","COR_A","TIME_B","COR_B"],["GP","TIME_A","COR_A","TIME_B","COR_B"],["104406, 104422, 104435, 104437, 104411, 104418, 104407, 104445, 104427, 104415, 104410, 104428, 104438, 104419, 104409, 104446, 104408, 104431, 104432, 104439, 104420, 104423, 104424, 104442, 104412, 104426, 104405, 104403, 104425, 104413, 104443, 104436, 104430, 104421, 104433, 104402, 104416","275, 180, 187, 190, 195, 205, 170, 300, 160, 188, 159, 169, 165","25","400, 302, 341, 328, 383, 326, 590, 316","25"],["1 - 99999","0 - 150","0 - 24","0 - 300","0 - 24"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-d0313ce4271e78ea2330" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d0313ce4271e78ea2330">{"x":{"filter":"none","vertical":false,"data":[["GP","TIME_A","COR_A","TIME_B","COR_B"],["GP","TIME_A","COR_A","TIME_B","COR_B"],["104406, 104422, 104435, 104437, 104411, 104418, 104407, 104445, 104427, 104415, 104410, 104428, 104438, 104419, 104409, 104446, 104408, 104431, 104432, 104439, 104420, 104423, 104424, 104442, 104412, 104426, 104405, 104403, 104425, 104413, 104443, 104436, 104430, 104421, 104433, 104402, 104416","275, 180, 187, 190, 195, 205, 170, 300, 160, 188, 159, 169, 165","25","400, 302, 341, 328, 383, 326, 590, 316","25"],["1 - 99999","0 - 150","0 - 24","0 - 300","0 - 24"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP and IND
 ## need to contact Mike about other variables: TIME_A, TIME_B, COR_B</code></pre>
 <p><br></p>
@@ -1914,8 +1914,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-49c8bc6a10f5a1035045" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-49c8bc6a10f5a1035045">{"x":{"filter":"none","vertical":false,"data":[["IMPRESSION","AD_CATEGORY","AD_HX_CATEGORY","UNCLEAR_CATEGORY","FILLED_OUT_BY"],["IMPRESSION","AD_CATEGORY","AD_HX_CATEGORY","UNCLEAR_CATEGORY","FILLED_OUT_BY"],["Affected By Exam, Affected By History, Unclear, Unaffected By Exam, Normal By Screen, Unaffected By History, No Data","Definite AD (Exam), Probable AD (Exam), Possible AD (Exam)","Probable AD (History), Possible AD (History), Definite AD (History)","Unclear - MCI, Unclear - Other, Unclear - Demented, Unclear By Screen","kxc672, jjs2031, Celis, Katrina, avg55, v.rodriguez4, prm72, sjt82, mxc2207, axr1589, ALEJANDRA RODRIGUEZ, mxp1257, ERIKA NEGRO, bxf258, plb50, fxs121, jmv184, ALEJANDRA BETACOURT, ascott2, MICHAEL P, Dr Feliciano, pxg275, alejandra betancourt, axl4132, erika negro, Erika Negro, michael p, michael prough, Michael Prough, Dr. Feliciano, MICHAEL PROUGH, gmh86, j.delvilla, M. Prough, Celis, Katrina; Anto"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-d2ca3eacdd059e5adbb5" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d2ca3eacdd059e5adbb5">{"x":{"filter":"none","vertical":false,"data":[["IMPRESSION","AD_CATEGORY","AD_HX_CATEGORY","UNCLEAR_CATEGORY","FILLED_OUT_BY"],["IMPRESSION","AD_CATEGORY","AD_HX_CATEGORY","UNCLEAR_CATEGORY","FILLED_OUT_BY"],["Affected By Exam, Affected By History, Unclear, Unaffected By Exam, Normal By Screen, Unaffected By History, No Data","Definite AD (Exam), Probable AD (Exam), Possible AD (Exam)","Probable AD (History), Possible AD (History), Definite AD (History)","Unclear - MCI, Unclear - Other, Unclear - Demented, Unclear By Screen","kxc672, jjs2031, Celis, Katrina, avg55, v.rodriguez4, prm72, sjt82, mxc2207, axr1589, ALEJANDRA RODRIGUEZ, mxp1257, ERIKA NEGRO, bxf258, plb50, fxs121, jmv184, ALEJANDRA BETACOURT, ascott2, MICHAEL P, Dr Feliciano, pxg275, alejandra betancourt, axl4132, erika negro, Erika Negro, michael p, michael prough, Michael Prough, Dr. Feliciano, MICHAEL PROUGH, gmh86, j.delvilla, M. Prough, Celis, Katrina; Anto"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## the descrption for variable FILLED_OUT_BY mentioned this is Dropdown style for people to select, so I belive that multiple values are fine</code></pre>
 <p><br></p>
 </div>
@@ -1939,8 +1939,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-3f16cf8c283b20f920fb" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-3f16cf8c283b20f920fb">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104405, 104418, 104420, 104422, 104428, 104435, 104437, 104438, 104446, 104419, 104424, 104415, 104410, 104423, 104409, 104426, 104411, 104408, 104407, 104432, 104439, 104442, 104445, 104427, 104431, 104406, 104412"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-3273b4858b1c1f26a30c" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-3273b4858b1c1f26a30c">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104405, 104418, 104420, 104422, 104428, 104435, 104437, 104438, 104446, 104419, 104424, 104415, 104410, 104423, 104409, 104426, 104411, 104408, 104407, 104432, 104439, 104442, 104445, 104427, 104431, 104406, 104412"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -2100,8 +2100,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
 <pre><code>## All values are within valid ranges.</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-bbe33d2cc60e3cbbc63f" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-bbe33d2cc60e3cbbc63f">{"x":null,"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-6bccbf77a37ecc37538d" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-6bccbf77a37ecc37538d">{"x":null,"evals":[],"jsHooks":[]}</script>
 <p><br></p>
 </div>
 <div id="handling-numeric-variables-5" class="section level3">
@@ -2125,8 +2125,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-cafae75fbcce3ee07084" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-cafae75fbcce3ee07084">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104405"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-bfff23a1a42fa36a7319" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-bfff23a1a42fa36a7319">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104405"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -2323,8 +2323,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-8b3637d3a466026b1882" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-8b3637d3a466026b1882">{"x":{"filter":"none","vertical":false,"data":[["FILLED_OUT_BY","NEURO_METHOD"],["FILLED_OUT_BY","NEURO_METHOD"],["v.rodriguez4, bxf258, avg55, kxc672, axr1589, ALEJANDRA BETACOURT, ALEJANDRA, sjt82, prm72, NEREIDA FELICIANO, sek100, mxp1257, mpericak, mxc2207, Erika Negro, patricia manrique, pxg275, patricia m, jjs2031","M  E"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-340b9b076ea4c9a34101" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-340b9b076ea4c9a34101">{"x":{"filter":"none","vertical":false,"data":[["FILLED_OUT_BY","NEURO_METHOD"],["FILLED_OUT_BY","NEURO_METHOD"],["v.rodriguez4, bxf258, avg55, kxc672, axr1589, ALEJANDRA BETACOURT, ALEJANDRA, sjt82, prm72, NEREIDA FELICIANO, sek100, mxp1257, mpericak, mxc2207, Erika Negro, patricia manrique, pxg275, patricia m, jjs2031","M  E"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore NEURO_METHOD and FILLED_OUT_BY</code></pre>
 <p><br></p>
 </div>
@@ -2348,8 +2348,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-096db5f835fdf6a59972" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-096db5f835fdf6a59972">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104425, 104402, 104403"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-792eaa88a9bdcd159d84" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-792eaa88a9bdcd159d84">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104425, 104402, 104403"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -2516,8 +2516,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-9a2608b3a67ea1399249" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-9a2608b3a67ea1399249">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["mxc2207, jjs2031, cmanrique"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-7fd264552af7018b953b" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-7fd264552af7018b953b">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["mxc2207, jjs2031, cmanrique"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore EXAMINER, as I assume we can have multiple examiners</code></pre>
 <p><br></p>
 </div>
@@ -2542,8 +2542,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
 <pre><code>## All numeric values are within valid ranges.</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-9d28a60949585f087194" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-9d28a60949585f087194">{"x":null,"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-1f8e98a48ef641279ece" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-1f8e98a48ef641279ece">{"x":null,"evals":[],"jsHooks":[]}</script>
 <p><br></p>
 </div>
 <div id="save-cleaned-data-7" class="section level3">
@@ -2712,8 +2712,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-4a54e9165675893baa44" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-4a54e9165675893baa44">{"x":{"filter":"none","vertical":false,"data":[["INTERVIEWER"],["INTERVIEWER"],["v.rodriguez4, axr1589, michael p, bxf258, avg55, ALEJANDRA BETACOURT, kxc672, plb50, sjt82, prm72, MP, AS, M PROUGH, UCC, Cdel, OG, CDL, ascott2, ALEJANDRA, RMC, NEREIDA FELICIANO, erika, mxc2207, Erika Negro, pxg275, mxp1257, fxs121, A Grana, MICHAEL P, erica, jjs2031, axl4132, patricia m, jmv184, patricia manrique, cmanrique, Maricarmen Contreras"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-f4f409f5c0b27d5bde76" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-f4f409f5c0b27d5bde76">{"x":{"filter":"none","vertical":false,"data":[["INTERVIEWER"],["INTERVIEWER"],["v.rodriguez4, axr1589, michael p, bxf258, avg55, ALEJANDRA BETACOURT, kxc672, plb50, sjt82, prm72, MP, AS, M PROUGH, UCC, Cdel, OG, CDL, ascott2, ALEJANDRA, RMC, NEREIDA FELICIANO, erika, mxc2207, Erika Negro, pxg275, mxp1257, fxs121, A Grana, MICHAEL P, erica, jjs2031, axl4132, patricia m, jmv184, patricia manrique, cmanrique, Maricarmen Contreras"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore INTERVIEWER</code></pre>
 <p><br></p>
 </div>
@@ -2747,8 +2747,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-08f2853806e0ab5653d0" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-08f2853806e0ab5653d0">{"x":{"filter":"none","vertical":false,"data":[["GP","PHONE"],["GP","PHONE"],["104406, 104418, 104420, 104405, 104446, 104442, 104423, 104403, 104404, 104438, 104419, 104409, 104408, 104431, 104429, 104433, 104434, 104413, 104416, 104436, 104425, 104421, 104440, 104430, 104443, 104424, 104415, 104441, 104414, 104402, 104422, 104428, 104435, 104437, 104412, 104411, 104407, 104432, 104439, 104445, 104427, 104410, 104426","3"],["1 - 99999","1;2;8;9"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-cca02c2561c79d58036c" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-cca02c2561c79d58036c">{"x":{"filter":"none","vertical":false,"data":[["GP","PHONE"],["GP","PHONE"],["104406, 104418, 104420, 104405, 104446, 104442, 104423, 104403, 104404, 104438, 104419, 104409, 104408, 104431, 104429, 104433, 104434, 104413, 104416, 104436, 104425, 104421, 104440, 104430, 104443, 104424, 104415, 104441, 104414, 104402, 104422, 104428, 104435, 104437, 104412, 104411, 104407, 104432, 104439, 104445, 104427, 104410, 104426","3"],["1 - 99999","1;2;8;9"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -2870,8 +2870,8 @@ dfDD[dfDD$VarNames %in% logicols,c(&quot;VarNames&quot;,&quot;Data Type&quot;)]<
 ## 17 UNCON_VAL  NUMBER(3)    
 ## 18 UNCON_UNIT VARCHAR2(7)</code></pre>
 <pre class="r"><code>## converted to character
-convert2num &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;NUMBER&quot;, dfDD$`Data Type`)] ## 13 vars
-convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`)] ## 5 vars
+convert2num &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;NUMBER&quot;, dfDD$`Data Type`,ignore.case = T)] ## 13 vars
+convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`,ignore.case = T)] ## 5 vars
 
 ## convert
 df[convert2num] &lt;- lapply(df[convert2chr], as.numeric)
@@ -2937,8 +2937,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-a91c1f52e2d4d9297e36" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-a91c1f52e2d4d9297e36">{"x":{"filter":"none","vertical":false,"data":[["FILLED_OUT_BY"],["FILLED_OUT_BY"],["sjt82, v.rodriguez4, medical records, mxc2207, Erika Negro, prm72, avg55, mxp1257, ERIKA NEGRO, jjs2031, axr1589, kxc672, Erika NEgro, medical record, axl4132, bxf258, erika negro, fxs121, plb50, ajennings, jmv184"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-99ad45e2e97e385d9846" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-99ad45e2e97e385d9846">{"x":{"filter":"none","vertical":false,"data":[["FILLED_OUT_BY"],["FILLED_OUT_BY"],["sjt82, v.rodriguez4, medical records, mxc2207, Erika Negro, prm72, avg55, mxp1257, ERIKA NEGRO, jjs2031, axr1589, kxc672, Erika NEgro, medical record, axl4132, bxf258, erika negro, fxs121, plb50, ajennings, jmv184"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore FILLED_OUT_BY</code></pre>
 <p><br></p>
 </div>
@@ -2978,8 +2978,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-8f2d965fe79bd843139f" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-8f2d965fe79bd843139f">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104406, 104422, 104428, 104435, 104437, 104446, 104411, 104408, 104418, 104407, 104445, 104427, 104438, 104415, 104419, 104409, 104421, 104431, 104432, 104439, 104420, 104423, 104424, 104442, 104412, 104426, 104405, 104433, 104403, 104429, 104444"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-1c67c223b452df13bcba" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-1c67c223b452df13bcba">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104406, 104422, 104428, 104435, 104437, 104446, 104411, 104408, 104418, 104407, 104445, 104427, 104438, 104415, 104419, 104409, 104421, 104431, 104432, 104439, 104420, 104423, 104424, 104442, 104412, 104426, 104405, 104433, 104403, 104429, 104444"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -3061,7 +3061,7 @@ dfDD[dfDD$VarNames %in% logicols,c(&quot;VarNames&quot;,&quot;Data Type&quot;)]<
 ##   &lt;chr&gt;    &lt;chr&gt;      
 ## 1 REFCTR   VARCHAR2(6)</code></pre>
 <pre class="r"><code>## converted to character
-convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`)]
+convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`,ignore.case = T)]
 
 ## convert
 df[convert2chr] &lt;- lapply(df[convert2chr], as.character)
@@ -3126,8 +3126,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-51cdc859c74fb7f7bc25" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-51cdc859c74fb7f7bc25">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["axr1589, avg55, v.rodriguez4, kxc672, sjt82, ascott2, prm72, bxf258, plb50, PEDRO MENA, OG, PM, AS, UCC, MP, M. prough, Patricia, erica, A Grana, Dr NIT, NEREIDA FELICIANO, M PROGUH, M PROUGH, PLB, mxc2207, Erika Negro, mxp1257, PATRICIA, pxg275, erika, Maricarmen Contreras, fxs121, erika negro, ERIKA NEGRO, mciliberti, ERIKA N, ERIKA, erika negron, ERIKA NEGRON, jjs2031, axl4132, mcuccaro, jmv184, joycelyn, gsv32, cmanrique"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-9cfb6c2abb77fc04d239" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-9cfb6c2abb77fc04d239">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["axr1589, avg55, v.rodriguez4, kxc672, sjt82, ascott2, prm72, bxf258, plb50, PEDRO MENA, OG, PM, AS, UCC, MP, M. prough, Patricia, erica, A Grana, Dr NIT, NEREIDA FELICIANO, M PROGUH, M PROUGH, PLB, mxc2207, Erika Negro, mxp1257, PATRICIA, pxg275, erika, Maricarmen Contreras, fxs121, erika negro, ERIKA NEGRO, mciliberti, ERIKA N, ERIKA, erika negron, ERIKA NEGRON, jjs2031, axl4132, mcuccaro, jmv184, joycelyn, gsv32, cmanrique"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore FILLED_OUT_BY</code></pre>
 <p><br></p>
 </div>
@@ -3152,8 +3152,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-8d4394a8ebba982174fd" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-8d4394a8ebba982174fd">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104418, 104420, 104405, 104422, 104406, 104442, 104445, 104427, 104410, 104426, 104423, 104438, 104419, 104409, 104431, 104408, 104424, 104439, 104415, 104428, 104435, 104437, 104446, 104412, 104411, 104407, 104432, 104443, 104425, 104404, 104403, 104429, 104433, 104413, 104434, 104436, 104430, 104402, 104441, 104444, 104421, 104440, 104401, 104416, 104414"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-9bf58fb2c611e4510028" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-9bf58fb2c611e4510028">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104418, 104420, 104405, 104422, 104406, 104442, 104445, 104427, 104410, 104426, 104423, 104438, 104419, 104409, 104431, 104408, 104424, 104439, 104415, 104428, 104435, 104437, 104446, 104412, 104411, 104407, 104432, 104443, 104425, 104404, 104403, 104429, 104433, 104413, 104434, 104436, 104430, 104402, 104441, 104444, 104421, 104440, 104401, 104416, 104414"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -3321,7 +3321,7 @@ dfDD[dfDD$VarNames %in% logicols,c(&quot;VarNames&quot;,&quot;Data Type&quot;)]<
 ##   &lt;chr&gt;    &lt;chr&gt;      
 ## 1 REFCTR   VARCHAR2(6)</code></pre>
 <pre class="r"><code>## converted to character
-convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`)]
+convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`,ignore.case = T)]
 
 ## convert
 df[convert2chr] &lt;- lapply(df[convert2chr], as.character)
@@ -3386,8 +3386,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-f33efe1f417eef27126b" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-f33efe1f417eef27126b">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER","NPIQINF"],["EXAMINER","NPIQINF"],["avg55, axr1589, v.rodriguez4, kxc672, prm72, sjt82, mxc2207, mxp1257, bxf258, jjs2031, cmanrique","2  3  6, 2  7, 1  2, 2  6, 2  4"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-79016ee87c6fcca786d4" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-79016ee87c6fcca786d4">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER","NPIQINF"],["EXAMINER","NPIQINF"],["avg55, axr1589, v.rodriguez4, kxc672, prm72, sjt82, mxc2207, mxp1257, bxf258, jjs2031, cmanrique","2  3  6, 2  7, 1  2, 2  6, 2  4"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore NPIQINF, since it can be multiple values as specified in the DD</code></pre>
 <p><br></p>
 </div>
@@ -3422,8 +3422,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-c86c4d0a070286c10862" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-c86c4d0a070286c10862">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104460"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-331972860fb2cdb9a5d4" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-331972860fb2cdb9a5d4">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104460"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -3544,8 +3544,8 @@ dfDD[dfDD$VarNames %in% logicols,c(&quot;VarNames&quot;,&quot;Data Type&quot;)]<
 ## 2 REVIEW_DATE date       
 ## 3 REVIEWER    VARCHAR</code></pre>
 <pre class="r"><code>## converted to character
-convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`)]
-convert2date &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;date&quot;, dfDD$`Data Type`)]
+convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`,ignore.case = T)]
+convert2date &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;date&quot;, dfDD$`Data Type`,ignore.case = T)]
 
 ## convert
 df[convert2chr] &lt;- lapply(df[convert2chr], as.character)
@@ -3614,8 +3614,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-2de3acf374293ba610d7" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-2de3acf374293ba610d7">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["sjt82, jjs2031, mxc2207, axl4132, mxp1257, jmv184, Maricarmen Contreras, cmanrique"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-bd496ac9bced23ffe128" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-bd496ac9bced23ffe128">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["sjt82, jjs2031, mxc2207, axl4132, mxp1257, jmv184, Maricarmen Contreras, cmanrique"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore EXAMINER</code></pre>
 <p><br></p>
 </div>
@@ -3642,8 +3642,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-8d7f2c634285199bd61a" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-8d7f2c634285199bd61a">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104411, 104408, 104445, 104427, 104406, 104415, 104431, 104407, 104432, 104439, 104442, 104530, 104403, 104404"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-a404e96e8e3066514ae3" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-a404e96e8e3066514ae3">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104411, 104408, 104445, 104427, 104406, 104415, 104431, 104407, 104432, 104439, 104442, 104530, 104403, 104404"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -3830,8 +3830,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-f62dbae4693a3f93643d" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-f62dbae4693a3f93643d">{"x":{"filter":"none","vertical":false,"data":[["FILLED_OUT_BY"],["FILLED_OUT_BY"],["axr1589, v.rodriguez4, avg55, ALEJANDRA BETACOURT, bxf258, sjt82, prm72, kxc672, ascott2, patricia manrique, patricia, mxc2207, fxs121, jjs2031, axl4132, jmv184, gsv32, cmanrique"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-e909307e2696ec8a725e" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-e909307e2696ec8a725e">{"x":{"filter":"none","vertical":false,"data":[["FILLED_OUT_BY"],["FILLED_OUT_BY"],["axr1589, v.rodriguez4, avg55, ALEJANDRA BETACOURT, bxf258, sjt82, prm72, kxc672, ascott2, patricia manrique, patricia, mxc2207, fxs121, jjs2031, axl4132, jmv184, gsv32, cmanrique"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore FILLED_OUT_BY</code></pre>
 <p><br></p>
 </div>
@@ -3855,8 +3855,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-d80771663f61ae3aeeca" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-d80771663f61ae3aeeca">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104477, 104415, 104410, 104456, 104557, 104403, 104404, 104705"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-66d9fe189d62dae056ce" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-66d9fe189d62dae056ce">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104477, 104415, 104410, 104456, 104557, 104403, 104404, 104705"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -4065,8 +4065,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-cf46c628929c1a759fad" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-cf46c628929c1a759fad">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["gsv32, jjs2031, cmanrique, sjt82, kxc672, mxp1257, mxl2473, v.rodriguez4, cxc2077, smm493, Katalina McInerney, axl4418, Izri Martinez, prm72, Anisley Martinez, eir34, ABIGAIL LOPEZ, Katalina Fernandez M, bxf258, lxi119"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-1cbaabc98b8af5b6bc80" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-1cbaabc98b8af5b6bc80">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["gsv32, jjs2031, cmanrique, sjt82, kxc672, mxp1257, mxl2473, v.rodriguez4, cxc2077, smm493, Katalina McInerney, axl4418, Izri Martinez, prm72, Anisley Martinez, eir34, ABIGAIL LOPEZ, Katalina Fernandez M, bxf258, lxi119"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore EXAMINER</code></pre>
 <p><br></p>
 </div>
@@ -4090,8 +4090,8 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-2cbc74c193e886f600a1" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-2cbc74c193e886f600a1">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104540, 104528, 104519, 104455, 104511, 104548, 104549, 104459, 104452, 104531, 104497, 104521, 104487, 104496, 104525, 104472, 104515, 104508, 104490, 104453, 104513, 104499, 104500, 104536, 104518, 104454, 104514, 104554, 104481, 105805, 104475, 104526, 104539, 104527, 104466, 104556, 104532, 104552, 104463, 104512, 104469, 105806, 104457, 104464, 104529, 104516, 104476, 104530, 104502, 105801, 104458, 104470, 104553, 105817, 104569, 104482, 105821, 105818, 104589, 105827, 104565, 105820, 104557, 104564, 104535, 105809, 104560, 104574, 104542, 104461, 105815, 105807, 105808, 105803, 105814, 104507, 104578, 104586, 104467, 104582, 104447, 104585, 104550, 104573, 105824, 104468, 104547, 104545, 104570, 104583, 105811, 104485, 104450, 104559, 104546, 104555, 104590, 104591, 104568, 104506, 104551, 104544, 104571, 104473, 104483, 105813, 104494, 104563, 104484, 105822, 104572, 104495, 105826, 104524, 104489, 104462, 104479, 104523, 104488, 104509, 104505, 104579, 104448, 104534, 104566, 104465, 105812, 104562, 104580, 104581, 104584, 104541, 104533, 105810, 104451, 104498, 104510, 104449, 104575, 104474, 104561, 104520, 105800, 105816, 104480, 105825, 105823, 104478, 104486, 104594, 104654, 104662, 104661, 104652, 104666, 104632, 104626, 104656, 104659, 104660, 104658, 104614, 104588, 104623, 104664, 104629, 104657, 104634, 104599, 104616, 104610, 104621, 104617, 104684, 104679, 104697, 104619, 104612, 104501, 105829, 104638, 104655, 104640, 104643, 104602, 104639, 104645, 104685, 104681, 104503, 104522, 104665, 105830, 104456, 104597, 104669, 104618, 104624, 105832, 104595, 104538, 104504, 104537, 104648, 104672, 105833, 105834, 104650, 104558, 104517, 104667, 104604, 104701, 104688, 104593, 104689, 105828, 104663, 104686, 104630, 104611, 104644, 104646, 104615, 104605, 104606, 104622, 104683, 104647, 104608, 104696, 104677, 104699, 104631, 105831, 104680, 104642, 104598, 104600, 104596, 104637, 104543, 104620, 104668, 104651, 104609, 104607, 104673, 104682, 104674, 104592, 104401, 104641, 104649, 104712, 104714, 104711, 104613, 105838, 104708, 104704, 104713, 104710, 104724, 104725, 104720, 104723, 104735, 104675, 104676, 104781, 104785, 104775, 104718, 104719, 104717, 104736, 104743, 104742, 104761, 104740, 104744, 104769, 104765, 104754, 104752, 104758, 104766, 104762, 104770, 104771, 104627, 104747, 104628, 104727, 104721, 104728, 104726, 104700, 104734, 104715, 104706, 104746, 104722, 104730, 104690, 104774, 104778, 104695, 104748, 104738, 104737, 104751, 104703, 104731, 104729, 104768, 104764, 104777, 104763, 104776, 104625, 104603, 104702"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-09a5cec6d24d674104b9" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-09a5cec6d24d674104b9">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104540, 104528, 104519, 104455, 104511, 104548, 104549, 104459, 104452, 104531, 104497, 104521, 104487, 104496, 104525, 104472, 104515, 104508, 104490, 104453, 104513, 104499, 104500, 104536, 104518, 104454, 104514, 104554, 104481, 105805, 104475, 104526, 104539, 104527, 104466, 104556, 104532, 104552, 104463, 104512, 104469, 105806, 104457, 104464, 104529, 104516, 104476, 104530, 104502, 105801, 104458, 104470, 104553, 105817, 104569, 104482, 105821, 105818, 104589, 105827, 104565, 105820, 104557, 104564, 104535, 105809, 104560, 104574, 104542, 104461, 105815, 105807, 105808, 105803, 105814, 104507, 104578, 104586, 104467, 104582, 104447, 104585, 104550, 104573, 105824, 104468, 104547, 104545, 104570, 104583, 105811, 104485, 104450, 104559, 104546, 104555, 104590, 104591, 104568, 104506, 104551, 104544, 104571, 104473, 104483, 105813, 104494, 104563, 104484, 105822, 104572, 104495, 105826, 104524, 104489, 104462, 104479, 104523, 104488, 104509, 104505, 104579, 104448, 104534, 104566, 104465, 105812, 104562, 104580, 104581, 104584, 104541, 104533, 105810, 104451, 104498, 104510, 104449, 104575, 104474, 104561, 104520, 105800, 105816, 104480, 105825, 105823, 104478, 104486, 104594, 104654, 104662, 104661, 104652, 104666, 104632, 104626, 104656, 104659, 104660, 104658, 104614, 104588, 104623, 104664, 104629, 104657, 104634, 104599, 104616, 104610, 104621, 104617, 104684, 104679, 104697, 104619, 104612, 104501, 105829, 104638, 104655, 104640, 104643, 104602, 104639, 104645, 104685, 104681, 104503, 104522, 104665, 105830, 104456, 104597, 104669, 104618, 104624, 105832, 104595, 104538, 104504, 104537, 104648, 104672, 105833, 105834, 104650, 104558, 104517, 104667, 104604, 104701, 104688, 104593, 104689, 105828, 104663, 104686, 104630, 104611, 104644, 104646, 104615, 104605, 104606, 104622, 104683, 104647, 104608, 104696, 104677, 104699, 104631, 105831, 104680, 104642, 104598, 104600, 104596, 104637, 104543, 104620, 104668, 104651, 104609, 104607, 104673, 104682, 104674, 104592, 104401, 104641, 104649, 104712, 104714, 104711, 104613, 105838, 104708, 104704, 104713, 104710, 104724, 104725, 104720, 104723, 104735, 104675, 104676, 104781, 104785, 104775, 104718, 104719, 104717, 104736, 104743, 104742, 104761, 104740, 104744, 104769, 104765, 104754, 104752, 104758, 104766, 104762, 104770, 104771, 104627, 104747, 104628, 104727, 104721, 104728, 104726, 104700, 104734, 104715, 104706, 104746, 104722, 104730, 104690, 104774, 104778, 104695, 104748, 104738, 104737, 104751, 104703, 104731, 104729, 104768, 104764, 104777, 104763, 104776, 104625, 104603, 104702"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
@@ -4261,8 +4261,8 @@ tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = T
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-c5706122c1d540d75adc" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-c5706122c1d540d75adc">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["gsv32, jjs2031, sjt82, mxp1257, cmanrique, v.rodriguez4, bxf258, mxl2473, Katalina McInerney, prm72, ABIGAIL LOPEZ, Anisley Martinez, Katalina Fernandez M, axl4418, lxi119, eir34, smm493"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-65bc0f10214a17990972" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-65bc0f10214a17990972">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["gsv32, jjs2031, sjt82, mxp1257, cmanrique, v.rodriguez4, bxf258, mxl2473, Katalina McInerney, prm72, ABIGAIL LOPEZ, Anisley Martinez, Katalina Fernandez M, axl4418, lxi119, eir34, smm493"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore EXAMINER</code></pre>
 <p><br></p>
 </div>
@@ -4291,14 +4291,1785 @@ unique(numColsfromDD$`Valid Responses`)</code></pre>
 <pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
 
 DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-6d2a09e3e716c3854f94" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-6d2a09e3e716c3854f94">{"x":{"filter":"none","vertical":false,"data":[["GP","DELSEV","HALLSEV","AGITSEV","DEPDSEV","ANXSEV","ELATSEV","APASEV","DISNSEV","IRRSEV","MOTSEV","NITESEV","APPSEV"],["GP","DELSEV","HALLSEV","AGITSEV","DEPDSEV","ANXSEV","ELATSEV","APASEV","DISNSEV","IRRSEV","MOTSEV","NITESEV","APPSEV"],["104457, 104556, 104552, 104452, 104518, 104472, 105801, 104496, 105806, 104490, 104554, 104460, 104475, 104532, 104463, 104466, 104459, 104529, 104481, 104464, 105803, 105817, 105827, 104572, 104542, 104461, 105807, 105815, 104519, 105808, 104578, 105809, 105813, 104575, 104474, 104574, 104573, 105824, 104545, 104570, 104582, 104583, 105826, 104581, 104480, 104544, 104562, 105814, 105816, 104571, 104569, 104565, 104579, 104566, 104567, 104563, 104580, 104478, 104458, 105811, 105800, 104462, 105818, 104483, 104451, 104546, 105823, 105825, 104486, 104636, 104662, 104666, 104632, 104659, 104640, 104614, 104660, 104611, 104623, 104621, 104617, 104683, 104681, 104604, 104619, 104612, 105833, 105829, 104609, 104668, 104643, 104644, 104602, 104680, 104665, 104616, 105830, 104537, 104648, 104633, 104649, 104638, 104631, 104652, 104667, 104698, 104593, 105831, 104689, 104646, 104615, 104606, 104622, 104647, 104608, 105828, 105832, 104637, 104594, 104639, 104558, 104642, 104600, 104654, 105834, 104620, 104607, 104596, 104673, 104677, 104635, 104641, 104709, 104711, 104613, 105838, 104714, 104722, 104769, 104742, 104735, 104674, 104744, 104751, 104765, 104771, 104763, 104770, 104700, 104729, 104778, 104695, 104762, 104726, 104768, 104764, 104747, 104690, 104676","0","0, 9","0, 9","0, 9","0","0, 9","0, 9","0, 9","0, 9","0, 9","0, 9","0, 9"],["1 - 99999","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-cfd24acbdaace3c7ec80" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-cfd24acbdaace3c7ec80">{"x":{"filter":"none","vertical":false,"data":[["GP","DELSEV","HALLSEV","AGITSEV","DEPDSEV","ANXSEV","ELATSEV","APASEV","DISNSEV","IRRSEV","MOTSEV","NITESEV","APPSEV"],["GP","DELSEV","HALLSEV","AGITSEV","DEPDSEV","ANXSEV","ELATSEV","APASEV","DISNSEV","IRRSEV","MOTSEV","NITESEV","APPSEV"],["104457, 104556, 104552, 104452, 104518, 104472, 105801, 104496, 105806, 104490, 104554, 104460, 104475, 104532, 104463, 104466, 104459, 104529, 104481, 104464, 105803, 105817, 105827, 104572, 104542, 104461, 105807, 105815, 104519, 105808, 104578, 105809, 105813, 104575, 104474, 104574, 104573, 105824, 104545, 104570, 104582, 104583, 105826, 104581, 104480, 104544, 104562, 105814, 105816, 104571, 104569, 104565, 104579, 104566, 104567, 104563, 104580, 104478, 104458, 105811, 105800, 104462, 105818, 104483, 104451, 104546, 105823, 105825, 104486, 104636, 104662, 104666, 104632, 104659, 104640, 104614, 104660, 104611, 104623, 104621, 104617, 104683, 104681, 104604, 104619, 104612, 105833, 105829, 104609, 104668, 104643, 104644, 104602, 104680, 104665, 104616, 105830, 104537, 104648, 104633, 104649, 104638, 104631, 104652, 104667, 104698, 104593, 105831, 104689, 104646, 104615, 104606, 104622, 104647, 104608, 105828, 105832, 104637, 104594, 104639, 104558, 104642, 104600, 104654, 105834, 104620, 104607, 104596, 104673, 104677, 104635, 104641, 104709, 104711, 104613, 105838, 104714, 104722, 104769, 104742, 104735, 104674, 104744, 104751, 104765, 104771, 104763, 104770, 104700, 104729, 104778, 104695, 104762, 104726, 104768, 104764, 104747, 104690, 104676","0","0, 9","0, 9","0, 9","0","0, 9","0, 9","0, 9","0, 9","0, 9","0, 9","0, 9"],["1 - 99999","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3","1;2;3"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <pre class="r"><code>## ignore GP</code></pre>
 <p><br></p>
 </div>
 <div id="save-cleaned-data-15" class="section level3">
 <h3>Save Cleaned Data</h3>
 <pre class="r"><code>clean_B5_NPIQ_RC &lt;- df</code></pre>
+<p><br> <br></p>
+</div>
+</div>
+<div id="b6_gds_rc" class="section level2">
+<h2>B6_GDS_RC</h2>
+<pre class="r"><code>df &lt;- B6_GDS_RC
+
+## extract all the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;logical&quot;
+## 
+## [[4]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot;</code></pre>
+<pre class="r"><code>str(df, max.level = 99, list.len = 99999)</code></pre>
+<details>
+<summary>
+Click for details
+</summary>
+<pre><code>## &#39;data.frame&#39;:    543 obs. of  39 variables:
+##  $ SYSXM         : num  8276623 8258953 8259103 8277723 8277863 ...
+##  $ SYSIND        : num  11369703 11369813 11037673 11435853 11638763 ...
+##  $ SYSGP         : num  7951913 7952013 7894423 7962813 8007323 ...
+##  $ SYSGPSTUDY    : num  1397023 1397123 1309743 1407923 1454033 ...
+##  $ SYSINDGP      : num  8138973 8139083 7793413 8205123 8407833 ...
+##  $ CGI_ORDER     : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ GPS_ORDER     : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ STDCGI_ORDER  : num  11 11 11 11 11 11 11 11 11 11 ...
+##  $ LSTUDY        : chr  &quot;ADCRLPRADI&quot; &quot;ADCRLPRADI&quot; &quot;ADFAMPRADI&quot; &quot;ADCRLPRADI&quot; ...
+##  $ DB_OWNER      : chr  &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; ...
+##  $ STUDY         : chr  &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; ...
+##  $ SUBSTUDY      : chr  &quot;ADCRLPRADI&quot; &quot;ADCRLPRADI&quot; &quot;ADFAMPRADI&quot; &quot;ADCRLPRADI&quot; ...
+##  $ CENTER        : chr  &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot; ...
+##  $ GP            : num  88299 88301 87650 88452 104540 ...
+##  $ IND           : num  1 1 9000 1 1 1 1 106 9000 1 ...
+##  $ REFCTR        : logi  NA NA NA NA NA NA ...
+##  $ EXAM_DATE     : POSIXct, format: &quot;2024-02-13&quot; &quot;2024-02-13&quot; ...
+##  $ EXAMINER      : chr  &quot;gsv32&quot; &quot;jjs2031&quot; &quot;gsv32&quot; &quot;gsv32&quot; ...
+##  $ DATE_OF_BIRTH : POSIXct, format: &quot;1944-09-22&quot; &quot;1947-05-13&quot; ...
+##  $ AGE_AT_EXAM   : num  79 76 68 81 86 73 86 66 56 73 ...
+##  $ REVIEW_DATE   : logi  NA NA NA NA NA NA ...
+##  $ REVIEWER      : logi  NA NA NA NA NA NA ...
+##  $ LIFE          : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ ACTIVITY      : num  0 0 0 0 1 0 0 0 0 0 ...
+##  $ EMPTY         : num  0 0 0 1 0 0 0 0 0 0 ...
+##  $ BORED         : num  0 0 0 0 1 0 0 0 0 0 ...
+##  $ SPIRIT        : num  0 0 0 0 1 0 0 0 0 0 ...
+##  $ AFRAID        : num  0 0 1 0 0 0 0 0 0 1 ...
+##  $ HAPPY         : num  0 0 0 0 1 0 0 1 0 0 ...
+##  $ HELPLESS      : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ STAY_HOME     : num  0 0 0 1 0 0 0 0 0 0 ...
+##  $ MEMORY        : num  0 0 0 0 1 0 0 0 0 0 ...
+##  $ ALIVE         : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ WORTHLESS     : num  0 0 0 0 1 0 0 0 0 0 ...
+##  $ ENERGY        : num  0 0 0 0 1 0 0 0 0 0 ...
+##  $ HOPELESS      : num  0 0 0 0 1 0 0 0 0 0 ...
+##  $ BETTER_OFF    : num  0 0 0 1 0 0 0 0 0 0 ...
+##  $ INCOMPLETE_GDS: num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ COMMENTS_GDS  : chr  NA NA NA NA ...</code></pre>
+</details>
+<p><br></p>
+<div id="pull-the-regenerated-dd-17" class="section level3">
+<h3>Pull the regenerated DD</h3>
+<pre class="r"><code>dfDD &lt;- read_excel(&quot;/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx&quot;, sheet = &quot;B6_GDS_RC&quot;)</code></pre>
+<p><br></p>
+</div>
+<div id="handling-logical-variables-16" class="section level3">
+<h3>Handling Logical Variables</h3>
+<pre class="r"><code>## extract all logical variables
+logicols &lt;- colnames(df)[sapply(df, is.logical)] ## [1] &quot;REFCTR&quot;      &quot;REVIEW_DATE&quot; &quot;REVIEWER&quot;
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c(&quot;VarNames&quot;,&quot;Data Type&quot;)]</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##   VarNames    `Data Type`
+##   &lt;chr&gt;       &lt;chr&gt;      
+## 1 REFCTR      VARCHAR2(6)
+## 2 REVIEW_DATE date       
+## 3 REVIEWER    CHAR</code></pre>
+<pre class="r"><code>## converted to character
+convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`,ignore.case = T)]
+convert2date &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;DATE&quot;, dfDD$`Data Type`,ignore.case = T)]
+
+## convert
+df[convert2chr] &lt;- lapply(df[convert2chr], as.character)
+df[convert2date] &lt;- lapply(df[convert2date], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot; 
+## 
+## [[4]]
+## [1] &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-date-variables-16" class="section level3">
+<h3>Handling Date Variables</h3>
+<pre class="r"><code>## extract date variables from sub-dataset
+datecols &lt;- colnames(df)[sapply(df, function(x) inherits(x, c(&quot;POSIXct&quot;, &quot;POSIXt&quot;)))]
+## [1] &quot;EXAM_DATE&quot;     &quot;DATE_OF_BIRTH&quot;
+
+## extract date variables from regenerated DD
+datecolsFromDD &lt;- dfDD$VarNames[dfDD$`Data Type` %in% c(&quot;DATE&quot;,&quot;date&quot;)]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)</code></pre>
+<pre><code>## character(0)</code></pre>
+<pre class="r"><code>setdiff(datecolsFromDD,datecols)</code></pre>
+<pre><code>## [1] &quot;REVIEW_DATE&quot;</code></pre>
+<pre class="r"><code># [1] &quot;REVIEW_DATE&quot;, ignore it, this variables have been corrected in previous step
+
+head(df[,datecols])</code></pre>
+<pre><code>##    EXAM_DATE DATE_OF_BIRTH
+## 1 2024-02-13    1944-09-22
+## 2 2024-02-13    1947-05-13
+## 3 2023-10-24    1954-10-29
+## 4 2024-02-15    1942-09-30
+## 5 2023-09-13    1937-08-13
+## 6 2023-05-15    1950-04-02</code></pre>
+<pre class="r"><code>## convert format
+df[datecols] &lt;- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [1] &quot;numeric&quot;   &quot;character&quot; &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-character-variables-16" class="section level3">
+<h3>Handling Character Variables</h3>
+<pre class="r"><code>## extract characteristic variables from sub-dataset
+chrcols &lt;- colnames(df)[sapply(df, is.character)] ## 9 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD &lt;- dfDD[grepl(&quot;^(varchar|char)&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Data Type&quot;)]
+
+mismatchChrs_1 &lt;- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 &lt;- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-a663434cc11adba310a5" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-a663434cc11adba310a5">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["gsv32, jjs2031, mxp1257, cmanrique, prm72, sjt82, kxc672, mxl2473, v.rodriguez4, smm493, Katalina McInerney, Anisley Martinez, axl4418, ABIGAIL LOPEZ, KATALINA MCINERNEY, llc97, cxc2077, Katalina Fernandez M, bxf258, lxi119, eir34, Elias Rojas, tfg30"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore EXAMINER</code></pre>
+<p><br></p>
+</div>
+<div id="handling-numeric-variables-16" class="section level3">
+<h3>Handling Numeric Variables</h3>
+<pre class="r"><code>## extract numeric variables from sub-dataset
+numcols &lt;- colnames(df)[sapply(df, is.numeric)] ## 27 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+mismatchNums_1 &lt;- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 &lt;- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)</code></pre>
+<pre><code>## [1] NA              &quot;1 thru 99999;&quot; &quot;1 thru 9999;&quot;</code></pre>
+<pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-1380e37d0182a8cc7299" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-1380e37d0182a8cc7299">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104540, 104476, 104528, 104456, 104556, 104455, 104511, 104549, 104552, 104452, 104500, 104525, 104497, 104531, 104518, 104459, 104472, 105801, 104469, 104521, 105806, 104499, 104536, 104514, 104487, 104515, 104496, 104490, 104526, 104453, 104548, 104454, 104554, 105805, 104508, 104475, 104513, 104539, 104471, 104532, 104512, 104516, 104507, 104529, 104481, 104464, 104530, 105809, 105817, 104569, 104589, 105827, 104565, 104494, 104564, 104535, 104542, 104557, 105815, 104421, 105808, 105803, 105822, 104519, 104485, 104553, 105807, 104578, 104470, 104591, 105826, 104447, 104474, 104550, 104574, 104573, 104545, 104570, 104582, 104583, 104450, 105813, 104506, 104510, 104590, 104568, 104546, 104473, 105810, 105824, 104465, 104544, 104563, 105821, 104482, 105816, 104484, 104571, 104495, 104586, 104585, 104572, 105819, 104541, 104479, 105811, 104560, 104523, 104509, 104488, 104505, 104579, 104555, 105814, 104561, 104520, 104566, 104448, 104502, 104567, 104562, 104580, 104581, 104533, 104467, 104451, 104478, 104468, 104498, 104524, 104534, 104547, 104584, 104458, 104449, 104575, 105800, 104462, 105818, 104483, 104551, 105820, 105823, 105825, 104662, 104664, 104650, 104652, 104666, 104632, 104659, 104656, 104614, 104658, 104588, 104651, 104638, 104660, 104634, 104611, 104610, 104623, 104621, 104617, 104683, 104696, 104697, 104701, 105829, 104604, 104619, 104612, 104609, 104404, 104668, 104655, 104643, 104657, 105834, 104602, 104645, 104680, 104503, 104688, 104665, 105830, 104597, 105832, 104595, 104685, 104681, 104669, 104599, 104616, 104624, 104537, 104648, 104672, 105833, 104635, 104684, 104649, 104631, 104517, 104667, 104558, 104592, 104699, 104698, 104593, 105831, 104689, 104682, 104686, 104640, 104626, 104630, 104644, 104646, 104615, 104605, 104606, 104622, 104647, 104594, 104608, 105828, 104679, 104637, 104639, 104661, 104642, 104598, 104600, 104654, 104618, 104538, 104620, 104607, 104596, 104504, 104673, 104677, 104522, 104641, 104709, 104714, 104613, 105838, 104705, 104708, 104713, 104712, 104704, 104710, 104722, 104725, 104723, 104746, 104781, 104769, 104775, 104742, 104735, 104674, 104743, 104737, 104736, 104738, 104744, 104703, 104765, 104752, 104751, 104766, 104762, 104758, 104771, 104763, 104627, 104702, 104727, 104721, 104628, 104700, 104728, 104754, 104715, 104706, 104729, 104730, 104747, 104774, 104778, 104695, 104783, 104718, 104719, 104717, 104770, 104726, 104731, 104768, 104764, 104776, 104777, 104675, 104690, 104676, 104748, 104603"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore GP</code></pre>
+<p><br></p>
+</div>
+<div id="save-cleaned-data-16" class="section level3">
+<h3>Save Cleaned Data</h3>
+<pre class="r"><code>clean_B6_GDS_RC &lt;- df</code></pre>
+<p><br> <br></p>
+</div>
+</div>
+<div id="b7_fas_rc" class="section level2">
+<h2>B7_FAS_RC</h2>
+<pre class="r"><code>df &lt;- B7_FAS_RC
+
+## extract all the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;logical&quot;
+## 
+## [[4]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot;</code></pre>
+<pre class="r"><code>str(df, max.level = 99, list.len = 99999)</code></pre>
+<details>
+<summary>
+Click for details
+</summary>
+<pre><code>## &#39;data.frame&#39;:    435 obs. of  33 variables:
+##  $ SYSXM        : num  8275913 8275953 8258973 8259133 8277373 ...
+##  $ SYSIND       : num  11620433 11160523 11369813 11037673 11620763 ...
+##  $ SYSGP        : num  8005513 7923793 7952013 7894423 8005723 ...
+##  $ SYSGPSTUDY   : num  1452223 1361903 1397123 1309743 1452433 ...
+##  $ SYSINDGP     : num  8389503 7923633 8139083 7793413 8389833 ...
+##  $ CGI_ORDER    : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ GPS_ORDER    : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ STDCGI_ORDER : num  11 11 11 11 11 11 11 11 11 11 ...
+##  $ LSTUDY       : chr  &quot;ADCONTROL&quot; &quot;ADCRLPRADI&quot; &quot;ADCRLPRADI&quot; &quot;ADFAMPRADI&quot; ...
+##  $ DB_OWNER     : chr  &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; ...
+##  $ STUDY        : chr  &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; ...
+##  $ SUBSTUDY     : chr  &quot;ADCONTROL&quot; &quot;ADCRLPRADI&quot; &quot;ADCRLPRADI&quot; &quot;ADFAMPRADI&quot; ...
+##  $ CENTER       : chr  &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot; ...
+##  $ GP           : num  104507 87883 88301 87650 104457 ...
+##  $ IND          : num  1 1 1 9000 1 1 1 1 106 9000 ...
+##  $ REFCTR       : logi  NA NA NA NA NA NA ...
+##  $ EXAM_DATE    : POSIXct, format: &quot;2023-08-09&quot; &quot;2024-02-14&quot; ...
+##  $ EXAMINER     : chr  &quot;jjs2031&quot; &quot;gsv32&quot; &quot;jjs2031&quot; &quot;gsv32&quot; ...
+##  $ DATE_OF_BIRTH: POSIXct, format: &quot;1944-06-21&quot; &quot;1939-03-20&quot; ...
+##  $ AGE_AT_EXAM  : num  79 84 76 68 76 81 73 86 66 56 ...
+##  $ REVIEW_DATE  : logi  NA NA NA NA NA NA ...
+##  $ REVIEWER     : logi  NA NA NA NA NA NA ...
+##  $ FAQ1         : num  0 8 0 8 0 0 0 0 0 0 ...
+##  $ FAQ2         : num  0 0 0 8 1 0 0 0 0 0 ...
+##  $ FAQ3         : num  0 0 0 8 1 0 0 0 0 0 ...
+##  $ FAQ4         : num  0 0 0 8 1 0 0 0 0 0 ...
+##  $ FAQ5         : num  0 0 0 8 1 0 0 0 1 0 ...
+##  $ FAQ6         : num  0 0 0 8 1 0 0 0 1 0 ...
+##  $ FAQ7         : num  0 0 0 8 1 0 0 0 0 0 ...
+##  $ FAQ8         : num  0 0 0 8 1 0 0 0 0 0 ...
+##  $ FAQ9         : num  0 0 0 8 1 0 0 0 0 0 ...
+##  $ FAQ10        : num  0 2 0 8 1 0 0 0 1 0 ...
+##  $ NOTES_B7FAS  : chr  NA NA NA NA ...</code></pre>
+</details>
+<p><br></p>
+<div id="pull-the-regenerated-dd-18" class="section level3">
+<h3>Pull the regenerated DD</h3>
+<pre class="r"><code>dfDD &lt;- read_excel(&quot;/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx&quot;, sheet = &quot;B7_FAS_RC&quot;)</code></pre>
+<p><br></p>
+</div>
+<div id="handling-logical-variables-17" class="section level3">
+<h3>Handling Logical Variables</h3>
+<pre class="r"><code>## extract all logical variables
+logicols &lt;- colnames(df)[sapply(df, is.logical)] ## [1] &quot;REFCTR&quot;      &quot;REVIEW_DATE&quot; &quot;REVIEWER&quot; 
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c(&quot;VarNames&quot;,&quot;Data Type&quot;)]</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##   VarNames    `Data Type`
+##   &lt;chr&gt;       &lt;chr&gt;      
+## 1 REFCTR      VARCHAR2(6)
+## 2 REVIEW_DATE date       
+## 3 REVIEWER    CHAR</code></pre>
+<pre class="r"><code>## converted to character
+convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`,ignore.case = T)]
+convert2date &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;date&quot;, dfDD$`Data Type`,ignore.case = T)]
+
+## convert
+df[convert2chr] &lt;- lapply(df[convert2chr], as.character)
+df[convert2date] &lt;- lapply(df[convert2date], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot; 
+## 
+## [[4]]
+## [1] &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-date-variables-17" class="section level3">
+<h3>Handling Date Variables</h3>
+<pre class="r"><code>## extract date variables from sub-dataset
+datecols &lt;- colnames(df)[sapply(df, function(x) inherits(x, c(&quot;POSIXct&quot;, &quot;POSIXt&quot;)))]
+## [1] &quot;EXAM_DATE&quot;     &quot;DATE_OF_BIRTH&quot;
+
+## extract date variables from regenerated DD
+datecolsFromDD &lt;- dfDD$VarNames[dfDD$`Data Type` %in% c(&quot;DATE&quot;,&quot;date&quot;)]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)</code></pre>
+<pre><code>## character(0)</code></pre>
+<pre class="r"><code>setdiff(datecolsFromDD,datecols) ## REVIEW_DATE, ignore it, it has been corrected in previous step</code></pre>
+<pre><code>## [1] &quot;REVIEW_DATE&quot;</code></pre>
+<pre class="r"><code>head(df[,datecols])</code></pre>
+<pre><code>##    EXAM_DATE DATE_OF_BIRTH
+## 1 2023-08-09    1944-06-21
+## 2 2024-02-14    1939-03-20
+## 3 2024-02-13    1947-05-13
+## 4 2023-10-24    1954-10-29
+## 5 2023-04-17    1946-12-19
+## 6 2024-02-15    1942-09-30</code></pre>
+<pre class="r"><code>## convert format
+df[datecols] &lt;- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [1] &quot;numeric&quot;   &quot;character&quot; &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-character-variables-17" class="section level3">
+<h3>Handling Character Variables</h3>
+<pre class="r"><code>## extract characteristic variables from sub-dataset
+chrcols &lt;- colnames(df)[sapply(df, is.character)] ## 9 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD &lt;- dfDD[grepl(&quot;^(varchar|char)&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Data Type&quot;)]
+
+mismatchChrs_1 &lt;- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 &lt;- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-dd3ece617856a65a2fe1" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-dd3ece617856a65a2fe1">{"x":{"filter":"none","vertical":false,"data":[["EXAMINER"],["EXAMINER"],["jjs2031, gsv32, sjt82, mxp1257, cmanrique, prm72, kxc672, bxf258, mxl2473, v.rodriguez4, Katalina McInerney, ABIGAIL LOPEZ, cxc2077, Anisley Martinez, axl4418, lxi119, eir34, smm493, tfg30"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore EXAMINER</code></pre>
+<p><br></p>
+</div>
+<div id="handling-numeric-variables-17" class="section level3">
+<h3>Handling Numeric Variables</h3>
+<pre class="r"><code>## extract numeric variables from sub-dataset
+numcols &lt;- colnames(df)[sapply(df, is.numeric)] ## 21 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+mismatchNums_1 &lt;- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 &lt;- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)</code></pre>
+<pre><code>## [1] NA                           &quot;1 thru 99999;&quot;             
+## [3] &quot;1 thru 9999;&quot;               &quot;0;\r\n1;\r\n2;\r\n3;\r\n8;&quot;</code></pre>
+<pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-95c6fa7349979a7a2885" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-95c6fa7349979a7a2885">{"x":{"filter":"none","vertical":false,"data":[["GP","FAQ4","FAQ6","FAQ8","FAQ10"],["GP","FAQ4","FAQ6","FAQ8","FAQ10"],["104507, 104457, 104476, 104528, 104556, 104455, 104511, 104549, 104552, 104500, 104525, 104497, 104531, 104518, 104472, 105801, 104469, 104521, 104496, 105806, 104499, 104514, 104487, 104526, 104548, 104554, 105805, 104475, 104456, 104471, 104532, 104516, 104539, 104466, 104477, 104459, 104529, 104481, 104464, 105803, 104508, 104453, 104545, 104589, 104572, 104564, 105809, 104542, 104461, 104557, 105807, 105808, 104519, 104578, 104470, 104515, 104591, 104575, 104447, 104474, 105826, 104547, 104574, 104573, 105824, 104570, 104582, 104583, 104450, 104513, 104510, 104590, 104568, 104473, 104480, 104544, 105813, 104482, 104562, 104563, 104484, 104571, 104569, 104494, 104565, 104586, 104585, 105819, 104536, 104490, 104479, 105811, 104509, 104579, 104448, 105814, 104561, 104566, 104502, 104567, 104580, 104581, 104533, 104467, 104478, 104468, 104498, 104534, 104584, 104458, 104449, 104451, 105800, 104462, 104560, 104483, 104551, 105823, 104486, 104636, 104650, 104652, 104666, 104632, 104640, 104658, 104588, 104651, 104656, 104634, 104611, 104610, 104623, 104621, 104617, 104683, 104684, 104604, 104619, 104612, 105829, 105833, 104609, 104655, 104643, 104657, 105834, 104645, 104680, 104665, 104688, 104685, 104681, 104669, 104599, 104616, 105830, 104624, 104537, 104648, 104633, 104649, 104638, 104504, 104503, 104522, 104667, 104558, 104517, 104672, 104593, 105831, 104682, 104686, 104626, 104644, 104646, 104606, 104622, 104647, 104608, 105832, 104637, 104594, 105828, 104639, 104642, 104598, 104600, 104654, 104618, 104538, 104620, 104607, 104677, 104641, 104613, 104714, 105838, 104708, 104710, 104722, 104746, 104781, 104775, 104758, 104735, 104674, 104743, 104723, 104712, 104754, 104736, 104744, 104769, 104703, 104751, 104765, 104771, 104763, 104702, 104774, 104700, 104721, 104727, 104715, 104706, 104752, 104730, 104778, 104695, 104718, 104719, 104761, 104766, 104770, 104726, 104768, 104777, 104625, 104675, 104690, 104676, 104748, 104783, 104603","9","9","9","9"],["1 - 99999","0;1;2;3;8","0;1;2;3;8","0;1;2;3;8","0;1;2;3;8"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore GP</code></pre>
+<p><br></p>
+</div>
+<div id="save-cleaned-data-17" class="section level3">
+<h3>Save Cleaned Data</h3>
+<pre class="r"><code>clean_B7_FAS_RC&lt;- df</code></pre>
+<p><br> <br></p>
+</div>
+</div>
+<div id="bcf_recog_rc" class="section level2">
+<h2>BCF_RECOG_RC</h2>
+<p><br> <br></p>
+</div>
+<div id="bcfcd_rc" class="section level2">
+<h2>BCFCD_RC</h2>
+<p><br> <br></p>
+</div>
+<div id="bcfci_rc" class="section level2">
+<h2>BCFCI_RC</h2>
+<p><br> <br></p>
+</div>
+<div id="bilingual_scale_rc" class="section level2">
+<h2>BILINGUAL_SCALE_RC</h2>
+<p><br> <br></p>
+</div>
+<div id="cat_fluency_rc" class="section level2">
+<h2>CAT_FLUENCY_RC</h2>
+<p><br> <br></p>
+</div>
+<div id="cerad_del_rc" class="section level2">
+<h2>CERAD_DEL_RC</h2>
+<p><br> <br></p>
+</div>
+<div id="cerad_imm_rc" class="section level2">
+<h2>CERAD_IMM_RC</h2>
+<p><br> <br></p>
+</div>
+<div id="cerad_recog_rc" class="section level2">
+<h2>CERAD_RECOG_RC</h2>
+<p><br> <br></p>
+</div>
+<div id="consensus_dx" class="section level2">
+<h2>CONSENSUS_DX</h2>
+<p><br> <br></p>
+</div>
+<div id="craft_21_del_rc" class="section level2">
+<h2>CRAFT_21_DEL_RC</h2>
+<p><br> <br></p>
+</div>
+<div id="craft_21_imm_rc" class="section level2">
+<h2>CRAFT_21_IMM_RC</h2>
+</div>
+<div id="medcon_rc" class="section level2">
+<h2>MEDCON_RC</h2>
+<pre class="r"><code>df &lt;- MEDCON_RC
+
+## extract all the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;logical&quot;
+## 
+## [[4]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot;</code></pre>
+<pre class="r"><code>str(df, max.level = 99, list.len = 99999)</code></pre>
+<details>
+<summary>
+Click for details
+</summary>
+<pre><code>## &#39;data.frame&#39;:    627 obs. of  237 variables:
+##  $ SYSXM                     : num  8258763 8258803 8260083 8277583 8277993 ...
+##  $ SYSIND                    : num  11037673 11369813 11362953 11435853 11621333 ...
+##  $ SYSGP                     : num  7894423 7952013 7946353 7962813 8006293 ...
+##  $ SYSGPSTUDY                : num  1309743 1397123 1387463 1407923 1453003 ...
+##  $ SYSINDGP                  : num  7793413 8139083 8132223 8205123 8390403 ...
+##  $ CGI_ORDER                 : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ GPS_ORDER                 : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ STDCGI_ORDER              : num  11 11 11 11 11 11 11 11 11 11 ...
+##  $ LSTUDY                    : chr  &quot;ADFAMPRADI&quot; &quot;ADCRLPRADI&quot; &quot;ADFAMPRADI&quot; &quot;ADCRLPRADI&quot; ...
+##  $ DB_OWNER                  : chr  &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; ...
+##  $ STUDY                     : chr  &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; ...
+##  $ SUBSTUDY                  : chr  &quot;ADFAMPRADI&quot; &quot;ADCRLPRADI&quot; &quot;ADFAMPRADI&quot; &quot;ADCRLPRADI&quot; ...
+##  $ CENTER                    : chr  &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot; ...
+##  $ GP                        : num  87650 88301 87545 88452 104528 ...
+##  $ IND                       : num  9000 1 106 1 1 ...
+##  $ REFCTR                    : logi  NA NA NA NA NA NA ...
+##  $ EXAM_DATE                 : POSIXct, format: &quot;2023-10-24&quot; &quot;2024-02-13&quot; ...
+##  $ EXAMINER                  : chr  &quot;gsv32&quot; &quot;jjs2031&quot; &quot;jjs2031&quot; &quot;gsv32&quot; ...
+##  $ DATE_OF_BIRTH             : POSIXct, format: &quot;1954-10-29&quot; &quot;1947-05-13&quot; ...
+##  $ AGE_AT_EXAM               : num  68 76 66 81 86 86 60 81 79 67 ...
+##  $ REVIEW_DATE               : logi  NA NA NA NA NA NA ...
+##  $ REVIEWER                  : logi  NA NA NA NA NA NA ...
+##  $ MEMORY_COMPLAINTS         : num  0 0 1 0 0 1 0 0 0 1 ...
+##  $ DATE_OF_ONSET             : POSIXct, format: NA NA ...
+##  $ DOA_UNK                   : chr  NA NA NA NA ...
+##  $ DESCRIBE                  : chr  &quot;hysterectomy (1987), no HET, knee surgery 2010, carpal tunnel surgery 2011&quot; NA NA &quot;Hypertension x 20yrs; left knee prothesis due to osteoarthrosis, right knee in need of surgery; hypercholest.; &quot;| __truncated__ ...
+##  $ MEM_COMPLAINTS            : chr  &quot;68 y/o mixed female born in PR. Oriented in time, space and person. No memory complaints, however complaints of&quot;| __truncated__ &quot;NO MEMORY COMPLAINTS. PERSON ORIENTED IN TIME, SPACE, AND PERSON. HE LIVES ALONE, HE DOESN&#39;T NEED HELP TO CHANG&quot;| __truncated__ &quot;YES MEMORY COMPLAINTS. ORIENTED EN TIME, SPACE, AND PERSONA. SHE SAYS THAT HER MEMORY WAS FULL AND WELL DURING &quot;| __truncated__ &quot;Refers no major changes in memory.  Remembers phone numbers and addresses well.  He is 81y/o, with 9yrs of educ&quot;| __truncated__ ...
+##  $ CURRENT_MED               : chr  &quot;high blood pressure, sleep apnea, diabetes (10 years ago) arthritis (13 years ago)&quot; &quot;DM 10 Y/0 HIGH BLOOD PRESSURE 10 Y/0&quot; &quot;HYPOTHYROIDISM 30 Y/O CHOLESTEROL 10 Y/O DM 5 YEARS AGO BREAST CANCER 2013 DEPRESSION 2013 ASTHMA 4 Y/O ARTHIRITIS 2017.&quot; &quot;see above&quot; ...
+##  $ PMH                       : chr  NA NA NA &quot;see above&quot; ...
+##  $ MOOD_CHANGES              : chr  &quot;None reported&quot; &quot;NO DEPRESSION OR ANXIETY&quot; &quot;YES DEPRESSION AND ANXEITY&quot; &quot;H/o depression and anxiety x 20yrs, with meds, was with psychiatrist but not anymore&quot; ...
+##  $ HYPERTENSION_DX           : num  1 1 0 1 1 1 0 0 1 1 ...
+##  $ HYPERTENSION_TREATED      : num  1 1 -1 1 1 1 0 -1 1 1 ...
+##  $ DIABETES_DX               : num  1 1 1 1 1 0 0 0 1 1 ...
+##  $ DIABETES_TREATED          : num  1 1 1 1 1 0 0 -1 1 1 ...
+##  $ MYOCARDIAL_DX             : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ MYOCARDIAL_TREATED        : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ HEART_FAILURE_DX          : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ HEART_FAILURE_TREATED     : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ HEART_DISEASE_DX          : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ HEART_DISEASE_TREATED     : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ COPD_DX                   : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ COPD_TREATED              : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ THYROID_DX                : num  0 0 1 0 0 0 0 0 0 0 ...
+##  $ THYROID_TREATED           : num  0 -1 1 NA -1 0 0 -1 NA -1 ...
+##  $ LIVER_DX                  : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ LIVER_TREATED             : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ RENAL_DX                  : num  0 0 0 0 1 0 0 0 1 0 ...
+##  $ RENAL_TREATED             : num  0 -1 -1 NA 1 0 0 -1 NA -1 ...
+##  $ PEPTIC_DX                 : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PEPTIC_TREATED            : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ PERIPHERAL_DX             : num  1 0 0 1 0 0 0 0 0 1 ...
+##  $ PERIPHERAL_TREATED        : num  0 -1 -1 1 -1 0 0 -1 NA 0 ...
+##  $ STROKE_DX                 : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ STROKE_TREATED            : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ TIA_DX                    : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ TIA_TREATED               : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ HEAD_INJURY_DX            : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ HEAD_INJURY_TREATED       : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ SEIZURE_DX                : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ SEIZURE_TREATED           : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ CANCER_DX                 : num  0 0 1 0 1 0 0 0 0 0 ...
+##  $ CANCER_TREATED            : num  0 -1 0 NA 1 0 0 -1 NA -1 ...
+##  $ ARTHRITIS_DX              : num  1 0 1 1 1 1 0 1 1 1 ...
+##  $ ARTHRITIS_TREATED         : num  1 -1 1 1 1 1 0 1 1 0 ...
+##  $ SYPHILIS_DX               : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ SYPHILIS_TREATED          : num  0 -1 -1 0 -1 0 0 -1 NA -1 ...
+##  $ ALCOHOL_DX                : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ ALCOHOL_TREATED           : num  0 -1 -1 0 -1 0 0 -1 NA -1 ...
+##  $ ILLICIT_DRUG_DX           : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ ILLICIT_DRUG_TREATED      : num  0 -1 -1 0 -1 0 0 -1 NA -1 ...
+##  $ SMOKING_DX                : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ SMOKING_TREATED           : num  0 -1 -1 0 -1 0 0 -1 NA -1 ...
+##  $ PD_DX                     : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PD_TREATED                : num  0 -1 -1 0 -1 0 0 -1 NA -1 ...
+##  $ HUNTINGTON_DX             : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ HUNTINGTON_TREATED        : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ MULTIPLE_SCLEROSIS_DX     : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ MULTIPLE_SCLEROSIS_TREATED: num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ B12_DX                    : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ B12_TREATED               : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ HYDROCEPHALUS_DX          : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ HYDROCEPHALUS_TREATED     : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ TREMOR_DX                 : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ TREMOR_TREATED            : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ DOWN_SYNDROME_DX          : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ DOWN_SYNDROME_TREATED     : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...
+##  $ MED_CONDITIONS_DX         : num  0 0 0 1 0 0 0 0 0 0 ...
+##  $ MED_CONDITIONS_TREATED    : num  0 -1 -1 1 -1 0 0 -1 NA -1 ...
+##  $ OTH_MED_COND_SP           : chr  NA NA NA &quot;depression and anxiety&quot; ...
+##  $ STROKE_BRAIN              : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ DOCTOR                    : num  NA 9 9 NA 9 0 NA 9 0 9 ...
+##  $ STROKE_PAST               : num  NA 9 9 NA 9 0 NA 9 0 9 ...
+##  $ STROKE_24HRS              : num  NA 9 9 NA 9 0 NA 9 0 9 ...
+##  $ SYMPTOMS                  : num  NA 9 9 NA 9 0 NA 9 0 9 ...
+##  $ LOST_SPEECH               : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ LOST_UNDERSTAND           : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ LOSS_CONSCIOUS            : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ WEAKNESS                  : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ NUMBNESS                  : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ LOSS_VISION               : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ HALF_VISION               : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ PERIOD                    : num  1 0 1 1 1 1 0 1 1 0 ...
+##  $ AGE_C24A                  : num  67 NA 55 60 59 86 NA 77 70 NA ...
+##  $ DONT_KNOW                 : chr  NA NA NA NA ...
+##  $ SEEK_HELP                 : num  1 NA 1 1 0 1 NA 1 1 NA ...
+##  $ TREATMENT                 : num  0 NA 0 0 0 0 NA 0 0 NA ...
+##  $ MEDS                      : num  1 NA 1 1 0 0 NA 1 1 NA ...
+##  $ PSYCHOTHERAPY             : num  1 NA 1 1 0 1 NA 1 1 NA ...
+##  $ OTHER                     : num  0 NA 0 0 0 0 NA 0 0 NA ...
+##  $ UNKNOWN                   : num  0 NA 0 0 0 0 NA 0 0 NA ...
+##  $ SPECIFY_OTHER             : chr  NA NA NA NA ...
+##  $ TAKING_MEDS               : num  1 0 1 1 1 1 1 1 1 1 ...
+##  $ MEDICATION1               : chr  &quot;aspirin&quot; NA &quot;LEVOTHYROXINE&quot; &quot;doesn&#39;t remember medications&quot; ...
+##  $ STRENGTH1                 : chr  &quot;81 mg&quot; NA &quot;112 MG DAILY&quot; NA ...
+##  $ SEEN1                     : num  0 NA 0 0 0 NA 0 0 NA 0 ...
+##  $ MEDICATION2               : chr  &quot;lipidol&quot; NA &quot;MEMANTINE HCL&quot; NA ...
+##  $ STRENGTH2                 : chr  &quot;20 mg&quot; NA &quot;10 MG TWICE DAILY&quot; NA ...
+##  $ SEEN2                     : chr  &quot;0&quot; NA &quot;0&quot; NA ...
+##  $ MEDICATION3               : chr  &quot;zyrtec&quot; NA &quot;XISDUO XR(METFORMIN HCL)&quot; NA ...
+##  $ STRENGTH3                 : chr  &quot;10 mg&quot; NA &quot;5MG/1000MG&quot; NA ...
+##  $ SEEN3                     : num  0 NA 0 NA 0 NA NA 0 NA 0 ...
+##  $ MEDICATION4               : chr  &quot;vitamin D3&quot; NA &quot;ESCITALOPRAM&quot; NA ...
+##  $ STRENGTH4                 : chr  &quot;50,000 d&quot; NA &quot;20 MG 1 DAILY&quot; NA ...
+##  $ SEEN4                     : chr  &quot;0&quot; NA &quot;0&quot; NA ...
+##  $ MEDICATION5               : chr  &quot;folic acid&quot; NA &quot;ATORVASTATIN CALCIUM&quot; NA ...
+##  $ STRENGTH5                 : chr  &quot;1 mg&quot; NA &quot;20 MG&quot; NA ...
+##  $ SEEN5                     : num  0 NA 0 NA 0 NA NA 0 NA NA ...
+##  $ MEDICATION6               : chr  &quot;daflonex&quot; NA &quot;FOROTIDINE&quot; NA ...
+##  $ STRENGTH6                 : chr  &quot;XL as indicated&quot; NA &quot;20 MG DAILY&quot; NA ...
+##  $ SEEN6                     : chr  &quot;0&quot; NA &quot;0&quot; NA ...
+##  $ MEDICATION7               : chr  &quot;methenamine&quot; NA &quot;LISINIPROL&quot; NA ...
+##  $ STRENGTH7                 : chr  &quot;500 mg&quot; NA &quot;10 MG DAILY&quot; NA ...
+##  $ SEEN7                     : num  0 NA 0 NA 0 NA NA 0 NA NA ...
+##  $ MEDICATION8               : chr  &quot;methnotexate&quot; NA &quot;MONTELUKAST SODIUM&quot; NA ...
+##  $ STRENGTH8                 : chr  &quot;2.5 mg&quot; NA &quot;10 MG DAILY&quot; NA ...
+##  $ SEEN8                     : chr  &quot;0&quot; NA &quot;0&quot; NA ...
+##  $ MEDICATION9               : chr  &quot;lexapro&quot; NA &quot;FOLIC ACID&quot; NA ...
+##  $ STRENGTH9                 : chr  &quot;10 mg&quot; NA &quot;1 MG DAILY&quot; NA ...
+##  $ SEEN9                     : num  0 NA 0 NA 0 NA NA NA NA NA ...
+##  $ MEDICATION10              : chr  &quot;frova&quot; NA &quot;VITAMIN D&quot; NA ...
+##  $ STRENGTH10                : chr  &quot;2.5 mg&quot; NA NA NA ...
+##  $ SEEN10                    : chr  &quot;0&quot; NA &quot;0&quot; NA ...
+##  $ MEDICATION11              : chr  &quot;mirapen&quot; NA &quot;BIOTIN&quot; NA ...
+##  $ STRENGTH11                : chr  &quot;.5 mg&quot; NA NA NA ...
+##  $ SEEN11                    : num  0 NA 0 NA NA NA NA NA NA NA ...
+##  $ MEDICATION12              : chr  &quot;lyrica&quot; NA NA NA ...
+##  $ STRENGTH12                : chr  &quot;25 mg&quot; NA NA NA ...
+##  $ SEEN12                    : chr  NA NA NA NA ...
+##  $ MEDICATION13              : chr  &quot;lisinopril&quot; NA NA NA ...
+##  $ STRENGTH13                : chr  &quot;5 mg&quot; NA NA NA ...
+##  $ SEEN13                    : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ MEDICATION14              : chr  &quot;pepcid&quot; NA NA NA ...
+##  $ STRENGTH14                : chr  &quot;20 mg&quot; NA NA NA ...
+##  $ SEEN14                    : chr  NA NA NA NA ...
+##  $ MEDICATION15              : chr  NA NA NA NA ...
+##  $ STRENGTH15                : chr  NA NA NA NA ...
+##  $ SEEN15                    : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ MEDICATION16              : chr  NA NA NA NA ...
+##  $ STRENGTH16                : chr  NA NA NA NA ...
+##  $ SEEN16                    : chr  NA NA NA NA ...
+##  $ MEDICATION17              : chr  NA NA NA NA ...
+##  $ STRENGTH17                : chr  NA NA NA NA ...
+##  $ SEEN17                    : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ MEDICATION18              : chr  NA NA NA NA ...
+##  $ STRENGTH18                : logi  NA NA NA NA NA NA ...
+##  $ SEEN18                    : chr  NA NA NA NA ...
+##  $ MEDICATION19              : chr  NA NA NA NA ...
+##  $ STRENGTH19                : chr  NA NA NA NA ...
+##  $ SEEN19                    : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ MEDICATION20              : logi  NA NA NA NA NA NA ...
+##  $ STRENGTH20                : logi  NA NA NA NA NA NA ...
+##  $ SEEN20                    : logi  NA NA NA NA NA NA ...
+##  $ NOTES_MEDLIST             : chr  NA NA NA NA ...
+##  $ WARFARIN                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ASPIRIN                   : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ANTIPLATELETS             : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ DIURETICS                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ANTICONVULSANTS           : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ INSULIN                   : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ HYPOGLYCEMICS             : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ SULFONYLUREA              : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ METFORMIN                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ GLITAZONES                : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ DIGITALIS                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ NITRATES                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ CALCIUM_CHANNEL           : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ BETA_2_AGAONIST           : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ BETA_BLOCKERS             : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ACE                       : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ANTI_ARRHYTHMICS          : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ANTI_HYPERLIPIDEMICS      : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ STATIN_DRUG               : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ FIBRATE_DRUG              : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ THYROID                   : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ANTICHOLINERGICS          : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ LEVODOPA                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ DOPAMINE1                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ANTIDEPRESSANTS           : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ANTIPSYCHOTICS            : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ANXIOLYTICS               : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ CHOLINESTERASE            : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ RIVASTIGMINE              : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ TACRINE                   : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ DONEPEZIL                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ GALANTAMINE               : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ NMDA                      : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ MEMANTINE                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ALPHA_BLOCKERS            : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ HYPNOTICS                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ H1_BLOCKERS               : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ H2_BLOCKERS               : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ NSAID                     : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ COX2                      : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ NARCOTICS                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ HYDERGINE                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ DEPRENYL                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ ESTROGEN_SUPP             : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ PRESCRIPTION              : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ OTC                       : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ STEROIDS                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ OTHER_MEDS                : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ C57_SPEC_MEDS             : chr  NA NA NA NA ...
+##  $ MULTIVITAMINS             : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ VITAMIN_C                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ VITAMIN_E                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ VITAMINE_B12              : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ COENZYME_Q                : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ DHA                       : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ LECITHIN                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ GINKGO                    : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ FOLIC_ACID                : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ VITAMIN_B6                : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ VITAMIN_D                 : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ OMEGA3                    : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ MEDCOND_COMENTS           : chr  NA NA NA NA ...
+##  $ MED_CONDITIONS_HIV        : num  0 0 0 0 0 0 0 0 NA 0 ...
+##  $ MED_CONDITIONS_HIV_TX     : num  0 -1 -1 NA -1 0 0 -1 NA -1 ...</code></pre>
+</details>
+<p><br></p>
+<div id="pull-the-regenerated-dd-19" class="section level3">
+<h3>Pull the regenerated DD</h3>
+<pre class="r"><code>dfDD &lt;- read_excel(&quot;/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx&quot;, sheet = &quot;MEDCON_RC&quot;)</code></pre>
+<p><br></p>
+</div>
+<div id="handling-logical-variables-18" class="section level3">
+<h3>Handling Logical Variables</h3>
+<pre class="r"><code>## extract all logical variables
+logicols &lt;- colnames(df)[sapply(df, is.logical)] ## 7 vars
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c(&quot;VarNames&quot;,&quot;Data Type&quot;)]</code></pre>
+<pre><code>## # A tibble: 7 × 2
+##   VarNames     `Data Type` 
+##   &lt;chr&gt;        &lt;chr&gt;       
+## 1 REFCTR       VARCHAR2(6) 
+## 2 REVIEW_DATE  DATE        
+## 3 REVIEWER     CHAR        
+## 4 STRENGTH18   VARCHAR2(30)
+## 5 MEDICATION20 VARCHAR2(30)
+## 6 STRENGTH20   VARCHAR2(30)
+## 7 SEEN20       NUMBER(1)</code></pre>
+<pre class="r"><code>## converted to character
+convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`,ignore.case = T)]
+convert2date &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;date&quot;, dfDD$`Data Type`,ignore.case = T)]
+convert2num &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;NUMBER&quot;, dfDD$`Data Type`,ignore.case = T)]
+
+## convert
+df[convert2chr] &lt;- lapply(df[convert2chr], as.character)
+df[convert2date] &lt;- lapply(df[convert2date], as.Date)
+df[convert2num] &lt;- lapply(df[convert2num], as.numeric)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot; 
+## 
+## [[4]]
+## [1] &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-date-variables-18" class="section level3">
+<h3>Handling Date Variables</h3>
+<pre class="r"><code>## extract date variables from sub-dataset
+datecols &lt;- colnames(df)[sapply(df, function(x) inherits(x, c(&quot;POSIXct&quot;, &quot;POSIXt&quot;)))]
+## [1] &quot;EXAM_DATE&quot;     &quot;DATE_OF_BIRTH&quot; &quot;DATE_OF_ONSET&quot;
+
+## extract date variables from regenerated DD
+datecolsFromDD &lt;- dfDD$VarNames[dfDD$`Data Type` %in% c(&quot;DATE&quot;,&quot;date&quot;)]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)</code></pre>
+<pre><code>## character(0)</code></pre>
+<pre class="r"><code>setdiff(datecolsFromDD,datecols) ## REVIEW_DATE, ignore it, it has been corrected in previous step</code></pre>
+<pre><code>## [1] &quot;REVIEW_DATE&quot;</code></pre>
+<pre class="r"><code>head(df[,datecols])</code></pre>
+<pre><code>##    EXAM_DATE DATE_OF_BIRTH DATE_OF_ONSET
+## 1 2023-10-24    1954-10-29          &lt;NA&gt;
+## 2 2024-02-13    1947-05-13          &lt;NA&gt;
+## 3 2024-02-20    1957-08-05    2021-06-01
+## 4 2024-02-15    1942-09-30          &lt;NA&gt;
+## 5 2023-05-09    1936-05-22          &lt;NA&gt;
+## 6 2023-09-13    1937-08-13    2023-04-01</code></pre>
+<pre class="r"><code>## convert format
+df[datecols] &lt;- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [1] &quot;numeric&quot;   &quot;character&quot; &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-character-variables-18" class="section level3">
+<h3>Handling Character Variables</h3>
+<pre class="r"><code>## extract characteristic variables from sub-dataset
+chrcols &lt;- colnames(df)[sapply(df, is.character)] ## 69 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD &lt;- dfDD[grepl(&quot;^(varchar|char)&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Data Type&quot;)]
+
+mismatchChrs_1 &lt;- setdiff(chrcols,chrColsfromDD$VarNames) ## 9 vars
+## [1] &quot;SEEN2&quot;  &quot;SEEN4&quot;  &quot;SEEN6&quot;  &quot;SEEN8&quot;  &quot;SEEN10&quot; &quot;SEEN12&quot; &quot;SEEN14&quot; &quot;SEEN16&quot; &quot;SEEN18&quot;
+mismatchChrs_2 &lt;- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## convert mismatchChrs_1 vars to numeric
+df[mismatchChrs_1] &lt;- lapply(df[mismatchChrs_1], as.numeric)
+
+## extract characteristic variables with value specification
+tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))</code></pre>
+<pre><code>## All values are within valid ranges.</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-369069b23f69d01de8c4" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-369069b23f69d01de8c4">{"x":null,"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore EXAMINER</code></pre>
+<p><br></p>
+</div>
+<div id="handling-numeric-variables-18" class="section level3">
+<h3>Handling Numeric Variables</h3>
+<pre class="r"><code>## extract numeric variables from sub-dataset
+numcols &lt;- colnames(df)[sapply(df, is.numeric)] ## 164 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+mismatchNums_1 &lt;- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 &lt;- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)</code></pre>
+<pre><code>## [1] NA                           &quot;1 thru 99999;&quot;             
+## [3] &quot;1 thru 9999;&quot;               &quot;0;\r\n1;&quot;                  
+## [5] &quot;0;\r\n1;\r\n9;\r\n-1;&quot;      &quot;0;\r\n1;\r\n7;\r\n8;\r\n9;&quot;
+## [7] &quot;0;\r\n1;\r\n9;&quot;</code></pre>
+<pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-f7c192d4830e7ecdee35" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-f7c192d4830e7ecdee35">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104528, 104540, 104455, 104556, 104471, 104511, 104548, 104532, 104549, 104459, 104452, 104497, 104531, 104518, 105801, 104499, 104525, 104514, 104496, 104515, 104508, 104521, 104487, 104490, 104453, 104526, 104513, 105802, 104552, 104500, 104536, 104454, 104481, 105805, 104475, 104554, 104527, 104456, 104539, 104463, 104512, 104507, 104472, 104469, 105806, 104477, 104457, 104529, 104516, 104476, 104460, 105804, 104502, 105809, 104569, 105807, 105817, 105821, 105820, 105827, 104434, 104564, 104563, 104535, 104560, 104574, 104542, 104461, 104557, 105815, 104421, 105808, 105803, 105814, 104430, 104553, 104474, 104586, 104467, 105819, 104582, 104575, 104585, 104550, 104573, 105824, 104468, 104547, 104545, 104506, 104570, 104583, 105811, 104485, 104450, 105813, 104546, 104519, 104590, 104568, 104581, 104551, 104447, 104571, 104473, 104483, 104414, 104482, 104494, 105822, 104559, 104565, 104572, 104495, 104591, 105826, 104489, 104462, 104479, 104523, 104488, 104509, 104505, 104458, 104580, 104579, 104555, 104448, 104534, 104520, 104465, 104578, 104566, 104470, 104567, 105812, 104464, 104484, 104562, 104584, 104533, 104541, 105810, 104451, 104498, 104510, 104524, 104449, 104561, 105800, 105816, 104436, 104480, 105818, 105823, 104478, 104544, 105825, 104486, 104654, 104662, 104661, 104652, 104666, 104632, 104659, 104660, 104658, 104614, 104588, 104623, 104656, 104657, 104634, 104599, 104616, 104612, 104621, 104617, 104684, 104697, 104619, 105829, 104501, 104640, 104643, 104602, 104639, 104645, 104685, 104681, 104503, 104665, 105830, 104597, 104669, 104610, 104618, 105832, 104624, 104595, 104538, 104543, 104537, 104672, 105833, 105834, 104650, 104638, 104635, 104522, 104558, 104667, 104517, 104604, 104698, 104701, 104688, 104593, 105831, 105828, 104689, 104663, 104686, 104674, 104630, 104611, 104644, 104646, 104615, 104605, 104606, 104622, 104683, 104647, 104631, 104608, 104696, 104679, 104677, 104699, 104594, 104648, 104664, 104629, 104680, 104466, 104642, 104598, 104600, 104596, 104637, 104504, 104620, 104668, 104655, 104651, 104609, 104682, 104607, 104404, 104673, 104592, 104633, 104416, 104641, 104636, 104626, 104649, 104709, 104714, 104711, 105838, 104708, 104704, 104705, 104712, 104713, 104710, 104613, 104724, 104725, 104723, 104720, 104771, 104675, 104676, 104775, 104718, 104719, 104717, 104742, 104743, 104735, 104736, 104740, 104744, 104769, 104706, 104765, 104754, 104752, 104758, 104762, 104766, 104770, 104627, 104747, 104695, 104628, 104727, 104721, 104728, 104726, 104700, 104734, 104715, 104746, 104722, 104730, 104690, 104774, 104781, 104778, 104748, 104738, 104737, 104751, 104703, 104731, 104729, 104768, 104776, 104777, 104761, 104764, 104763, 104625, 104603, 104702"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore GP</code></pre>
+<p><br></p>
+</div>
+<div id="save-cleaned-data-18" class="section level3">
+<h3>Save Cleaned Data</h3>
+<pre class="r"><code>clean_MEDCON_RC &lt;- df</code></pre>
+<p><br> <br></p>
+</div>
+</div>
+<div id="medical_hist" class="section level2">
+<h2>MEDICAL_HIST</h2>
+<pre class="r"><code>df &lt;- MEDICAL_HIST
+
+## extract all the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;logical&quot;
+## 
+## [[4]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot;</code></pre>
+<pre class="r"><code>str(df, max.level = 99, list.len = 99999)</code></pre>
+<details>
+<summary>
+Click for details
+</summary>
+<pre><code>## &#39;data.frame&#39;:    889 obs. of  53 variables:
+##  $ SYSXM          : num  7606563 7493573 7592623 7576033 7596083 ...
+##  $ SYSIND         : num  11163223 11037553 11160533 11158043 11007943 ...
+##  $ SYSGP          : num  7924813 7894373 7896973 7896073 7888893 ...
+##  $ SYSGPSTUDY     : num  1362923 1309693 1312293 1311393 1304233 ...
+##  $ SYSINDGP       : num  7926433 7793293 7923643 7921153 7762743 ...
+##  $ CGI_ORDER      : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ GPS_ORDER      : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ STDCGI_ORDER   : num  11 11 11 11 11 11 11 11 11 11 ...
+##  $ LSTUDY         : chr  &quot;ADCRLPRADI&quot; &quot;ADFAMPRADI&quot; &quot;ADFAMPRADI&quot; &quot;ADFAMPRADI&quot; ...
+##  $ DB_OWNER       : chr  &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; ...
+##  $ STUDY          : chr  &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; ...
+##  $ SUBSTUDY       : chr  &quot;ADCRLPRADI&quot; &quot;ADFAMPRADI&quot; &quot;ADFAMPRADI&quot; &quot;ADFAMPRADI&quot; ...
+##  $ CENTER         : chr  &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot; ...
+##  $ GP             : num  87927 87502 87684 87511 87564 ...
+##  $ IND            : num  1 1 103 9006 100 ...
+##  $ REFCTR         : logi  NA NA NA NA NA NA ...
+##  $ EXAM_DATE      : POSIXct, format: &quot;2018-10-17&quot; &quot;2018-01-08&quot; ...
+##  $ EXAMINER       : chr  &quot;v.rodriguez4&quot; &quot;axr1589&quot; &quot;axr1589&quot; &quot;axr1589&quot; ...
+##  $ DATE_OF_BIRTH  : POSIXct, format: &quot;1933-05-18&quot; &quot;1952-07-06&quot; ...
+##  $ AGE_AT_EXAM    : num  85 65 59 60 68 72 77 72 67 88 ...
+##  $ XMSTUDY        : chr  &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; ...
+##  $ RELATION       : chr  &quot;Parent&quot; &quot;Spouse&quot; &quot;Spouse&quot; &quot;Spouse&quot; ...
+##  $ ANXIETY        : chr  &quot;Y&quot; &quot;N&quot; &quot;Y&quot; &quot;Y&quot; ...
+##  $ ASTHMA         : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ A_D_D          : chr  &quot;N&quot; &quot;U&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ AUTISM         : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ CANCER         : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ CANCER_TYPE    : chr  NA NA NA NA ...
+##  $ DEPRESSION     : chr  &quot;Y&quot; &quot;N&quot; &quot;N&quot; &quot;Y&quot; ...
+##  $ DIABETES_TYPE1 : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ DIABETES_TYPE2 : chr  &quot;N&quot; &quot;N&quot; &quot;Y&quot; &quot;N&quot; ...
+##  $ DIABETES       : chr  &quot;N&quot; &quot;N&quot; &quot;Y&quot; &quot;N&quot; ...
+##  $ LIPIDS_CHOL    : chr  &quot;Y&quot; &quot;N&quot; &quot;N&quot; &quot;Y&quot; ...
+##  $ EPILEPSY       : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ GASTRIC_ULCERS : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ HEART_DISEASE  : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ HYPERTENSION   : chr  &quot;Y&quot; &quot;N&quot; &quot;Y&quot; &quot;N&quot; ...
+##  $ KIDNEY_DISEASE : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ LIVER_DISEASE  : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ DEMENTIA       : chr  &quot;Y&quot; &quot;Y&quot; &quot;Y&quot; &quot;Y&quot; ...
+##  $ MIGRAINES      : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;U&quot; ...
+##  $ M_SCLEROSIS    : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ OBS_COMPULSIVE : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;Y&quot; ...
+##  $ OSTEOARTHRITIS : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ OSTEOPOROSIS   : chr  &quot;Y&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ PD             : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ ARTHRITIS      : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ RHINITIS       : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ SPINA_BIFIDA   : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ STROKE         : chr  &quot;N&quot; &quot;N&quot; &quot;N&quot; &quot;N&quot; ...
+##  $ THYROID_DISEASE: chr  &quot;Y&quot; &quot;N&quot; &quot;N&quot; &quot;Y&quot; ...
+##  $ CIGARETTES     : logi  NA NA NA NA NA NA ...
+##  $ CURR_MEDS      : logi  NA NA NA NA NA NA ...</code></pre>
+</details>
+<p><br></p>
+<div id="pull-the-regenerated-dd-20" class="section level3">
+<h3>Pull the regenerated DD</h3>
+<pre class="r"><code>dfDD &lt;- read_excel(&quot;/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx&quot;, sheet = &quot;MEDICAL_HIST&quot;)</code></pre>
+<p><br></p>
+</div>
+<div id="handling-logical-variables-19" class="section level3">
+<h3>Handling Logical Variables</h3>
+<pre class="r"><code>## extract all logical variables
+logicols &lt;- colnames(df)[sapply(df, is.logical)] ## [1] &quot;REFCTR&quot;     &quot;CIGARETTES&quot; &quot;CURR_MEDS&quot; 
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c(&quot;VarNames&quot;,&quot;Data Type&quot;)]</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##   VarNames   `Data Type`
+##   &lt;chr&gt;      &lt;chr&gt;      
+## 1 REFCTR     VARCHAR2(6)
+## 2 CIGARETTES CHAR       
+## 3 CURR_MEDS  CHAR</code></pre>
+<pre class="r"><code>## converted to character
+convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`)]
+
+## convert
+df[convert2chr] &lt;- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-date-variables-19" class="section level3">
+<h3>Handling Date Variables</h3>
+<pre class="r"><code>## extract date variables from sub-dataset
+datecols &lt;- colnames(df)[sapply(df, function(x) inherits(x, c(&quot;POSIXct&quot;, &quot;POSIXt&quot;)))]
+## [1] &quot;EXAM_DATE&quot;     &quot;DATE_OF_BIRTH&quot;
+
+## extract date variables from regenerated DD
+datecolsFromDD &lt;- dfDD$VarNames[dfDD$`Data Type` %in% c(&quot;DATE&quot;,&quot;date&quot;)]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)</code></pre>
+<pre><code>## character(0)</code></pre>
+<pre class="r"><code>setdiff(datecolsFromDD,datecols) ## character(0)</code></pre>
+<pre><code>## character(0)</code></pre>
+<pre class="r"><code>head(df[,datecols])</code></pre>
+<pre><code>##    EXAM_DATE DATE_OF_BIRTH
+## 1 2018-10-17    1933-05-18
+## 2 2018-01-08    1952-07-06
+## 3 2018-08-21    1958-10-31
+## 4 2018-06-08    1957-10-06
+## 5 2018-06-07    1949-07-20
+## 6 2018-06-28    1946-01-30</code></pre>
+<pre class="r"><code>## convert format
+df[datecols] &lt;- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [1] &quot;numeric&quot;   &quot;character&quot; &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-character-variables-19" class="section level3">
+<h3>Handling Character Variables</h3>
+<pre class="r"><code>## extract characteristic variables from sub-dataset
+chrcols &lt;- colnames(df)[sapply(df, is.character)] ## 40 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD &lt;- dfDD[grepl(&quot;^(varchar|char)&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Data Type&quot;)]
+
+mismatchChrs_1 &lt;- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 &lt;- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-24e1c75bf8358054a52d" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-24e1c75bf8358054a52d">{"x":{"filter":"none","vertical":false,"data":[["CANCER_TYPE"],["CANCER_TYPE"],["V  O, P  O, S  C  L  O, S  V  O, C  P, L  P"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore CANCER_TYPE, as it is a multiple values variable</code></pre>
+<p><br></p>
+</div>
+<div id="handling-numeric-variables-19" class="section level3">
+<h3>Handling Numeric Variables</h3>
+<pre class="r"><code>## extract numeric variables from sub-dataset
+numcols &lt;- colnames(df)[sapply(df, is.numeric)] ## 11 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+mismatchNums_1 &lt;- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 &lt;- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)</code></pre>
+<pre><code>## [1] NA              &quot;1 thru 99999;&quot; &quot;1 thru 9999;&quot;</code></pre>
+<pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
+<pre><code>## All numeric values are within valid ranges.</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-333bd8824b77a2541f41" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-333bd8824b77a2541f41">{"x":null,"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore GP</code></pre>
+<p><br></p>
+</div>
+<div id="save-cleaned-data-19" class="section level3">
+<h3>Save Cleaned Data</h3>
+<pre class="r"><code>clean_MEDICAL_HIST &lt;- df</code></pre>
+<p><br> <br></p>
+</div>
+</div>
+<div id="mint_rc" class="section level2">
+<h2>MINT_RC</h2>
+<pre class="r"><code>df &lt;- MINT_RC
+
+## extract all the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;logical&quot;
+## 
+## [[4]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot;</code></pre>
+<pre class="r"><code>str(df, max.level = 99, list.len = 99999)</code></pre>
+<details>
+<summary>
+Click for details
+</summary>
+<pre><code>## &#39;data.frame&#39;:    3 obs. of  221 variables:
+##  $ SYSXM                    : num  8247903 8300263 8342313
+##  $ SYSIND                   : num  11660243 11676853 11667133
+##  $ SYSGP                    : num  8011553 8017323 7946313
+##  $ SYSGPSTUDY               : num  1458263 1464033 1387423
+##  $ SYSINDGP                 : num  8429313 8445923 8436203
+##  $ CGI_ORDER                : num  1 1 1
+##  $ GPS_ORDER                : num  1 1 1
+##  $ STDCGI_ORDER             : num  11 11 11
+##  $ LSTUDY                   : chr  &quot;HAFS&quot; &quot;HAFS&quot; &quot;ADCONTROL&quot;
+##  $ DB_OWNER                 : chr  &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot;
+##  $ STUDY                    : chr  &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot;
+##  $ SUBSTUDY                 : chr  &quot;HAFS&quot; &quot;HAFS&quot; &quot;ADCONTROL&quot;
+##  $ CENTER                   : chr  &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot;
+##  $ GP                       : num  105805 105811 88254
+##  $ IND                      : num  1 1 9005
+##  $ REFCTR                   : logi  NA NA NA
+##  $ EXAM_DATE                : POSIXct, format: &quot;2023-03-17&quot; &quot;2024-03-18&quot; ...
+##  $ EXAMINER                 : chr  &quot;gsv32&quot; &quot;mxp1257&quot; &quot;gsv32&quot;
+##  $ DATE_OF_BIRTH            : POSIXct, format: &quot;1955-09-07&quot; &quot;1950-03-22&quot; ...
+##  $ AGE_AT_EXAM              : num  67 73 62
+##  $ REVIEW_DATE              : logi  NA NA NA
+##  $ REVIEWER                 : logi  NA NA NA
+##  $ MINT1A                   : logi  NA NA NA
+##  $ MINT1B                   : num  1 1 1
+##  $ MINT1C                   : logi  NA NA NA
+##  $ MINT1D                   : num  1 1 1
+##  $ MINT1F                   : logi  NA NA NA
+##  $ BUTTERFLY_OTHER          : logi  NA NA NA
+##  $ MINT2A                   : logi  NA NA NA
+##  $ MINT2B                   : num  1 1 1
+##  $ MINT2C                   : logi  NA NA NA
+##  $ MINT2D                   : num  1 1 1
+##  $ MINT2F                   : logi  NA NA NA
+##  $ GLOVE_OTHER              : logi  NA NA NA
+##  $ MINT3A                   : logi  NA NA NA
+##  $ MINT3B                   : num  1 1 1
+##  $ MINT3C                   : logi  NA NA NA
+##  $ MINT3D                   : num  1 1 1
+##  $ MINT3F                   : logi  NA NA NA
+##  $ LIGHTBULB_OTHER          : logi  NA NA NA
+##  $ MINT4A                   : logi  NA NA NA
+##  $ MINT4B                   : num  1 1 1
+##  $ MINT4C                   : logi  NA NA NA
+##  $ MINT4D                   : num  1 1 1
+##  $ MINT4F                   : logi  NA NA NA
+##  $ WATCH_OTHER              : logi  NA NA NA
+##  $ MINT5A                   : logi  NA NA NA
+##  $ MINT5B                   : num  1 1 1
+##  $ MINT5C                   : logi  NA NA NA
+##  $ MINT5D                   : num  1 1 1
+##  $ MINT5F                   : logi  NA NA NA
+##  $ CANDLE_OTHER             : logi  NA NA NA
+##  $ MINT6A                   : logi  NA NA NA
+##  $ MINT6B                   : num  1 1 1
+##  $ MINT6C                   : logi  NA NA NA
+##  $ MINT6D                   : num  1 1 1
+##  $ MINT6F                   : logi  NA NA NA
+##  $ CLOWN_OTHER              : logi  NA NA NA
+##  $ MINT7A                   : logi  NA NA NA
+##  $ MINT7B                   : num  1 1 1
+##  $ MINT7C                   : logi  NA NA NA
+##  $ MINT7D                   : num  1 1 1
+##  $ MINT7F                   : logi  NA NA NA
+##  $ KITE_OTHER               : logi  NA NA NA
+##  $ MINT8A                   : logi  NA NA NA
+##  $ MINT8B                   : num  1 1 1
+##  $ MINT8C                   : logi  NA NA NA
+##  $ MINT8D                   : num  1 1 1
+##  $ MINT8F                   : logi  NA NA NA
+##  $ RAINBOW_OTHER            : logi  NA NA NA
+##  $ MINT9A                   : logi  NA NA NA
+##  $ MINT9B                   : num  1 1 1
+##  $ MINT9C                   : logi  NA NA NA
+##  $ MINT9D                   : num  1 1 1
+##  $ MINT9F                   : logi  NA NA NA
+##  $ WITCH_OTHER              : logi  NA NA NA
+##  $ MINT10A                  : logi  NA NA NA
+##  $ MINT10B                  : num  1 1 1
+##  $ MINT10C                  : logi  NA NA NA
+##  $ MINT10D                  : num  1 1 1
+##  $ MINT10F                  : logi  NA NA NA
+##  $ SEESAW_OTHER             : logi  NA NA NA
+##  $ MINT11A                  : logi  NA NA NA
+##  $ MINT11B                  : num  1 1 1
+##  $ MINT11C                  : logi  NA NA NA
+##  $ MINT11D                  : num  1 1 1
+##  $ MINT11F                  : logi  NA NA NA
+##  $ FLASHLIGHT_OTHER         : logi  NA NA NA
+##  $ MINT12A                  : logi  NA NA NA
+##  $ MINT12B                  : num  1 1 1
+##  $ MINT12C                  : logi  NA NA NA
+##  $ MINT12D                  : num  1 1 1
+##  $ MINT12F                  : logi  NA NA NA
+##  $ PEACOCK_OTHER            : logi  NA NA NA
+##  $ MINT13A                  : logi  NA NA NA
+##  $ MINT13B                  : num  1 1 1
+##  $ MINT13C                  : logi  NA NA NA
+##  $ MINT13D                  : num  1 1 1
+##  $ MINT13F                  : logi  NA NA NA
+##  $ SNAIL_OTHER              : logi  NA NA NA
+##  $ MINT14A                  : logi  NA NA NA
+##  $ MINT14B                  : num  1 1 1
+##  $ MINT14C                  : logi  NA NA NA
+##  $ MINT14D                  : num  1 1 1
+##  $ MINT14F                  : logi  NA NA NA
+##  $ WHALE_OTHER              : logi  NA NA NA
+##  $ MINT15A                  : logi  NA NA NA
+##  $ MINT15B                  : num  1 1 1
+##  $ MINT15C                  : logi  NA NA NA
+##  $ MINT15D                  : num  1 1 1
+##  $ MINT15F                  : logi  NA NA NA
+##  $ CAGE_OTHER               : logi  NA NA NA
+##  $ MINT16A                  : logi  NA NA NA
+##  $ MINT16B                  : num  1 1 1
+##  $ MINT16C                  : logi  NA NA NA
+##  $ MINT16D                  : num  1 1 1
+##  $ MINT16F                  : logi  NA NA NA
+##  $ NEST_OTHER               : logi  NA NA NA
+##  $ MINT17A                  : logi  NA NA NA
+##  $ MINT17B                  : num  1 1 1
+##  $ MINT17C                  : logi  NA NA NA
+##  $ MINT17D                  : num  1 1 1
+##  $ MINT17F                  : logi  NA NA NA
+##  $ PLUG_OTHER               : logi  NA NA NA
+##  $ MINT18A                  : logi  NA NA NA
+##  $ MINT18B                  : num  1 1 1
+##  $ MINT18C                  : logi  NA NA NA
+##  $ MINT18D                  : num  1 1 1
+##  $ MINT18F                  : logi  NA NA NA
+##  $ WIG_OTHER                : logi  NA NA NA
+##  $ MINT19A                  : logi  NA NA NA
+##  $ MINT19B                  : num  1 1 1
+##  $ MINT19C                  : logi  NA NA NA
+##  $ MINT19D                  : num  1 1 1
+##  $ MINT19F                  : logi  NA NA NA
+##  $ SCREW_OTHER              : logi  NA NA NA
+##  $ MINT20A                  : logi  NA NA NA
+##  $ MINT20B                  : num  1 1 1
+##  $ MINT20C                  : logi  NA NA NA
+##  $ MINT20D                  : num  1 1 1
+##  $ MINT20F                  : logi  NA NA NA
+##  $ SCARF_OTHER              : logi  NA NA NA
+##  $ MINT21A                  : logi  NA NA NA
+##  $ MINT21B                  : num  1 1 1
+##  $ MINT21C                  : logi  NA NA NA
+##  $ MINT21D                  : num  1 1 1
+##  $ MINT21F                  : logi  NA NA NA
+##  $ WELL_OTHER               : logi  NA NA NA
+##  $ MINT22A                  : logi  NA NA NA
+##  $ MINT22B                  : num  1 1 1
+##  $ MINT22C                  : logi  NA NA NA
+##  $ MINT22D                  : num  1 1 1
+##  $ MINT22F                  : logi  NA NA NA
+##  $ DUSTPAN_OTHER            : logi  NA NA NA
+##  $ MINT23A                  : logi  NA NA NA
+##  $ MINT23B                  : num  1 1 1
+##  $ MINT23C                  : logi  NA NA NA
+##  $ MINT23D                  : num  1 1 1
+##  $ MINT23F                  : logi  NA NA NA
+##  $ PARACHUTE_OTHER          : logi  NA NA NA
+##  $ MINT24A                  : num  NA 1 NA
+##  $ MINT24B                  : num  1 NA 1
+##  $ MINT24C                  : num  NA 1 NA
+##  $ MINT24D                  : num  1 1 1
+##  $ MINT24F                  : logi  NA NA NA
+##  $ BLIND_OTHER              : chr  NA &quot;BALLENA&quot; NA
+##  $ MINT25A                  : logi  NA NA NA
+##  $ MINT25B                  : num  1 1 1
+##  $ MINT25C                  : logi  NA NA NA
+##  $ MINT25D                  : num  1 1 1
+##  $ MINT25F                  : logi  NA NA NA
+##  $ HINGE_OTHER              : logi  NA NA NA
+##  $ MINT26A                  : logi  NA NA NA
+##  $ MINT26B                  : num  1 1 1
+##  $ MINT26C                  : logi  NA NA NA
+##  $ MINT26D                  : num  1 1 1
+##  $ MINT26F                  : logi  NA NA NA
+##  $ FUNNEL_OTHER             : logi  NA NA NA
+##  $ MINT27A                  : num  NA 1 NA
+##  $ MINT27B                  : num  1 NA 1
+##  $ MINT27C                  : num  NA 1 NA
+##  $ MINT27D                  : num  1 1 1
+##  $ MINT27F                  : logi  NA NA NA
+##  $ GAUGE_OTHER              : chr  NA &quot;BISAGRA&quot; NA
+##  $ MINT28A                  : num  NA 1 NA
+##  $ MINT28B                  : num  1 NA 1
+##  $ MINT28C                  : num  NA 0 NA
+##  $ MINT28D                  : num  1 0 1
+##  $ MINT28F                  : num  NA 0 NA
+##  $ PORTHOLE_OTHER           : chr  NA &quot;NONE&quot; NA
+##  $ MINT29A                  : num  1 1 NA
+##  $ MINT29B                  : num  NA NA 1
+##  $ MINT29C                  : num  0 1 NA
+##  $ MINT29D                  : num  0 1 1
+##  $ MINT29F                  : num  0 NA NA
+##  $ ANVIL_OTHER              : chr  &quot;doesn&#39;t know&quot; &quot;yunque&quot; NA
+##  $ MINT30A                  : logi  NA NA NA
+##  $ MINT30B                  : num  1 1 1
+##  $ MINT30C                  : logi  NA NA NA
+##  $ MINT30D                  : num  1 1 1
+##  $ MINT30F                  : logi  NA NA NA
+##  $ MORTAR_OTHER             : logi  NA NA NA
+##  $ MINT31A                  : num  NA 1 NA
+##  $ MINT31B                  : num  1 NA 1
+##  $ MINT31C                  : num  NA 0 NA
+##  $ MINT31D                  : num  1 0 1
+##  $ MINT31F                  : num  NA 0 NA
+##  $ PESTLE_OTHER             : chr  NA &quot;none&quot; NA
+##  $ MINT32A                  : logi  NA NA NA
+##  $ MINT32B                  : num  1 1 1
+##  $ MINT32C                  : logi  NA NA NA
+##  $ MINT32D                  : num  1 1 1
+##  $ MINT32F                  : logi  NA NA NA
+##  $ AXLE_OTHER               : logi  NA NA NA
+##  $ COMMENTS_MINT            : logi  NA NA NA
+##  $ MINT_TOT_NO_CUE          : num  31 27 32
+##  $ MINT_STIM_CUE            : num  0 3 0
+##  $ MINT_PHON_CUE            : num  1 2 0
+##  $ MINT_CORR_PHON_CUE       : num  0 0 0
+##  $ MINT_CORR_STIM_CUE       : num  31 30 32
+##  $ MINT_CORR_STIM_CUE_STATUS: logi  NA NA NA</code></pre>
+</details>
+<p><br></p>
+<div id="pull-the-regenerated-dd-21" class="section level3">
+<h3>Pull the regenerated DD</h3>
+<pre class="r"><code>dfDD &lt;- read_excel(&quot;/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx&quot;, sheet = &quot;MINT_RC&quot;)</code></pre>
+<p><br></p>
+</div>
+<div id="handling-logical-variables-20" class="section level3">
+<h3>Handling Logical Variables</h3>
+<pre class="r"><code>## extract all logical variables
+logicols &lt;- colnames(df)[sapply(df, is.logical)] ## 115 vars 
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c(&quot;VarNames&quot;,&quot;Data Type&quot;)]</code></pre>
+<pre><code>## # A tibble: 115 × 2
+##    VarNames        `Data Type`
+##    &lt;chr&gt;           &lt;chr&gt;      
+##  1 REFCTR          VARCHAR2(6)
+##  2 REVIEW_DATE     date       
+##  3 REVIEWER        CHAR       
+##  4 MINT1A          NUMBER(1)  
+##  5 MINT1C          NUMBER(1)  
+##  6 MINT1F          NUMBER(1)  
+##  7 BUTTERFLY_OTHER CHAR       
+##  8 MINT2A          NUMBER(1)  
+##  9 MINT2C          NUMBER(1)  
+## 10 MINT2F          NUMBER(1)  
+## # ℹ 105 more rows</code></pre>
+<pre class="r"><code>## converted to character
+convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`,ignore.case = T)] ## 31 vars
+convert2date &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;date&quot;, dfDD$`Data Type`,,ignore.case = T)] ## 1 var
+convert2num &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;NUMBER&quot;, dfDD$`Data Type`,,ignore.case = T)] ## 83 vars
+
+## convert
+df[convert2chr] &lt;- lapply(df[convert2chr], as.character)
+df[convert2date] &lt;- lapply(df[convert2date], as.Date)
+df[convert2num] &lt;- lapply(df[convert2date], as.numeric)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot; 
+## 
+## [[4]]
+## [1] &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-date-variables-20" class="section level3">
+<h3>Handling Date Variables</h3>
+<pre class="r"><code>## extract date variables from sub-dataset
+datecols &lt;- colnames(df)[sapply(df, function(x) inherits(x, c(&quot;POSIXct&quot;, &quot;POSIXt&quot;)))]
+## [1] &quot;EXAM_DATE&quot;     &quot;DATE_OF_BIRTH&quot;
+
+## extract date variables from regenerated DD
+datecolsFromDD &lt;- dfDD$VarNames[dfDD$`Data Type` %in% c(&quot;DATE&quot;,&quot;date&quot;)]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)</code></pre>
+<pre><code>## character(0)</code></pre>
+<pre class="r"><code>setdiff(datecolsFromDD,datecols) ## REVIEW_DATE, ignore it, it has been corrected in previous step</code></pre>
+<pre><code>## [1] &quot;REVIEW_DATE&quot;</code></pre>
+<pre class="r"><code>head(df[,datecols])</code></pre>
+<pre><code>##    EXAM_DATE DATE_OF_BIRTH
+## 1 2023-03-17    1955-09-07
+## 2 2024-03-18    1950-03-22
+## 3 2023-01-18    1960-05-04</code></pre>
+<pre class="r"><code>## convert format
+df[datecols] &lt;- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [1] &quot;numeric&quot;   &quot;character&quot; &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-character-variables-20" class="section level3">
+<h3>Handling Character Variables</h3>
+<pre class="r"><code>## extract characteristic variables from sub-dataset
+chrcols &lt;- colnames(df)[sapply(df, is.character)] ## 42 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD &lt;- dfDD[grepl(&quot;^(varchar|char)&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Data Type&quot;)]
+
+mismatchChrs_1 &lt;- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 &lt;- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))</code></pre>
+<pre><code>## All values are within valid ranges.</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-a587f6aa984df6a03d5d" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-a587f6aa984df6a03d5d">{"x":null,"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore EXAMINER</code></pre>
+<p><br></p>
+</div>
+<div id="handling-numeric-variables-20" class="section level3">
+<h3>Handling Numeric Variables</h3>
+<pre class="r"><code>## extract numeric variables from sub-dataset
+numcols &lt;- colnames(df)[sapply(df, is.numeric)] ## 176 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+mismatchNums_1 &lt;- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 &lt;- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)</code></pre>
+<pre><code>## [1] NA              &quot;1 thru 99999;&quot; &quot;1 thru 9999;&quot;  &quot;1;&quot;           
+## [5] &quot;0;\r\n1;&quot;      &quot;1;\r\n0;&quot;</code></pre>
+<pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-81ecc23cfb998c892872" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-81ecc23cfb998c892872">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["105805, 105811"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore GP</code></pre>
+<p><br></p>
+</div>
+<div id="save-cleaned-data-20" class="section level3">
+<h3>Save Cleaned Data</h3>
+<pre class="r"><code>clean_MINT_RC &lt;- df</code></pre>
+<p><br> <br></p>
+</div>
+</div>
+<div id="mint_sp_rc" class="section level2">
+<h2>MINT_SP_RC</h2>
+<pre class="r"><code>df &lt;- MINT_SP_RC
+
+## extract all the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;logical&quot;
+## 
+## [[4]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot;</code></pre>
+<pre class="r"><code>str(df, max.level = 99, list.len = 99999)</code></pre>
+<details>
+<summary>
+Click for details
+</summary>
+<pre><code>## &#39;data.frame&#39;:    303 obs. of  221 variables:
+##  $ SYSXM                       : num  8260003 8260193 8277393 8278083 8260823 ...
+##  $ SYSIND                      : num  11163453 11620563 11620453 11621333 11621203 ...
+##  $ SYSGP                       : num  7924953 8005633 8005523 8006293 8006163 ...
+##  $ SYSGPSTUDY                  : num  1363063 1452343 1452233 1453003 1452873 ...
+##  $ SYSINDGP                    : num  7926663 8389633 8389523 8390403 8390273 ...
+##  $ CGI_ORDER                   : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ GPS_ORDER                   : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ STDCGI_ORDER                : num  11 11 11 11 11 11 11 11 11 11 ...
+##  $ LSTUDY                      : chr  &quot;ADFAMPRADI&quot; &quot;ADCONTROL&quot; &quot;ADCONTROL&quot; &quot;ADCONTROL&quot; ...
+##  $ DB_OWNER                    : chr  &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; &quot;CLINIC_USER&quot; ...
+##  $ STUDY                       : chr  &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; &quot;ALZ&quot; ...
+##  $ SUBSTUDY                    : chr  &quot;ADFAMPRADI&quot; &quot;ADCONTROL&quot; &quot;ADCONTROL&quot; &quot;ADCONTROL&quot; ...
+##  $ CENTER                      : chr  &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot; &quot;IHG&quot; ...
+##  $ GP                          : num  87923 104477 104476 104528 104455 ...
+##  $ IND                         : num  9000 1 1 1 1 1 1 1 1 1 ...
+##  $ REFCTR                      : logi  NA NA NA NA NA NA ...
+##  $ EXAM_DATE                   : POSIXct, format: &quot;2023-10-25&quot; &quot;2023-05-15&quot; ...
+##  $ EXAMINER                    : chr  &quot;gsv32&quot; &quot;jjs2031&quot; &quot;jjs2031&quot; &quot;jjs2031&quot; ...
+##  $ DATE_OF_BIRTH               : POSIXct, format: &quot;1967-06-15&quot; &quot;1949-12-01&quot; ...
+##  $ AGE_AT_EXAM                 : num  56 73 73 86 81 77 67 80 74 73 ...
+##  $ REVIEW_DATE                 : logi  NA NA NA NA NA NA ...
+##  $ REVIEWER                    : logi  NA NA NA NA NA NA ...
+##  $ MINT1A_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT1B_SP                   : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT1C_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT1D_SP                   : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT1F_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ TAMBOR_OTHER_SP             : chr  NA NA NA NA ...
+##  $ MINT2A_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT2B_SP                   : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT2C_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT2D_SP                   : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT2F_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ GLOVE_OTHER_SP              : chr  NA NA NA NA ...
+##  $ MINT3A_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT3B_SP                   : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT3C_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT3D_SP                   : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT3F_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ LIGHTBULB_OTHER_SP          : chr  NA NA NA NA ...
+##  $ MINT4A_SP                   : num  NA NA NA 1 1 NA NA NA NA 1 ...
+##  $ MINT4B_SP                   : num  1 1 1 NA NA 1 1 1 1 NA ...
+##  $ MINT4C_SP                   : num  NA NA NA 1 1 NA NA NA NA 0 ...
+##  $ MINT4D_SP                   : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT4F_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ WATCH_OTHER_SP              : chr  NA NA NA &quot;-&quot; ...
+##  $ MINT5A_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT5B_SP                   : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT5C_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT5D_SP                   : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ MINT5F_SP                   : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ CANDLE_OTHER_SP             : chr  NA NA NA NA ...
+##  $ MINT6A_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT6B_SP                   : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT6C_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT6D_SP                   : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT6F_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ CLOWN_OTHER_SP              : chr  NA NA NA NA ...
+##  $ MINT7A_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT7B_SP                   : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT7C_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT7D_SP                   : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT7F_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ KITE_OTHER_SP               : chr  NA NA NA NA ...
+##  $ MINT8A_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT8B_SP                   : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT8C_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT8D_SP                   : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT8F_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ RAINBOW_OTHER_SP            : chr  NA NA NA NA ...
+##  $ MINT9A_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT9B_SP                   : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT9C_SP                   : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT9D_SP                   : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT9F_SP                   : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ WITCH_OTHER_SP              : chr  NA NA NA NA ...
+##  $ MINT10A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT10B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT10C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT10D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT10F_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ SEESAW_OTHER_SP             : chr  NA NA NA NA ...
+##  $ MINT11A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT11B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT11C_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT11D_SP                  : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ MINT11F_SP                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ FLASHLIGHT_OTHER_SP         : chr  NA NA NA NA ...
+##  $ MINT12A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT12B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT12C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT12D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT12F_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ PEACOCK_OTHER_SP            : chr  NA NA NA NA ...
+##  $ MINT13A_SP                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ MINT13B_SP                  : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ MINT13C_SP                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ MINT13D_SP                  : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ MINT13F_SP                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ SNAIL_OTHER_SP              : chr  NA NA NA NA ...
+##  $ MINT14A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT14B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT14C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT14D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT14F_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ WHALE_OTHER_SP              : chr  NA NA NA NA ...
+##  $ MINT15A_SP                  : num  NA NA 1 NA 1 NA NA NA NA 1 ...
+##  $ MINT15B_SP                  : num  1 1 NA 1 NA 1 1 1 1 NA ...
+##  $ MINT15C_SP                  : num  NA NA 1 NA 1 NA NA NA NA 1 ...
+##  $ MINT15D_SP                  : num  NA NA 1 NA 1 NA NA NA NA 1 ...
+##  $ MINT15F_SP                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ CAGE_OTHER_SP               : chr  NA NA &quot;---&quot; NA ...
+##  $ MINT16A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT16B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT16C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT16D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT16F_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ NEST_OTHER_SP               : chr  NA NA NA NA ...
+##  $ MINT17A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT17B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT17C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT17D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT17F_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ PLUG_OTHER_SP               : chr  NA NA NA NA ...
+##  $ MINT18A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT18B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT18C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT18D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT18F_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ WIG_OTHER_SP                : chr  NA NA NA NA ...
+##  $ MINT19A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT19B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT19C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT19D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT19F_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ SCREW_OTHER_SP              : chr  NA NA NA NA ...
+##  $ MINT20A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT20B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT20C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT20D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT20F_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ SCARF_OTHER_SP              : chr  NA NA NA NA ...
+##  $ MINT21A_SP                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ MINT21B_SP                  : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ MINT21C_SP                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ MINT21D_SP                  : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ MINT21F_SP                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ WELL_OTHER_SP               : chr  NA NA NA NA ...
+##  $ MINT22A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT22B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT22C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT22D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT22F_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ DUSTPAN_OTHER_SP            : chr  NA NA NA NA ...
+##  $ MINT23A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT23B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT23C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT23D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT23F_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ PARACHUTE_OTHER_SP          : chr  NA NA NA NA ...
+##  $ MINT24A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT24B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT24C_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ MINT24D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT24F_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ BLIND_OTHER_SP              : chr  NA NA NA NA ...
+##  $ MINT25A_SP                  : num  NA NA NA NA NA NA 1 NA NA 1 ...
+##  $ MINT25B_SP                  : num  1 1 1 1 1 1 NA 1 1 NA ...
+##  $ MINT25C_SP                  : num  NA NA NA NA NA NA 0 NA NA 1 ...
+##  $ MINT25D_SP                  : num  1 1 1 1 1 1 0 1 1 1 ...
+##  $ MINT25F_SP                  : num  NA NA NA NA NA NA 1 NA NA NA ...
+##  $ HINGE_OTHER_SP              : chr  NA NA NA NA ...
+##  $ MINT26A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT26B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT26C_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT26D_SP                  : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ MINT26F_SP                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ FUNNEL_OTHER_SP             : chr  NA NA NA NA ...
+##  $ MINT27A_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT27B_SP                  : num  1 1 1 1 1 1 1 1 1 NA ...
+##  $ MINT27C_SP                  : num  NA NA NA NA NA NA NA NA NA 1 ...
+##  $ MINT27D_SP                  : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ MINT27F_SP                  : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ GAUGE_OTHER_SP              : chr  NA NA NA NA ...
+##  $ MINT28A_SP                  : num  1 NA NA NA 1 NA NA NA NA 1 ...
+##  $ MINT28B_SP                  : num  NA 1 1 1 NA 1 1 1 1 NA ...
+##  $ MINT28C_SP                  : num  0 NA NA NA 1 NA NA NA NA 1 ...
+##  $ MINT28D_SP                  : num  0 1 1 1 1 1 1 1 1 1 ...
+##  $ MINT28F_SP                  : num  1 NA NA NA NA NA NA NA NA NA ...
+##  $ PORTHOLE_OTHER_SP           : chr  &quot;bisagra&quot; NA NA NA ...
+##  $ MINT29A_SP                  : num  1 1 NA NA NA NA 1 NA NA NA ...
+##  $ MINT29B_SP                  : num  NA NA 1 1 1 1 NA 1 1 1 ...
+##  $ MINT29C_SP                  : num  0 0 NA NA NA NA 0 NA NA NA ...
+##  $ MINT29D_SP                  : num  0 0 1 1 1 1 0 1 1 1 ...
+##  $ MINT29F_SP                  : num  0 0 NA NA NA NA 0 NA NA NA ...
+##  $ ANVIL_OTHER_SP              : chr  &quot;n/a&quot; NA NA NA ...
+##  $ MINT30A_SP                  : num  NA 1 NA NA NA NA NA NA NA 1 ...
+##  $ MINT30B_SP                  : num  1 NA 1 1 1 1 1 1 1 NA ...
+##  $ MINT30C_SP                  : num  NA 0 NA NA NA NA NA NA NA 0 ...
+##  $ MINT30D_SP                  : num  1 0 1 1 1 1 1 1 1 0 ...
+##  $ MINT30F_SP                  : num  NA 0 NA NA NA NA NA NA NA 0 ...
+##  $ MORTAR_OTHER_SP             : chr  NA NA NA NA ...
+##  $ MINT31A_SP                  : num  1 1 NA NA NA NA 1 NA NA 1 ...
+##  $ MINT31B_SP                  : num  NA NA 1 1 1 1 NA 1 1 NA ...
+##  $ MINT31C_SP                  : num  0 0 NA NA NA NA 0 NA NA 0 ...
+##  $ MINT31D_SP                  : num  0 0 1 1 1 1 0 1 1 0 ...
+##  $ MINT31F_SP                  : num  0 0 NA NA NA NA 0 NA NA 0 ...
+##  $ PESTLE_OTHER_SP             : chr  &quot;n/a&quot; NA NA NA ...
+##  $ MINT32A_SP                  : num  NA NA NA NA NA NA 1 NA NA 1 ...
+##  $ MINT32B_SP                  : num  1 1 1 1 1 1 NA 1 1 NA ...
+##  $ MINT32C_SP                  : num  NA NA NA NA NA NA 1 NA NA 0 ...
+##  $ MINT32D_SP                  : num  1 1 1 1 1 1 1 1 1 0 ...
+##  $ MINT32F_SP                  : num  NA NA NA NA NA NA NA NA NA 0 ...
+##  $ AXLE_OTHER_SP               : chr  NA NA NA NA ...
+##  $ COMMENTS_MINT_SP            : chr  NA NA NA NA ...
+##  $ MINT_TOT_NO_CUE_SP          : num  29 29 31 31 29 32 28 32 32 3 ...
+##  $ MINT_STIM_CUE_SP            : num  0 0 1 1 3 0 1 0 0 7 ...
+##  $ MINT_PHON_CUE_SP            : num  3 3 0 0 0 0 3 0 0 22 ...
+##  $ MINT_CORR_PHON_CUE_SP       : num  1 0 0 0 0 0 1 0 0 8 ...
+##  $ MINT_CORR_STIM_CUE_SP       : num  29 29 32 32 32 32 29 32 32 10 ...
+##  $ MINT_CORR_STIM_CUE_SP_STATUS: chr  NA NA NA NA ...</code></pre>
+</details>
+<p><br></p>
+<div id="pull-the-regenerated-dd-22" class="section level3">
+<h3>Pull the regenerated DD</h3>
+<pre class="r"><code>dfDD &lt;- read_excel(&quot;/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx&quot;, sheet = &quot;MINT_SP_RC&quot;)</code></pre>
+<p><br></p>
+</div>
+<div id="handling-logical-variables-21" class="section level3">
+<h3>Handling Logical Variables</h3>
+<pre class="r"><code>## extract all logical variables
+logicols &lt;- colnames(df)[sapply(df, is.logical)] ## [1] &quot;REFCTR&quot;      &quot;REVIEW_DATE&quot; &quot;REVIEWER&quot;  
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c(&quot;VarNames&quot;,&quot;Data Type&quot;)]</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##   VarNames    `Data Type`
+##   &lt;chr&gt;       &lt;chr&gt;      
+## 1 REFCTR      VARCHAR2(6)
+## 2 REVIEW_DATE date       
+## 3 REVIEWER    CHAR</code></pre>
+<pre class="r"><code>## converted to character
+convert2chr &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;CHAR&quot;, dfDD$`Data Type`,ignore.case = T)] ## 2 vars
+convert2date &lt;- dfDD$VarNames[dfDD$VarNames %in% logicols &amp; grepl(&quot;date&quot;, dfDD$`Data Type`,,ignore.case = T)] ## 1 var
+
+## convert
+df[convert2chr] &lt;- lapply(df[convert2chr], as.character)
+df[convert2date] &lt;- lapply(df[convert2date], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;numeric&quot;
+## 
+## [[2]]
+## [1] &quot;character&quot;
+## 
+## [[3]]
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot; 
+## 
+## [[4]]
+## [1] &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-date-variables-21" class="section level3">
+<h3>Handling Date Variables</h3>
+<pre class="r"><code>## extract date variables from sub-dataset
+datecols &lt;- colnames(df)[sapply(df, function(x) inherits(x, c(&quot;POSIXct&quot;, &quot;POSIXt&quot;)))]
+## [1] &quot;EXAM_DATE&quot;     &quot;DATE_OF_BIRTH&quot;
+
+## extract date variables from regenerated DD
+datecolsFromDD &lt;- dfDD$VarNames[dfDD$`Data Type` %in% c(&quot;DATE&quot;,&quot;date&quot;)]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)</code></pre>
+<pre><code>## character(0)</code></pre>
+<pre class="r"><code>setdiff(datecolsFromDD,datecols) ## REVIEW_DATE, ignore it, it has been corrected in previous step</code></pre>
+<pre><code>## [1] &quot;REVIEW_DATE&quot;</code></pre>
+<pre class="r"><code>head(df[,datecols])</code></pre>
+<pre><code>##    EXAM_DATE DATE_OF_BIRTH
+## 1 2023-10-25    1967-06-15
+## 2 2023-05-15    1949-12-01
+## 3 2023-05-15    1950-04-02
+## 4 2023-05-09    1936-05-22
+## 5 2023-02-24    1941-10-04
+## 6 2023-08-11    1946-06-19</code></pre>
+<pre class="r"><code>## convert format
+df[datecols] &lt;- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))</code></pre>
+<pre><code>## [1] &quot;numeric&quot;   &quot;character&quot; &quot;Date&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="handling-character-variables-21" class="section level3">
+<h3>Handling Character Variables</h3>
+<pre class="r"><code>## extract characteristic variables from sub-dataset
+chrcols &lt;- colnames(df)[sapply(df, is.character)] ## 42 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD &lt;- dfDD[grepl(&quot;^(varchar|char)&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Data Type&quot;)]
+
+mismatchChrs_1 &lt;- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 &lt;- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp &lt;- dfDD[grepl(&quot;CHAR|VARCHAR&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))</code></pre>
+<pre><code>## All values are within valid ranges.</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-0aa84cb8c1af6b81deb4" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-0aa84cb8c1af6b81deb4">{"x":null,"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore EXAMINER</code></pre>
+<p><br></p>
+</div>
+<div id="handling-numeric-variables-21" class="section level3">
+<h3>Handling Numeric Variables</h3>
+<pre class="r"><code>## extract numeric variables from sub-dataset
+numcols &lt;- colnames(df)[sapply(df, is.numeric)] ## 176 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+mismatchNums_1 &lt;- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 &lt;- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)</code></pre>
+<pre><code>## [1] NA              &quot;1 thru 99999;&quot; &quot;1 thru 9999;&quot;  &quot;1;&quot;           
+## [5] &quot;0;\r\n1;&quot;      &quot;1;\r\n0;&quot;</code></pre>
+<pre class="r"><code>tmp &lt;- dfDD[grepl(&quot;number&quot;, dfDD$`Data Type`, ignore.case = TRUE) &amp; !is.na(dfDD$`Valid Responses`),c(&quot;VarNames&quot;,&quot;Valid Responses&quot;)]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-d493e0810d073e9a71c1" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d493e0810d073e9a71c1">{"x":{"filter":"none","vertical":false,"data":[["GP"],["GP"],["104477, 104476, 104528, 104455, 104511, 104471, 104548, 104452, 104459, 104500, 104499, 104525, 105801, 104497, 104531, 104536, 104472, 104469, 104487, 104496, 104490, 104453, 104526, 105804, 104518, 104454, 104514, 104513, 104508, 104475, 104481, 104539, 104527, 104532, 104456, 104466, 104507, 104529, 104464, 104530, 104501, 105809, 104489, 104569, 104564, 104563, 104468, 104557, 104465, 105803, 104519, 105826, 105807, 104578, 104470, 104474, 104582, 104584, 104447, 104506, 104573, 104494, 104570, 104583, 104450, 105813, 104510, 104473, 104480, 104586, 104585, 104562, 104482, 104484, 104572, 104495, 104462, 104479, 104560, 105808, 104488, 104505, 104579, 105814, 104534, 104566, 104581, 104533, 104467, 104451, 104498, 104524, 104485, 104567, 104574, 104449, 104575, 104502, 105811, 105800, 104483, 104478, 105823, 104640, 104611, 104623, 104621, 104617, 104697, 105833, 105829, 104619, 104643, 104680, 104685, 104688, 104665, 104616, 104624, 104648, 104599, 104638, 104522, 104517, 104672, 104698, 104593, 104682, 104686, 104646, 105830, 104622, 104608, 105828, 105832, 105834, 105831, 104642, 104504, 104503, 104620, 104650, 105838, 104746, 107011, 107007, 104775, 107132, 107024, 104754, 107003, 107005, 107009, 104674, 107175, 104736, 104744, 104751, 104765, 104690, 107124, 104706, 107020, 107100, 104774, 107181, 104695, 107104, 104783, 107012, 104768, 104764, 104675, 104676, 104748, 104603, 107016"],["1 - 99999"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>VarName<\/th>\n      <th>Invalid_Values<\/th>\n      <th>Accepted_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"VarName","targets":1},{"name":"Invalid_Values","targets":2},{"name":"Accepted_values","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>## ignore GP</code></pre>
+<p><br></p>
+</div>
+<div id="save-cleaned-data-21" class="section level3">
+<h3>Save Cleaned Data</h3>
+<pre class="r"><code>clean_MINT_SP_RC &lt;- df</code></pre>
 </div>
 </div>
 </div>
