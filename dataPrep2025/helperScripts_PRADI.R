@@ -17,7 +17,8 @@ check_valid_responses <- function(df_valid, df_data) {
     varname <- df_valid$VarNames[i]
     
     # Skip if variable not in df_data
-    if (!varname %in% names(df_data)) next
+    if (!varname %in% names(df_data))
+      next
     
     # Get unique non-NA values in data
     observed <- unique(na.omit(df_data[[varname]]))
@@ -27,10 +28,8 @@ check_valid_responses <- function(df_valid, df_data) {
     invalid <- setdiff(as.character(observed), expected)
     
     if (length(invalid) > 0) {
-      result_list[[varname]] <- data.frame(
-        VarName = varname,
-        Invalid_Values = paste(invalid, collapse = ", ")
-      )
+      result_list[[varname]] <- data.frame(VarName = varname,
+                                           Invalid_Values = paste(invalid, collapse = ", "))
     }
   }
   
@@ -50,7 +49,9 @@ check_valid_responses <- function(df_valid, df_data) {
 # parse_range("0.0 - 3.4")                # 0.0, 0.1, 0.2, ..., 3.4
 # parse_range("-1.5 - 0.5;2.25;3")        # supports negatives and decimals
 # parse_range("0.0 - 3.4", step = 0.2)    # override step: 0.0, 0.2, ..., 3.4
-parse_range <- function(x, step = NULL, unique_sort = FALSE) {
+parse_range <- function(x,
+                        step = NULL,
+                        unique_sort = FALSE) {
   parts <- unlist(strsplit(x, ";", fixed = TRUE))
   out <- numeric(0)
   
@@ -58,7 +59,10 @@ parse_range <- function(x, step = NULL, unique_sort = FALSE) {
   rx_num   <- "^[+-]?\\d+(?:\\.\\d+)?$"
   
   dec_places <- function(s) {
-    if (!grepl("\\.", s)) 0 else nchar(sub(".*\\.", "", s))
+    if (!grepl("\\.", s))
+      0
+    else
+      nchar(sub(".*\\.", "", s))
   }
   
   for (p in parts) {
@@ -68,15 +72,18 @@ parse_range <- function(x, step = NULL, unique_sort = FALSE) {
     m <- regexec(rx_range, p)
     hit <- regmatches(p, m)[[1]]
     if (length(hit)) {
-      a_chr <- hit[2]; b_chr <- hit[3]
-      a <- as.numeric(a_chr); b <- as.numeric(b_chr)
+      a_chr <- hit[2]
+      b_chr <- hit[3]
+      a <- as.numeric(a_chr)
+      b <- as.numeric(b_chr)
       
       by <- if (!is.null(step)) {
         step
       } else {
         10^(-max(dec_places(a_chr), dec_places(b_chr)))
       }
-      if (by <= 0) stop("Step must be positive.")
+      if (by <= 0)
+        stop("Step must be positive.")
       
       if (a <= b) {
         out <- c(out, seq(a, b, by = by))
@@ -92,10 +99,14 @@ parse_range <- function(x, step = NULL, unique_sort = FALSE) {
       next
     }
     
-    if (nzchar(p)) stop(sprintf("Unrecognized token: '%s'", p))
+    if (nzchar(p))
+      stop(sprintf("Unrecognized token: '%s'", p))
   }
   
-  if (unique_sort) unique(sort(out)) else out
+  if (unique_sort)
+    unique(sort(out))
+  else
+    out
 }
 
 
@@ -114,10 +125,10 @@ check_valid_numeric_responses <- function(df_valid, df_data) {
   
   # Step 2: loop and check
   for (i in seq_len(nrow(df_valid))) {
-    
     varname <- df_valid$VarNames[i]
     
-    if (!varname %in% names(df_data)) next  # skip if var not in data
+    if (!varname %in% names(df_data))
+      next  # skip if var not in data
     
     observed <- unique(na.omit(df_data[[varname]]))
     valid_vals <- df_valid$cleaned_response[i]
@@ -146,4 +157,3 @@ check_valid_numeric_responses <- function(df_valid, df_data) {
     return(invisible(NULL))
   }
 }
-

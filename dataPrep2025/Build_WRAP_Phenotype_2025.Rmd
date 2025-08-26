@@ -18,10 +18,30 @@ Author: Mengna Zhang
 # Set Path
 
 ```{r}
-#directory
-directory <- "/Users/mengnazhang/Desktop/"
-my_directory <- paste0(directory, "ADSP_DataPrep_local/WRAP/Phenotype/2025/Raw/")
+## directory: can extend to the main CNT folder
+directory <- "/Users/"
+
+## your own directory
+my_directory <- paste0(directory, "mengnazhang/Desktop/")
+
+## set WRAP path
+wrap_directory <- paste0(my_directory, "ADSP_DataPrep_local/WRAP/Phenotype/2025/Raw/")
+
+## output path
+out_directory <- paste0(my_directory, "ADSP_DataPrep_local/WRAP/Phenotype/2025/Cleaned/")
+
+## script path
+script_directory <- paste0(my_directory, "ADSP_DataPrep_local/WRAP/Phenotype/2025/Scripts/")
+
 ```
+
+<br>
+
+# Load Helper Scripts
+```{r}
+source(paste0(script_directory,"helperScripts_WRAP.R"))
+```
+
 
 <br>
 
@@ -31,14 +51,6 @@ require(dplyr)
 require(tidyr)
 require(stringr)
 ```
-
-<br>
-
-# Load Helper Scripts
-```{r}
-source("/Users/mengnazhang/Desktop/ADSP_DataPrep/dataPrep2025/helperScripts.R")
-```
-
 
 <br>
 <br>
@@ -51,7 +63,8 @@ Indicator variables indicating low scores on FactorScores factors, adjusting for
 
 ```{r}
 ## load data
-Abnormal_Factor_Flags_long <- read.csv(paste0(my_directory, "Abnormal_Factor_Flags_long_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Abnormal_Factor_Flags_long <- read.csv(paste0(wrap_directory,"Abnormal_Factor_Flags_long_05Jun2025.csv"))
+
 info(Abnormal_Factor_Flags_long,"wrapnum")
 ```
 
@@ -92,7 +105,7 @@ Indicator variables indicating low scores on FactorScores factors, adjusting for
 
 ```{r}
 ## load data
-Abnormal_Factor_Flags_wide <- read.csv(paste0(my_directory, "Abnormal_Factor_Flags_wide_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Abnormal_Factor_Flags_wide <- read.csv(paste0(wrap_directory,"Abnormal_Factor_Flags_wide_05Jun2025.csv"))
 info(Abnormal_Factor_Flags_wide,"wrapnum")
 ```
 
@@ -134,7 +147,7 @@ Animal Naming Item Level Data
 
 ```{r}
 ## load data
-AnimalNaming_ItemLevel <- read.csv(paste0(my_directory, "AnimalNaming_ItemLevel_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+AnimalNaming_ItemLevel <- read.csv(paste0(wrap_directory, "AnimalNaming_ItemLevel_05Jun2025.csv"))
 info(AnimalNaming_ItemLevel,"wrapnum")
 ```
 
@@ -187,7 +200,7 @@ APOE genotype
 
 ```{r}
 ## load data
-APG <- read.csv(paste0(my_directory, "APG_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+APG <- read.csv(paste0(wrap_directory, "APG_05Jun2025.csv"))
 info(APG,"wrapnum")
 ```
 
@@ -230,7 +243,7 @@ Serial position of answers given per trial on Rey AVLT
 
 ```{r}
 ## load data
-AVLTPositionScores <- read.csv(paste0(my_directory, "AVLTPositionScores_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+AVLTPositionScores <- read.csv(paste0(wrap_directory, "AVLTPositionScores_05Jun2025.csv"))
 info(AVLTPositionScores,"wrapnum")
 ```
 
@@ -290,7 +303,7 @@ Behavioral Observation Checklist
 
 ```{r}
 ## load data
-BehavioralObservationChecklist <- read.csv(paste0(my_directory, "BehavioralObservationChecklist_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+BehavioralObservationChecklist <- read.csv(paste0(wrap_directory, "BehavioralObservationChecklist_05Jun2025.csv"))
 
 info(BehavioralObservationChecklist,"wrapnum")
 ```
@@ -357,7 +370,7 @@ TOMM40 genotype
 
 ```{r}
 ## load data
-CA_Genome <- read.csv(paste0(my_directory, "CA_Genome_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+CA_Genome <- read.csv(paste0(wrap_directory, "CA_Genome_05Jun2025.csv"))
 info(CA_Genome,"wrapnum")
 ```
 
@@ -399,7 +412,7 @@ Clinical Dementia Rating
 
 ```{r}
 ## load data
-CDR <- read.csv(paste0(my_directory, "CDR_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+CDR <- read.csv(paste0(wrap_directory, "CDR_05Jun2025.csv"))
 info(CDR,"wrapnum")
 ```
 
@@ -445,7 +458,7 @@ Consortium to Establish a Registry for Alzheimer's Disease Data (CERAD)
 
 ```{r}
 ## load data
-CERAD <- read.csv(paste0(my_directory, "CERAD_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+CERAD <- read.csv(paste0(wrap_directory, "CERAD_05Jun2025.csv"))
 info(CERAD,"wrapnum")
 ```
 
@@ -490,7 +503,7 @@ Center for Epidemiologic Studies-Depression Scale
 
 ```{r}
 ## load data
-CES_D_Scale <- read.csv(paste0(my_directory, "CES_D_Scale_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+CES_D_Scale <- read.csv(paste0(wrap_directory, "CES_D_Scale_05Jun2025.csv"))
 info(CES_D_Scale,"wrapnum")
 ```
 
@@ -533,7 +546,7 @@ Community Healthy Activities Model Program for Seniors (CHAMPS)
 
 ```{r}
 ## load data
-CHAMPS <- read.csv(paste0(my_directory, "CHAMPS_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+CHAMPS <- read.csv(paste0(wrap_directory, "CHAMPS_05Jun2025.csv"))
 info(CHAMPS,"wrapnum")
 ```
 
@@ -578,7 +591,7 @@ Cogstate Testing Data
 
 ```{r}
 ## load data
-CogStateData <- read.csv(paste0(my_directory, "CogStateData_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+CogStateData <- read.csv(paste0(wrap_directory, "CogStateData_05Jun2025.csv"))
 info(CogStateData,"wrapnum")
 ```
 
@@ -629,7 +642,7 @@ Raw scores used in computation of CompositeScores values
 
 ```{r}
 ## load data
-CompositeScoreCalcValues <- read.csv(paste0(my_directory, "CompositeScoreCalcValues_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+CompositeScoreCalcValues <- read.csv(paste0(wrap_directory, "CompositeScoreCalcValues_05Jun2025.csv")) 
 info(CompositeScoreCalcValues,"wrapnum")
 ```
 
@@ -673,7 +686,7 @@ Domain-specific and global cognitive composite scores (see Jonaitis et al 2019)
 
 ```{r}
 ## load data
-CompositeScores <- read.csv(paste0(my_directory, "CompositeScores_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+CompositeScores <- read.csv(paste0(wrap_directory, "CompositeScores_05Jun2025.csv"))
 info(CompositeScores,"wrapnum")
 ```
 
@@ -717,7 +730,7 @@ Consensus Conference Results
 
 ```{r}
 ## load data
-ConsensusConference <- read.csv(paste0(my_directory, "ConsensusConference_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+ConsensusConference <- read.csv(paste0(wrap_directory, "ConsensusConference_05Jun2025.csv"))
 info(ConsensusConference,"wrapnum")
 ```
 
@@ -766,7 +779,7 @@ Legacy - Daily Activities (Prior to inclusion in General Health and Daily Activi
 
 ```{r}
 ## load data
-DailyActivity <- read.csv(paste0(my_directory, "DailyActivity_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+DailyActivity <- read.csv(paste0(wrap_directory, "DailyActivity_05Jun2025.csv"))
 info(DailyActivity,"wrapnum")
 ```
 
@@ -819,7 +832,7 @@ Participant Demographic Information
 
 ```{r}
 ## load data
-Demographics <- read.csv(paste0(my_directory, "Demographics_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Demographics <- read.csv(paste0(wrap_directory, "Demographics_05Jun2025.csv"))
 info(Demographics,"wrapnum")
 ```
 
@@ -878,7 +891,7 @@ Factor scores based on analysis of Wave 1 and Wave 2 neuropsychological test dat
 
 ```{r}
 ## load data
-FactorScores <- read.csv(paste0(my_directory, "FactorScores_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+FactorScores <- read.csv(paste0(wrap_directory, "FactorScores_05Jun2025.csv"))
 info(FactorScores,"wrapnum")
 ```
 
@@ -922,7 +935,7 @@ Participant/Visit-level study data
 
 ```{r}
 ## load data
-fqryStatisticalData <- read.csv(paste0(my_directory, "fqryStatisticalData_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+fqryStatisticalData <- read.csv(paste0(wrap_directory, "fqryStatisticalData_05Jun2025.csv"))
 info(fqryStatisticalData,"wrapnum")
 ```
 
@@ -970,7 +983,7 @@ Gene Data Collection
 
 ```{r}
 ## load data
-Gene_DataCollection <- read.csv(paste0(my_directory, "Gene_DataCollection_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Gene_DataCollection <- read.csv(paste0(wrap_directory, "Gene_DataCollection_05Jun2025.csv"))
 info(Gene_DataCollection,"wrapnum")
 ```
 
@@ -1018,7 +1031,7 @@ General Health and Daily Activities
 
 ```{r}
 ## load data
-GenHealthDailyAct <- read.csv(paste0(my_directory, "GenHealthDailyAct_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+GenHealthDailyAct <- read.csv(paste0(wrap_directory, "GenHealthDailyAct_05Jun2025.csv"))
 info(GenHealthDailyAct,"wrapnum")
 ```
 
@@ -1079,7 +1092,7 @@ Head Injuries
 
 ```{r}
 ## load data
-HeadInjuries <- read.csv(paste0(my_directory, "HeadInjuries_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+HeadInjuries <- read.csv(paste0(wrap_directory, "HeadInjuries_05Jun2025.csv"))
 info(HeadInjuries,"wrapnum")
 ```
 
@@ -1122,7 +1135,7 @@ Head Injuries - Additional Data
 
 ```{r}
 ## load data
-HeadInjurySub <- read.csv(paste0(my_directory, "HeadInjurySub_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+HeadInjurySub <- read.csv(paste0(wrap_directory, "HeadInjurySub_05Jun2025.csv"))
 info(HeadInjurySub,"wrapnum")
 ```
 
@@ -1165,7 +1178,7 @@ Lawton Instrumental Activities of Daily Living (IADL)
 
 ```{r}
 ## load data
-IADL <- read.csv(paste0(my_directory, "IADL_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+IADL <- read.csv(paste0(wrap_directory, "IADL_05Jun2025.csv"))
 info(IADL,"wrapnum")
 ```
 
@@ -1212,7 +1225,7 @@ str(IADL)
 
 ```{r}
 ## load data
-IQCode <- read.csv(paste0(my_directory, "IQCode_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+IQCode <- read.csv(paste0(wrap_directory, "IQCode_05Jun2025.csv"))
 info(IQCode,"wrapnum")
 ```
 
@@ -1261,7 +1274,7 @@ Learning Difficulties interview
 
 ```{r}
 ## load data
-LearningDifficulties <- read.csv(paste0(my_directory, "LearningDifficulties_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+LearningDifficulties <- read.csv(paste0(wrap_directory, "LearningDifficulties_05Jun2025.csv"))
 info(LearningDifficulties,"wrapnum")
 ```
 
@@ -1314,7 +1327,7 @@ Lifestyle for BRAin health
 
 ```{r}
 ## load data
-LIBRA <- read.csv(paste0(my_directory, "LIBRA_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+LIBRA <- read.csv(paste0(wrap_directory, "LIBRA_05Jun2025.csv"))
 info(LIBRA,"wrapnum")
 ```
 
@@ -1358,7 +1371,7 @@ Med/Lab Scores
 
 ```{r}
 ## load data
-Med_Lab <- read.csv(paste0(my_directory, "Med_Lab_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Med_Lab <- read.csv(paste0(wrap_directory, "Med_Lab_05Jun2025.csv"))
 info(Med_Lab,"wrapnum")
 ```
 
@@ -1411,7 +1424,7 @@ Med/Lab Non-Prescription Drug Therapy
 
 ```{r}
 ## load data
-Med_Lab_NPDC <- read.csv(paste0(my_directory, "Med_Lab_NPDC_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Med_Lab_NPDC <- read.csv(paste0(wrap_directory, "Med_Lab_NPDC_05Jun2025.csv"))
 info(Med_Lab_NPDC,"wrapnum")
 ```
 
@@ -1459,7 +1472,7 @@ Med/Lab Prescription Drug Therapy
 
 ```{r}
 ## load data
-Med_Lab_PDC <- read.csv(paste0(my_directory, "Med_Lab_PDC_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Med_Lab_PDC <- read.csv(paste0(wrap_directory, "Med_Lab_PDC_05Jun2025.csv"))
 info(Med_Lab_PDC,"wrapnum")
 ```
 
@@ -1507,7 +1520,7 @@ Medical History
 
 ```{r}
 ## load data
-MedHistory <- read.csv(paste0(my_directory, "MedHistory_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+MedHistory <- read.csv(paste0(wrap_directory, "MedHistory_05Jun2025.csv"))
 info(MedHistory,"wrapnum")
 ```
 
@@ -1568,7 +1581,7 @@ Participant Morbidity and Mortality Details
 
 ```{r}
 ## load data
-Morbidity_Mortality <- read.csv(paste0(my_directory, "Morbidity_Mortality_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Morbidity_Mortality <- read.csv(paste0(wrap_directory, "Morbidity_Mortality_05Jun2025.csv"))
 info(Morbidity_Mortality,"wrapnum")
 ```
 
@@ -1616,7 +1629,7 @@ Medical History (Admitted to Hospital)
 
 ```{r}
 ## load data
-MedHistory_Admit <- read.csv(paste0(my_directory, "MedHistory_Admit_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+MedHistory_Admit <- read.csv(paste0(wrap_directory, "MedHistory_Admit_05Jun2025.csv"))
 info(MedHistory_Admit,"wrapnum")
 ```
 
@@ -1664,7 +1677,7 @@ Medical History (Surgery since last visit)
 
 ```{r}
 ## load data
-MedHistory_SurgBF <- read.csv(paste0(my_directory, "MedHistory_SurgBF_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+MedHistory_SurgBF <- read.csv(paste0(wrap_directory, "MedHistory_SurgBF_05Jun2025.csv"))
 info(MedHistory_SurgBF,"wrapnum")
 ```
 
@@ -1711,7 +1724,7 @@ Medical History (Surgery since last visit)
 
 ```{r}
 ## load data
-MedHistory_SurgS <- read.csv(paste0(my_directory, "MedHistory_SurgS_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+MedHistory_SurgS <- read.csv(paste0(wrap_directory, "MedHistory_SurgS_05Jun2025.csv"))
 info(MedHistory_SurgS,"wrapnum")
 ```
 
@@ -1757,7 +1770,7 @@ MIND Diet
 
 ```{r}
 ## load data
-MIND_Diet <- read.csv(paste0(my_directory, "MIND_Diet_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+MIND_Diet <- read.csv(paste0(wrap_directory, "MIND_Diet_05Jun2025.csv"))
 info(MIND_Diet,"wrapnum")
 ```
 
@@ -1801,7 +1814,7 @@ MIND Diet Scored Values
 This dataset is exactly same as the NIND_Diet dataset. So I won't be including this file when do the final merge
 ```{r}
 ## load data
-MIND_Diet_ScoredValues <- read.csv(paste0(my_directory, "MIND_Diet_ScoredValues_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+MIND_Diet_ScoredValues <- read.csv(paste0(wrap_directory, "MIND_Diet_ScoredValues_05Jun2025.csv"))
 info(MIND_Diet_ScoredValues,"wrapnum")
 ```
 
@@ -1844,7 +1857,7 @@ Montreal Cognitive Assessment-Blind. Administered as part of remote assessment (
 
 ```{r}
 ## load data
-MOCA <- read.csv(paste0(my_directory, "MOCA_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+MOCA <- read.csv(paste0(wrap_directory, "MOCA_05Jun2025.csv"))
 info(MOCA,"wrapnum")
 ```
 
@@ -1886,7 +1899,7 @@ Neuropsych Testing Scores
 
 ```{r}
 ## load data
-NeuropsychScores <- read.csv(paste0(my_directory, "NeuropsychScores_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+NeuropsychScores <- read.csv(paste0(wrap_directory, "NeuropsychScores_05Jun2025.csv"))
 info(NeuropsychScores,"wrapnum")
 ```
 
@@ -1935,7 +1948,7 @@ Personal Family Medical Background
 
 ```{r}
 ## load data
-PersFamMedBack <- read.csv(paste0(my_directory, "PersFamMedBack_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+PersFamMedBack <- read.csv(paste0(wrap_directory, "PersFamMedBack_05Jun2025.csv"))
 info(PersFamMedBack,"wrapnum")
 ```
 
@@ -1995,7 +2008,7 @@ Personal Family Medical Background - Siblings with AD or Other Memory Issue
 
 ```{r}
 ## load data
-PFMB_SibWAD_or_OtherMemIssue <- read.csv(paste0(my_directory, "PFMB_SibWAD_or_OtherMemIssue_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+PFMB_SibWAD_or_OtherMemIssue <- read.csv(paste0(wrap_directory, "PFMB_SibWAD_or_OtherMemIssue_05Jun2025.csv"))
 info(PFMB_SibWAD_or_OtherMemIssue,"wrapnum")
 ```
 
@@ -2042,7 +2055,7 @@ Quick Dementia Rating Scale
 
 ```{r}
 ## load data
-QuickDementia <- read.csv(paste0(my_directory, "QuickDementia_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+QuickDementia <- read.csv(paste0(wrap_directory, "QuickDementia_05Jun2025.csv"))
 info(QuickDementia,"wrapnum")
 ```
 
@@ -2090,7 +2103,7 @@ Demographically-adjusted robust norm z scores (see Koscik et al. 2014, Clark et 
 
 ```{r}
 ## load data
-RobustNormZScores <- read.csv(paste0(my_directory, "RobustNormZScores_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+RobustNormZScores <- read.csv(paste0(wrap_directory, "RobustNormZScores_05Jun2025.csv"))
 info(RobustNormZScores,"wrapnum")
 ```
 
@@ -2133,7 +2146,7 @@ Sleep/Mental Activities
 
 ```{r}
 ## load data
-Sleep_MentalAct <- read.csv(paste0(my_directory, "Sleep_MentalAct_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Sleep_MentalAct <- read.csv(paste0(wrap_directory, "Sleep_MentalAct_05Jun2025.csv"))
 info(Sleep_MentalAct,"wrapnum")
 ```
 
@@ -2176,7 +2189,7 @@ Sleep/Mental Activities - Sleep Apnea Other Devices
 
 ```{r}
 ## load data
-Sleep_MentalAct_OthDevice <- read.csv(paste0(my_directory, "Sleep_MentalAct_OthDevice_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Sleep_MentalAct_OthDevice <- read.csv(paste0(wrap_directory, "Sleep_MentalAct_OthDevice_05Jun2025.csv"))
 info(Sleep_MentalAct_OthDevice,"wrapnum")
 ```
 
@@ -2217,7 +2230,7 @@ Subjective Hearing Complaints
 
 ```{r}
 ## load data
-SubjectiveHearing <- read.csv(paste0(my_directory, "SubjectiveHearing_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+SubjectiveHearing <- read.csv(paste0(wrap_directory, "SubjectiveHearing_05Jun2025.csv"))
 info(SubjectiveHearing,"wrapnum")
 ```
 
@@ -2259,7 +2272,7 @@ Modified Telephone Interview of Cognitive Status
 
 ```{r}
 ## load data
-TICSM <- read.csv(paste0(my_directory, "TICSM_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+TICSM <- read.csv(paste0(wrap_directory, "TICSM_05Jun2025.csv"))
 info(TICSM,"wrapnum")
 ```
 
@@ -2300,7 +2313,7 @@ WRAP Visit Vitals
 
 ```{r}
 ## load data
-VisitVitals <- read.csv(paste0(my_directory, "VisitVitals_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+VisitVitals <- read.csv(paste0(wrap_directory, "VisitVitals_05Jun2025.csv"))
 info(VisitVitals,"wrapnum")
 ```
 
@@ -2346,7 +2359,7 @@ Women Questions
 
 ```{r}
 ## load data
-WomenQuestions <- read.csv(paste0(my_directory, "WomenQuestions_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+WomenQuestions <- read.csv(paste0(wrap_directory, "WomenQuestions_05Jun2025.csv"))
 info(WomenQuestions,"wrapnum")
 ```
 
@@ -2402,7 +2415,7 @@ Women Questions
 
 ```{r}
 ## load data
-WomenQuestions_BCP <- read.csv(paste0(my_directory, "WomenQuestions_BCP_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+WomenQuestions_BCP <- read.csv(paste0(wrap_directory, "WomenQuestions_BCP_05Jun2025.csv"))
 info(WomenQuestions_BCP,"wrapnum")
 ```
 
@@ -2448,7 +2461,7 @@ Women Questions - Current Hormone Therapy
 
 ```{r}
 ## load data
-WomenQuestions_Current_HormoneTherapy <- read.csv(paste0(my_directory, "WomenQuestions_Current_HormoneTherapy_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+WomenQuestions_Current_HormoneTherapy <- read.csv(paste0(wrap_directory, "WomenQuestions_Current_HormoneTherapy_05Jun2025.csv"))
 info(WomenQuestions_Current_HormoneTherapy,"wrapnum")
 ```
 
@@ -2499,7 +2512,7 @@ str(WomenQuestions_Current_HormoneTherapy)
 Women Questions - Non-Prescription Hormone Therapy
 ```{r}
 ## load data
-WomenQuestions_NonPresc_HormoneTherapy <- read.csv(paste0(my_directory, "WomenQuestions_NonPresc_HormoneTherapy_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+WomenQuestions_NonPresc_HormoneTherapy <- read.csv(paste0(wrap_directory, "WomenQuestions_NonPresc_HormoneTherapy_05Jun2025.csv"))
 info(WomenQuestions_NonPresc_HormoneTherapy,"wrapnum")
 ```
 
@@ -2548,7 +2561,7 @@ Women Questions - Past Hormone Therapy
 
 ```{r}
 ## load data
-WomenQuestions_Past_HormoneTherapy <- read.csv(paste0(my_directory, "WomenQuestions_Past_HormoneTherapy_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+WomenQuestions_Past_HormoneTherapy <- read.csv(paste0(wrap_directory, "WomenQuestions_Past_HormoneTherapy_05Jun2025.csv"))
 info(WomenQuestions_Past_HormoneTherapy,"wrapnum")
 ```
 
@@ -2567,6 +2580,8 @@ str(WomenQuestions_Past_HormoneTherapy)
 ## check table frequency for all variables
 
 ## for column PastCur, it has additional value 0 in the data. I did not modify it for now.
+## in the dictionay, this variable should have two values: 1=Yes;2=No
+## should I modify the DD? 
 table(WomenQuestions_Past_HormoneTherapy$PastCur,useNA = "ifany")
 
 ## convert "" to NA for chr columns
@@ -2596,7 +2611,7 @@ Women Questions - SERM (Antiestrogen medication)
 
 ```{r}
 ## load data
-WomenQuestions_SERM <- read.csv(paste0(my_directory, "WomenQuestions_SERM_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+WomenQuestions_SERM <- read.csv(paste0(wrap_directory, "WomenQuestions_SERM_05Jun2025.csv"))
 info(WomenQuestions_SERM,"wrapnum")
 ```
 
@@ -2649,7 +2664,7 @@ Participant Work History
 
 ```{r}
 ## load data
-WorkHistory <- read.csv(paste0(my_directory, "WorkHistory_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+WorkHistory <- read.csv(paste0(wrap_directory, "WorkHistory_05Jun2025.csv"))
 info(WorkHistory,"wrapnum")
 ```
 
@@ -2695,7 +2710,7 @@ Participant Family Work History
 
 ```{r}
 ## load data
-WorkHistory_Family <- read.csv(paste0(my_directory, "WorkHistory_Family_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+WorkHistory_Family <- read.csv(paste0(wrap_directory, "WorkHistory_Family_05Jun2025.csv"))
 info(WorkHistory_Family,"wrapnum")
 ```
 
@@ -2741,7 +2756,7 @@ WRAP to DBID Identifier crosswalk table
 
 ```{r}
 ## load data
-WRAP_to_DBID <- read.csv(paste0(my_directory, "WRAP_to_DBID_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+WRAP_to_DBID <- read.csv(paste0(wrap_directory, "WRAP_to_DBID_05Jun2025.csv"))
 info(WRAP_to_DBID,"wrapnum")
 ```
 
@@ -2780,7 +2795,7 @@ WRAP Imaging Metadata
 
 ```{r}
 ## load data
-Imaging_metadata <- read.csv(paste0(my_directory, "Imaging_metadata_05Jun2025.csv"),stringsAsFactors = FALSE) %>% as.data.frame()
+Imaging_metadata <- read.csv(paste0(wrap_directory, "Imaging_metadata_05Jun2025.csv"))
 info(Imaging_metadata,"wrapnum")
 ```
 
@@ -2818,13 +2833,49 @@ str(Imaging_metadata)
 
 
 <br>
-
+<br>
 
 # Get Sub-Dataset Names
 ```{r}
-df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
+df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))] ## 58 datasets
 ```
 
+<br>
+<br>
+
+# Check Missingness in wrapnum | WRAPNo| VisNo
+
+```{r}
+vars_to_check <- c("wrapnum", "WRAPNo", "VisNo")
+results_list <- list()
+
+for (df_name in df_names) {
+  
+  df <- get(df_name)
+  
+  # For each variable, count NAs or mark Not present
+  na_counts <- sapply(vars_to_check, function(var) {
+    if (var %in% names(df)) {
+      sum(is.na(df[[var]]))
+    } else {
+      NA
+    }
+  })
+  
+  # Create a row with df_name and NA counts
+  row <- c(Dataframe = df_name, na_counts)
+  results_list[[df_name]] <- row
+}
+ 
+# Combine into one dataframe
+results_df <- bind_rows(lapply(results_list, as.data.frame.list))
+
+DT::datatable(results_df)
+```
+
+
+<br>
+<br>
 
 # Duplicates Handling
 
@@ -2832,78 +2883,59 @@ df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
 
 ```{r}
 # Get names of all data frames in the environment
-df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))]
-dfwithDuplicates <- c()
+longDfwithDuplicates <- c()
+otherwithDuplicates <- c()
+index = 0
 
-## CODE provided by Alaina
-# Loop through each data frame
-# for (df_name in df_names) {
-#   # Get the actual data frame
-#   df <- get(df_name)
-#   # Check if columns ID and Visit exist
-#   if (all(c("wrapnum", "VisNo") %in% colnames(df))) {
-#     # Find duplicates using dplyr
-#     dup_rows <- df %>% 
-#       dplyr::group_by(wrapnum, VisNo) %>% 
-#       dplyr::filter(n() > 1) %>% 
-#       dplyr::ungroup()
-#     # If any duplicates found, assign to new data frame with _Duplicates
-#     if (nrow(dup_rows) > 0) {
-#       new_name <- paste0("Duplicates_",df_name)
-#       assign(new_name, dup_rows)
-#       cat("Duplicates found and saved to:", new_name, "\n")
-#     } else {
-#       cat("No duplicates found in:", df_name, "\n")
-#     }
-#   } else {
-#     cat("Skipping", df_name, "- ID and/or Visit column not found\n")
-#   }
-# }
-
-## Modified Code
+## following function will do:
+## 1. filter out the okay cross-sectional datasets
+## 2. for the rest: return the longitudinal/cross-sectional dataset names if duplicates got detected
 for (df_name in df_names) {
-  # Get the actual data frame
   df <- get(df_name)
-  # Check if columns ID and Visit exist
-  if (all(c("wrapnum", "VisNo") %in% colnames(df))) {
-    # Find duplicates using dplyr
-    dup_rows <- df %>% 
-      dplyr::group_by(wrapnum, VisNo) %>% 
-      dplyr::filter(n() > 1) %>% 
-      dplyr::ungroup()
-    # If any duplicates found, assign to new data frame with _Duplicates
-    if (nrow(dup_rows) > 0) {
+  
+  ## filter out the okay cross-sectional datasets
+  if (length(unique(df[["wrapnum"]])) == nrow(df)) {
+    index = index + 1
+    cat(index,
+        "No duplicates found in cross-sectional dataset: ",
+        df_name,
+        "\n")
+  } else{
+    ## Check if columns ID and Visit exist (longitduinal data or not)
+    if (all(c("wrapnum", "VisNo") %in% colnames(df))) {
+      # Find duplicates using dplyr
+      dup_rows <- df %>%
+        dplyr::group_by(wrapnum, VisNo) %>%
+        dplyr::filter(n() > 1) %>%
+        dplyr::ungroup()
       
-      dfwithDuplicates <- c(dfwithDuplicates,df_name)
-      
+      # If any duplicates found, assign to new data frame with _Duplicates
+      if (nrow(dup_rows) > 0) {
+        longDfwithDuplicates <- c(longDfwithDuplicates, df_name)
+      } else {
+        index = index + 1
+        cat(index,
+            "No duplicates found in longitudinal dataset: ",
+            df_name,
+            "\n")
+      }
     } else {
-      cat("No duplicates found in:", df_name, "\n")
+      otherwithDuplicates <- c(otherwithDuplicates, df_name)
     }
-  } else {
-    cat("Skipping", df_name, "- ID and/or Visit column not found\n")
   }
 }
 ```
 
 
-check each skipped file, making sure there is no duplicates
+<br>
+<br>
+
+## Duplicates Handling Per Dataset
 
 ```{r}
-for (datname in c("Abnormal_Factor_Flags_wide","APG","CA_Genome","CERAD","Demographics","Gene_DataCollection","Imaging_metadata","Morbidity_Mortality","WorkHistory","WorkHistory_Family","WRAP_to_DBID")) {
-  
-  dat <- get(datname)
-  
-  cat(datname,": ", length(unique(dat[["wrapnum"]])) == nrow(dat),"\n")
-}
-
+print(otherwithDuplicates)
 ```
 
-
-```{r}
-print(dfwithDuplicates)
-```
-
-## Duplicates Handling Per Study
 
 ###  Imaging_metadata
 
@@ -2913,6 +2945,8 @@ Imaging_metadata <- Imaging_metadata %>%
   mutate(
     VisNo = str_extract(imaging_visit, "\\d+") %>% as.numeric()
   )
+
+cat("Before duplicates handling - wrapnum*VisNo is: ",dupFixCheck(Imaging_metadata,"wrapnum","VisNo"),"\n")
 
 ## group by subject ID and visit index, we are going to retain only one obs per group. The selection criteria is as following: 
 ## 1. pick the obs with least missing values
@@ -2924,9 +2958,11 @@ Imaging_metadata <- Imaging_metadata %>%
   arrange(missing_count) %>%
   slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %>%
   ungroup() %>%
-  select(-missing_count)  # Remove helper column
+  select(-missing_count) %>% # Remove helper column
+  mutate(WRAPNo = gsub("wrap", "", wrapnum)) #make WRAPNo column to use for merging later on
 
-info(Imaging_metadata,"wrapnum")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Imaging_metadata,"WRAPNo","VisNo"),"\n")
+
 ```
 
 
@@ -2974,7 +3010,7 @@ result <- lapply(names(HeadInjurySub), function(x) {
 
 
 ```{r}
-cat("Before duplicates handling: ",dim(HeadInjurySub),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(HeadInjurySub,"WRAPNo","VisNo"),"\n")
 
 tmp <- HeadInjurySub %>%
   pivot_wider(
@@ -2986,7 +3022,7 @@ tmp <- HeadInjurySub %>%
 ## drop columns if all obs are missing
 HeadInjurySub <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(HeadInjurySub),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(HeadInjurySub,"WRAPNo","VisNo"),"\n")
 
 ```
 
@@ -3003,7 +3039,7 @@ result <- lapply(names(Med_Lab_NPDC), function(x) {
 
 
 ```{r}
-cat("Before duplicates handling: ",dim(Med_Lab_NPDC),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Med_Lab_NPDC,"WRAPNo","VisNo"),"\n")
 
 tmp <- Med_Lab_NPDC %>%
   pivot_wider(
@@ -3015,7 +3051,8 @@ tmp <- Med_Lab_NPDC %>%
 ## drop columns if all obs are missing
 Med_Lab_NPDC <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(Med_Lab_NPDC),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Med_Lab_NPDC,"WRAPNo","VisNo"),"\n")
+
 ```
 
 <br>
@@ -3029,7 +3066,7 @@ result <- lapply(names(Med_Lab_PDC), function(x) {
 ```
 
 ```{r}
-cat("Before duplicates handling: ",dim(Med_Lab_PDC),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Med_Lab_PDC,"WRAPNo","VisNo"),"\n")
 
 tmp <- Med_Lab_PDC %>%
   pivot_wider(
@@ -3041,7 +3078,8 @@ tmp <- Med_Lab_PDC %>%
 ## drop columns if all obs are missing
 Med_Lab_PDC <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(Med_Lab_PDC),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Med_Lab_PDC,"WRAPNo","VisNo"),"\n")
+
 ```
 
 <br>
@@ -3055,7 +3093,7 @@ result <- lapply(names(MedHistory_Admit), function(x) {
 ```
 
 ```{r}
-cat("Before duplicates handling: ",dim(MedHistory_Admit),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_Admit,"WRAPNo","VisNo"),"\n")
 
 tmp <- MedHistory_Admit %>%
   pivot_wider(
@@ -3067,7 +3105,7 @@ tmp <- MedHistory_Admit %>%
 ## drop columns if all obs are missing
 MedHistory_Admit <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(MedHistory_Admit),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_Admit,"WRAPNo","VisNo"),"\n")
 ```
 
 <br>
@@ -3081,7 +3119,7 @@ result <- lapply(names(MedHistory_SurgBF), function(x) {
 ```
 
 ```{r}
-cat("Before duplicates handling: ",dim(MedHistory_SurgBF),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_SurgBF,"WRAPNo","VisNo"),"\n")
 
 tmp <- MedHistory_SurgBF %>%
   pivot_wider(
@@ -3093,7 +3131,8 @@ tmp <- MedHistory_SurgBF %>%
 ## drop columns if all obs are missing
 MedHistory_SurgBF <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(MedHistory_SurgBF),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_SurgBF,"WRAPNo","VisNo"),"\n")
+
 ```
 
 <br>
@@ -3107,7 +3146,7 @@ result <- lapply(names(MedHistory_SurgS), function(x) {
 ```
 
 ```{r}
-cat("Before duplicates handling: ",dim(MedHistory_SurgS),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_SurgS,"WRAPNo","VisNo"),"\n")
 
 tmp <- MedHistory_SurgS %>%
   pivot_wider(
@@ -3119,7 +3158,8 @@ tmp <- MedHistory_SurgS %>%
 ## drop columns if all obs are missing
 MedHistory_SurgS <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(MedHistory_SurgS),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_SurgS,"WRAPNo","VisNo"),"\n")
+
 ```
 
 <br>
@@ -3133,7 +3173,7 @@ result <- lapply(names(PFMB_SibWAD_or_OtherMemIssue), function(x) {
 ```
 
 ```{r}
-cat("Before duplicates handling: ",dim(PFMB_SibWAD_or_OtherMemIssue),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(PFMB_SibWAD_or_OtherMemIssue,"WRAPNo","VisNo"),"\n")
 
 tmp <- PFMB_SibWAD_or_OtherMemIssue %>%
   pivot_wider(
@@ -3145,7 +3185,8 @@ tmp <- PFMB_SibWAD_or_OtherMemIssue %>%
 ## drop columns if all obs are missing
 PFMB_SibWAD_or_OtherMemIssue <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(PFMB_SibWAD_or_OtherMemIssue),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(PFMB_SibWAD_or_OtherMemIssue,"WRAPNo","VisNo"),"\n")
+
 ```
 
 <br>
@@ -3159,7 +3200,7 @@ result <- lapply(names(Sleep_MentalAct_OthDevice), function(x) {
 ```
 
 ```{r}
-cat("Before duplicates handling: ",dim(Sleep_MentalAct_OthDevice),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Sleep_MentalAct_OthDevice,"WRAPNo","VisNo"),"\n")
 
 tmp <- Sleep_MentalAct_OthDevice %>%
   pivot_wider(
@@ -3171,7 +3212,7 @@ tmp <- Sleep_MentalAct_OthDevice %>%
 ## drop columns if all obs are missing
 Sleep_MentalAct_OthDevice <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(Sleep_MentalAct_OthDevice),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Sleep_MentalAct_OthDevice,"WRAPNo","VisNo"),"\n")
 ```
 
 <br>
@@ -3185,7 +3226,7 @@ result <- lapply(names(WomenQuestions_BCP), function(x) {
 ```
 
 ```{r}
-cat("Before duplicates handling: ",dim(WomenQuestions_BCP),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_BCP,"WRAPNo","VisNo"),"\n")
 
 tmp <- WomenQuestions_BCP %>%
   pivot_wider(
@@ -3197,7 +3238,7 @@ tmp <- WomenQuestions_BCP %>%
 ## drop columns if all obs are missing
 WomenQuestions_BCP <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(WomenQuestions_BCP),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_BCP,"WRAPNo","VisNo"),"\n")
 ```
 
 
@@ -3212,7 +3253,7 @@ result <- lapply(names(WomenQuestions_Current_HormoneTherapy), function(x) {
 ```
 
 ```{r}
-cat("Before duplicates handling: ",dim(WomenQuestions_Current_HormoneTherapy),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_Current_HormoneTherapy,"WRAPNo","VisNo"),"\n")
 
 tmp <- WomenQuestions_Current_HormoneTherapy %>%
   pivot_wider(
@@ -3224,7 +3265,7 @@ tmp <- WomenQuestions_Current_HormoneTherapy %>%
 ## drop columns if all obs are missing
 WomenQuestions_Current_HormoneTherapy <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(WomenQuestions_Current_HormoneTherapy),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_Current_HormoneTherapy,"WRAPNo","VisNo"),"\n")
 ```
 
 <br>
@@ -3239,7 +3280,7 @@ result <- lapply(names(WomenQuestions_NonPresc_HormoneTherapy), function(x) {
 
 
 ```{r}
-cat("Before duplicates handling: ",dim(WomenQuestions_NonPresc_HormoneTherapy),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_NonPresc_HormoneTherapy,"WRAPNo","VisNo"),"\n")
 
 tmp <- WomenQuestions_NonPresc_HormoneTherapy %>%
   pivot_wider(
@@ -3251,7 +3292,7 @@ tmp <- WomenQuestions_NonPresc_HormoneTherapy %>%
 ## drop columns if all obs are missing
 WomenQuestions_NonPresc_HormoneTherapy <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(WomenQuestions_NonPresc_HormoneTherapy),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_NonPresc_HormoneTherapy,"WRAPNo","VisNo"),"\n")
 ```
 
 <br>
@@ -3265,7 +3306,7 @@ result <- lapply(names(WomenQuestions_Past_HormoneTherapy), function(x) {
 ```
 
 ```{r}
-cat("Before duplicates handling: ",dim(WomenQuestions_Past_HormoneTherapy),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_Past_HormoneTherapy,"WRAPNo","VisNo"),"\n")
 
 tmp <- WomenQuestions_Past_HormoneTherapy %>%
   pivot_wider(
@@ -3277,7 +3318,7 @@ tmp <- WomenQuestions_Past_HormoneTherapy %>%
 ## drop columns if all obs are missing
 WomenQuestions_Past_HormoneTherapy <- tmp[, colSums(!is.na(tmp)) > 0]
 
-cat("After duplicates handling: ",dim(WomenQuestions_Past_HormoneTherapy),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_Past_HormoneTherapy,"WRAPNo","VisNo"),"\n")
 ```
 
 
@@ -3292,7 +3333,7 @@ result <- lapply(names(WomenQuestions_SERM), function(x) {
 ```
 
 ```{r}
-cat("Before duplicates handling: ",dim(WomenQuestions_SERM),"\n")
+cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_SERM,"WRAPNo","VisNo"),"\n")
 
 tmp <- WomenQuestions_SERM %>%
   pivot_wider(
@@ -3304,7 +3345,7 @@ tmp <- WomenQuestions_SERM %>%
 ## drop columns if all obs are missing
 WomenQuestions_SERM <- tmp[, colSums(!is.na(tmp)) > 0 | names(tmp) %in% c("SERMType")]
 
-cat("After duplicates handling: ",dim(WomenQuestions_SERM),"\n")
+cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_SERM,"WRAPNo","VisNo"),"\n")
 ```
 
 <br>
@@ -3338,10 +3379,17 @@ intersect(names(Med_Lab_PDC),names(Med_Lab_NPDC))
 
 ```{r}
 ## I decided to add prefix in each file
-colnames(Med_Lab_PDC)[grepl("^mg_", colnames(Med_Lab_PDC))] <- paste0("PDC", colnames(Med_Lab_PDC)[grepl("^mg_", colnames(Med_Lab_PDC))])
+colnames(Med_Lab_PDC)[grepl("^mg_", colnames(Med_Lab_PDC))] <- paste0("pdc_", colnames(Med_Lab_PDC)[grepl("^mg_", colnames(Med_Lab_PDC))])
 
-colnames(Med_Lab_NPDC)[grepl("^mg_", colnames(Med_Lab_NPDC))] <- paste0("NPDC", colnames(Med_Lab_NPDC)[grepl("^mg_", colnames(Med_Lab_NPDC))])
+colnames(Med_Lab_NPDC)[grepl("^mg_", colnames(Med_Lab_NPDC))] <- paste0("npdc_", colnames(Med_Lab_NPDC)[grepl("^mg_", colnames(Med_Lab_NPDC))])
 ```
+
+```{r}
+## print colnames to check the modification
+print(colnames(Med_Lab_PDC))
+print(colnames(Med_Lab_NPDC))
+```
+
 
 <br>
 
@@ -3360,18 +3408,38 @@ intersect(names(CDR),names(QuickDementia))
 ```
 
 ```{r}
-## add prefix to IQCode and IADL
-tNames <- intersect(names(IQCode),names(IADL))[4:8]
-colnames(IQCode)[colnames(IQCode) %in% tNames] <-  paste0("IQCode_", colnames(IQCode)[colnames(IQCode) %in% tNames])
-colnames(IADL)[colnames(IADL) %in% tNames] <-  paste0("IADL_", colnames(IADL)[colnames(IADL) %in% tNames])
+## common columns between IQCode and IADL
+commnames_1 <- "Total"
 
-## add prefix to CDR and QuickDementia as well
-tNames2 <- tNames[2:5]
-colnames(QuickDementia)[colnames(QuickDementia) %in% tNames2] <-  paste0("QuickDementia_", colnames(QuickDementia)[colnames(QuickDementia) %in% tNames2])
-colnames(CDR)[colnames(CDR) %in% tNames2] <-  paste0("CDR_", colnames(CDR)[colnames(CDR) %in% tNames2])
+colnames(IQCode)[colnames(IQCode) %in% commnames_1] <- paste0(colnames(IQCode)[colnames(IQCode) %in% commnames_1],"_IQCode")
+colnames(IADL)[colnames(IADL) %in% commnames_1] <-  paste0(colnames(IADL)[colnames(IADL) %in% commnames_1],"_IADL")
 
+
+## common columns across all four datasets
+commnames_2 <- c("estimated_questionnaire_days_after_baseline","Returned_Days_From_Visit","RelPPT","RelLive")
+
+colnames(IQCode)[colnames(IQCode) %in% commnames_2] <- paste0(colnames(IQCode)[colnames(IQCode) %in% commnames_2],"_IQCode")
+
+colnames(IADL)[colnames(IADL) %in% commnames_2] <-  paste0(colnames(IADL)[colnames(IADL) %in% commnames_2],"_IADL")
+
+colnames(QuickDementia)[colnames(QuickDementia) %in% commnames_2] <-  paste0( colnames(QuickDementia)[colnames(QuickDementia) %in% commnames_2],"_QuickDementia")
+
+colnames(CDR)[colnames(CDR) %in% commnames_2] <-  paste0(colnames(CDR)[colnames(CDR) %in% commnames_2],"_CDR")
+
+```
+
+
+```{r}
 ## rerun the Common Columns Detection code
 commonColsDetect(df_names)
+```
+
+```{r}
+## print colnames to check the modification
+print(colnames(IQCode))
+print(colnames(IADL))
+print(colnames(QuickDementia))
+print(colnames(CDR))
 ```
 
 
@@ -3386,7 +3454,12 @@ intersect(names(NeuropsychScores),names(CompositeScoreCalcValues))
 ```{r}
 ## add prefix to CompositeScoreCalcValues
 tNames <- c("flucfl","drraw","stroocw","stroocwe","trlb")
-colnames(CompositeScoreCalcValues)[colnames(CompositeScoreCalcValues) %in% tNames] <-  paste0("CompositeScoreCalcValues_", colnames(CompositeScoreCalcValues)[colnames(CompositeScoreCalcValues) %in% tNames])
+colnames(CompositeScoreCalcValues)[colnames(CompositeScoreCalcValues) %in% tNames] <-  paste0(colnames(CompositeScoreCalcValues)[colnames(CompositeScoreCalcValues) %in% tNames],"_CompositeScoreCalcValues")
+```
+
+```{r}
+## print colnames to check the modification
+print(colnames(CompositeScoreCalcValues))
 ```
 
 <br>
@@ -3398,9 +3471,17 @@ intersect(names(IADL),names(GenHealthDailyAct))
 ```
 
 ```{r}
-## add prefix to GenHealthDailyAct
-colnames(GenHealthDailyAct)[colnames(GenHealthDailyAct) == "Money"] <- "GenHealthDailyAct_Money"
+## add prefix to both datasets
+colnames(IADL)[colnames(IADL) == "Money"] <- "Money_IADL"
+colnames(GenHealthDailyAct)[colnames(GenHealthDailyAct) == "Money"] <- "Money_GenHealthDailyAct"
 ```
+
+```{r}
+## print colnames to check the modification
+print(colnames(IADL))
+print(colnames(GenHealthDailyAct))
+```
+
 <br>
 
 ## Morbidity_Mortality | GenHealthDailyAct
@@ -3410,7 +3491,14 @@ intersect(names(Morbidity_Mortality),names(GenHealthDailyAct))
 ```
 
 ```{r}
-colnames(GenHealthDailyAct)[colnames(GenHealthDailyAct) == "MemProb"] <- "GenHealthDailyAct_MemProb"
+colnames(Morbidity_Mortality)[colnames(Morbidity_Mortality) == "MemProb"] <- "MemProb_Morbidity_Mortality"
+colnames(GenHealthDailyAct)[colnames(GenHealthDailyAct) == "MemProb"] <- "MemProb_GenHealthDailyAct"
+```
+
+```{r}
+## print colnames to check the modification
+print(colnames(Morbidity_Mortality))
+print(colnames(GenHealthDailyAct))
 ```
 
 <br>
@@ -3422,7 +3510,14 @@ intersect(names(NeuropsychScores),names(Demographics))
 ```
 
 ```{r}
-colnames(NeuropsychScores)[colnames(NeuropsychScores) == "interv"] <- "NeuropsychScores_interv"
+colnames(NeuropsychScores)[colnames(NeuropsychScores) == "interv"] <- "interv_NeuropsychScores"
+colnames(Demographics)[colnames(Demographics) == "interv"] <- "interv_Demographics"
+```
+
+```{r}
+## print colnames to check the modification
+print(colnames(NeuropsychScores))
+print(colnames(Demographics))
 ```
 
 <br>
@@ -3431,9 +3526,19 @@ colnames(NeuropsychScores)[colnames(NeuropsychScores) == "interv"] <- "Neuropsyc
 
 ```{r}
 intersect(names(PersFamMedBack),names(Demographics))
-
-## I did not modify anything here since gender has same coding on these two datasets
 ```
+
+```{r}
+## remove geneder column from PersFamMedBack
+PersFamMedBack <- subset(PersFamMedBack, select = -gender)
+```
+
+```{r}
+## print colnames to check the modification
+print(colnames(PersFamMedBack))
+```
+
+
 
 <br>
 
@@ -3444,7 +3549,12 @@ intersect(names(Imaging_metadata),names(fqryStatisticalData))
 ```
 
 ```{r}
-colnames(Imaging_metadata)[colnames(Imaging_metadata) == "Days_Since_Baseline"] <- "Imaging_metadata_Since_Baseline"
+colnames(Imaging_metadata)[colnames(Imaging_metadata) == "Days_Since_Baseline"] <- "Days_Since_Baseline_Imaging"
+```
+
+```{r}
+## print colnames to check the modification
+print(colnames(Imaging_metadata))
 ```
 
 
@@ -3457,24 +3567,120 @@ colnames(Imaging_metadata)[colnames(Imaging_metadata) == "Days_Since_Baseline"] 
 Exclude the MIND_Diet_ScoreValues as this exactly the same as the MIND_Diet data frame.
 
 ```{r}
-# Start with the first dataset
-
 remove <- c("MIND_Diet_ScoredValues") ## this dataset is exactly same as MIND_Diet
 df_names2 <- setdiff(df_names,remove)
+```
 
-merged_data <- get(df_names2[1])
-cat("Info for", df_names2[1], ":\n")
-info(get(df_names2[1]), "wrapnum")
 
-for (i in 2:length(df_names2)) {
-  merged_data <- merge_with_info(merged_data, df_names2[i], id_col = "wrapnum")
+<br>
+
+## Group Sub-Datasets
+
+Group all sub datasets into two: one with WRAPNo+VisNo combo; one without VisNo
+
+```{r}
+df_names2_wVisNo <- c()
+df_names2_woVisNo <- c()
+
+#Loop over dataframe names
+for (df_name in df_names2) {
+  df_obj <- get(df_name)  # get the dataframe
+  if ("VisNo" %in% colnames(df_obj)) {
+    df_names2_wVisNo <- c(df_names2_wVisNo, df_name)
+  } else {
+    df_names2_woVisNo <- c(df_names2_woVisNo, df_name)
+  }
 }
+
+length(df_names2_wVisNo) ## 47
+length(df_names2_woVisNo) ## 10
 ```
 
 ```{r}
-## clean space: remove everything except final merged data frame
-rm(list = setdiff(ls(), "merged_data"))
+print(df_names2_wVisNo)
+print(df_names2_woVisNo)
+```
+
+<br>
+
+## Merge Sub-Datasets without VisNo
+
+```{r}
+## Merge all cross-sectional dfs - those with WRAPNo/wrapnum only
+
+merged_data_cross <- get(df_names2_woVisNo[1])
+
+cat("Info for", df_names2_woVisNo[1], ":\n") 
+
+info(get(df_names2_woVisNo[1]), "WRAPNo")
+
+for (i in 2:length(df_names2_woVisNo)) { 
+  merged_data_cross <- merge_with_info(merged_data_cross, df_names2_woVisNo[i], merge_cols = c("wrapnum", "WRAPNo"), info_col = "WRAPNo") 
+}
+
+info(merged_data_cross, "WRAPNo") #obs:1816, cols:173, inds:1816
+
+```
+
+
+<br>
+
+## Merge Sub-Datasets with VisNo
+
+```{r}
+## Merge all longitudinal dfs - those with WRAPNo/wrapnum and VisNo
+merged_data_long <- get(df_names2_wVisNo[1]) 
+
+cat("Info for", df_names2_wVisNo[1], ":\n") 
+
+info(get(df_names2_wVisNo[1]), "WRAPNo")
+
+for (i in 2:length(df_names2_wVisNo)) {
+  merged_data_long <- merge_with_info(
+    merged_data_long,
+    df_names2_wVisNo[i],
+    merge_cols = c("wrapnum", "WRAPNo", "VisNo"),
+    info_col   = "WRAPNo"
+  )
+}
+
+info(merged_data_long, "WRAPNo") #obs:8982, cols:2328, inds:1836
+
+check_dups_long <- merged_data_long %>% dplyr::group_by(wrapnum, WRAPNo, VisNo) %>% dplyr::filter(n() > 1) %>% dplyr::ungroup()
+
+nrow(check_dups_long) #obs: 0 - good
+```
+
+<br>
+
+## Merge All
+
+```{r}
+#Merge cross-sectional and longitudinal together
+merged_data_all <- merge(merged_data_cross, merged_data_long, by = c("wrapnum", "WRAPNo"), all = T)
+info(merged_data_all, "WRAPNo") #obs:8984, cols:2499, inds:1838 - looks like we are up 2 inds/2 obs from longitudinal and up 22 inds from cross
+```
+
+<br>
+
+## Final Merge Check
+```{r}
+#look more into the increase to make sure it makes sense
+in_cross_not_long <- anti_join(merged_data_cross, merged_data_long, by = "WRAPNo") #confirmed nothing like them in long
+info(in_cross_not_long, "WRAPNo")
+
+in_long_not_cross <- anti_join(merged_data_long, merged_data_cross, by = "WRAPNo") #confirmed nothing like them in cross
+info(in_long_not_cross, "WRAPNo")
+
+#realistically the 2+22 will probably be dropped from analyses for not having important info (age/birth/sex/diagnosis), but ok to leave in for now
+```
+
+<br>
+
+## Save Finalized Merged Dataset
+
+```{r}
 ## save rds
-saveRDS(merged_data,"/Users/mengnazhang/Desktop/ADSP_DataPrep_local/WRAP/Phenotype/2025/Cleaned/Build_WRAP.rds")
+saveRDS(merged_data_all,paste0(out_directory,"Build_WRAP.rds"))
 ```
 
