@@ -19,30 +19,43 @@ Author: Mengna Zhang
 
 # Set Path
 
-```{r}
-#directory
-directory <- "/Users/mengnazhang/Desktop/"
-my_directory <- paste0(directory, "ADSP_DataPrep_local/PRADI/Phenotype/2025/Raw/")
+```{r set-path}
+## directory: can extend to the main CNT folder
+directory <- "/Users/"
 
-## colnames excel file location
-colnames_file <- "/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx"
-```
+## your own directory
+my_directory <- paste0(directory, "mengnazhang/Desktop/")
 
-<br>
+## set PRADI path (the folder where PRADI raw files located)
+pradi_directory <- paste0(my_directory, "ADSP_DataPrep_local/PRADI/Phenotype/2025/Raw/")
 
-# Load Packages
-```{r,message=FALSE,warning=FALSE}
-require(dplyr)
-require(readxl)
-require(openxlsx)
-require(stringr)
+## output path
+out_directory <- paste0(my_directory, "ADSP_DataPrep_local/PRADI/Phenotype/2025/Cleaned/")
+
+## script path
+script_directory <- paste0(my_directory, "ADSP_DataPrep_local/PRADI/Phenotype/2025/Scripts/")
+
+## revised DD path
+revisedDDpath <- paste0(out_directory,"colnamesPerSubdata.xlsx")
 ```
 
 <br>
 
 # Load Helper Scripts
-```{r}
+```{r load-helper-scripts}
 source("/Users/mengnazhang/Desktop/ADSP_DataPrep/dataPrep2025/helperScripts_PRADI.R")
+# source(paste0(script_directory,"helperScripts_WRAP.R"))
+```
+
+<br>
+
+# Load Packages
+```{r laod-packages,message=FALSE,warning=FALSE}
+require(dplyr)
+require(readxl)
+require(openxlsx)
+require(stringr)
+require(tidyr)
 ```
 
 <br>
@@ -51,24 +64,22 @@ source("/Users/mengnazhang/Desktop/ADSP_DataPrep/dataPrep2025/helperScripts_PRAD
 
 # Sub Files Inspection
 
-## Save all sub file names
-**Extract all file names**
-```{r engine='bash', comment=''}
-mypath="/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Raw/"
+<!-- ## Save all sub file names -->
+<!-- **Extract all file names** -->
+<!-- ```{r engine='bash', comment=''} -->
+<!-- mypath="/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Raw/" -->
 
-ls ${mypath} | grep ".xlsx" > ${mypath}filelist.txt
+<!-- ls ${mypath} | grep ".xlsx" > ${mypath}filelist.txt -->
 
-wc -l ${mypath}filelist.txt ## 38 sub files in total
-```
+<!-- wc -l ${mypath}filelist.txt ## 38 sub files in total -->
+<!-- ``` -->
 
-<br>
-<br>
-
+oA
 ## Load All Subfiles
 
-```{r}
+```{r load-all-files}
 
-file_list <- paste0(my_directory,"filelist.txt")
+file_list <- paste0(out_directory,"filelist.txt")
 
 ## read all lines (file names) from the file
 file_names <- readLines(file_list)
@@ -80,7 +91,7 @@ for (fname in file_names) {
   clean_name <- sub("_05122025\\.xlsx$", "", clean_name)
   
   ## read the Excel file and convert to data.frame
-  data <- as.data.frame(read_excel(paste0(my_directory, fname),sheet = "Export Worksheet"))
+  data <- as.data.frame(read_excel(paste0(pradi_directory, fname),sheet = "Export Worksheet"))
   
   ## assign to a variable with the clean name in the global environment
   assign(clean_name, data, envir = .GlobalEnv)
@@ -112,7 +123,9 @@ print(common_cols)
 
 ## Save all Colnames
 ```{r,eval=FALSE}
-## this code only need to be run once
+## This code only needs to be run once.
+## It will generate an Excel file where each sheet contains the column names for its corresponding dataset.
+## Then I will use this excel and fill the infor for each variable to generate the revise DD: 
 # Create a new workbook
 wb <- createWorkbook()
 
@@ -121,16 +134,17 @@ wb <- createWorkbook()
 for (df_name in df_names) {
   df <- get(df_name)  # get the actual data frame
   col_names_df <- data.frame(VarNames = colnames(df))  # create single-column df
-
+  
   # Add sheet with df name (truncated to 31 characters max)
   sheet_name <- substr(df_name, 1, 31)
   addWorksheet(wb, sheetName = sheet_name)
-
+  
   # Write the column names into the sheet
   writeData(wb, sheet = sheet_name, col_names_df)
 }
 
 # Save the workbook
+## define the name and location of this file to save
 saveWorkbook(wb, file = colnames_file, overwrite = TRUE)
 
 ```
@@ -142,19 +156,21 @@ saveWorkbook(wb, file = colnames_file, overwrite = TRUE)
 
 ## AAAD_GERIAT
 
-```{r}
+```{r AAAD_GERIAT-1}
 df <- AAAD_GERIAT
+
+info(AAAD_GERIAT,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r AAAD_GERIAT-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r AAAD_GERIAT-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -163,15 +179,15 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "AAAD_GERIAT")
+```{r AAAD_GERIAT-4}
+dfDD <- read_excel(revisedDDpath, sheet = "AAAD_GERIAT")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r AAAD_GERIAT-5}
 ## extract all logical variables
 logicols <- colnames(df)[sapply(df, is.logical)] ## 11 vars 
 
@@ -186,6 +202,9 @@ df[convert2chr] <- lapply(df[convert2chr], as.character)
 
 ## recheck the unique data types
 unique(sapply(df, class))
+
+## NOTE: For the other 10 variables, the DD does not provide data type information, so I’m leaving them unspecified for now.
+
 ```
 
 
@@ -193,7 +212,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r AAAD_GERIAT-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH" 
@@ -217,7 +236,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r AAAD_GERIAT-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)]
 ## 23 vars
@@ -242,7 +261,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r AAAD_GERIAT-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 27 vars
 
@@ -269,8 +288,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_AAAD_GERIAT <- df
+```{r AAAD_GERIAT-9}
+AAAD_GERIAT <- df
 ```
 
 
@@ -280,19 +299,21 @@ clean_AAAD_GERIAT <- df
 
 ## AAAD_MEDCON
 
-```{r}
+```{r AAAD_MEDCON-1}
 df <- AAAD_MEDCON
+
+info(AAAD_MEDCON,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r AAAD_MEDCON-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r AAAD_MEDCON-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -301,15 +322,15 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "AAAD_MEDCON")
+```{r AAAD_MEDCON-4}
+dfDD <- read_excel(revisedDDpath, sheet = "AAAD_MEDCON")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r AAAD_MEDCON-5}
 ## extract all logical variables
 logicols <- colnames(df)[sapply(df, is.logical)] ## 33 vars
 
@@ -339,7 +360,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r AAAD_MEDCON-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH" "DATE_OF_ONSET"
@@ -363,7 +384,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r AAAD_MEDCON-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)]
 ## 81 vars
@@ -387,7 +408,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r AAAD_MEDCON-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 31 vars
 
@@ -414,8 +435,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_AAAD_MEDCON <- df
+```{r AAAD_MEDCON-9}
+AAAD_MEDCON <- df
 ```
 
 
@@ -426,19 +447,21 @@ clean_AAAD_MEDCON <- df
 
 ## AAAD_SOCIO_DEMO
 
-```{r}
+```{r AAAD_SOCIO_DEMO-1}
 df <- AAAD_SOCIO_DEMO
+
+info(AAAD_SOCIO_DEMO,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r AAAD_SOCIO_DEMO-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r AAAD_SOCIO_DEMO-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -448,15 +471,15 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "AAAD_SOCIO_DEMO")
+```{r AAAD_SOCIO_DEMO-4}
+dfDD <- read_excel(revisedDDpath, sheet = "AAAD_SOCIO_DEMO")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r AAAD_SOCIO_DEMO-5}
 ## extract all logical variables
 logicols <- colnames(df)[sapply(df, is.logical)] ## 121
 
@@ -486,7 +509,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r AAAD_SOCIO_DEMO-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -510,7 +533,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r AAAD_SOCIO_DEMO-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 89 vars
 
@@ -531,7 +554,7 @@ DT::datatable(check_valid_responses(tmp,df))
 ```
 
 
-```{r}
+```{r AAAD_SOCIO_DEMO-8}
 unique(df[["SDF8A"]]) ## DD: 8. Are you working now? Circle all that apply
 unique(df[["SDF8B"]]) ## DD: If participant says NO, ask Why not? If any of the following SKIP TO #20
 
@@ -541,7 +564,7 @@ unique(df[["SDF8B"]]) ## DD: If participant says NO, ask Why not? If any of the 
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r AAAD_SOCIO_DEMO-9}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 69 vars
 
@@ -568,8 +591,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_AAAD_SOCIO_DEMO <- df
+```{r AAAD_SOCIO_DEMO-10}
+AAAD_SOCIO_DEMO <- df
 ```
 
 
@@ -578,19 +601,21 @@ clean_AAAD_SOCIO_DEMO <- df
 
 ## AAAD_TRAILS
 
-```{r}
+```{r AAAD_TRAILS-1}
 df <- AAAD_TRAILS
+
+info(AAAD_TRAILS,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r AAAD_TRAILS-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r AAAD_TRAILS-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -600,15 +625,15 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "AAAD_TRAILS")
+```{r AAAD_TRAILS-4}
+dfDD <- read_excel(revisedDDpath, sheet = "AAAD_TRAILS")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r AAAD_TRAILS-5}
 ## extract all logical variables
 logicols <- colnames(df)[sapply(df, is.logical)] ## 3
 
@@ -634,7 +659,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r AAAD_TRAILS-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -658,7 +683,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r AAAD_TRAILS-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 8 vars
 
@@ -668,19 +693,10 @@ chrcols <- colnames(df)[sapply(df, is.character)] ## 8 vars
 chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
 
 mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
-mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## [1] "TIME_AMISS" "ERR_AMISS"  "COR_AMISS"  "TIME_BMISS" "ERR_BMISS"  "COR_BMISS"
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
 
 ## extract characteristic variables with value specification
 tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
-
-## as those variables in mismatchChrs_2 all have numeric values as valid responses, I think they should be categorized as numeric variables.
-## so I decided to update the DD for those variables
-
-## reload the DD
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "AAAD_TRAILS")
-chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
-mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
-mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
 
 ## check if the unique values for the chr columns in the dataset matching with the DD
 DT::datatable(check_valid_responses(tmp,df))
@@ -689,7 +705,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r AAAD_TRAILS-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 23 vars
 
@@ -718,8 +734,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_AAAD_TRAILS <- df
+```{r AAAD_TRAILS-9}
+AAAD_TRAILS <- df
 ```
 
 
@@ -728,19 +744,21 @@ clean_AAAD_TRAILS <- df
 
 ## ALZ_B9_JUDGE_RC
 
-```{r}
+```{r ALZ_B9_JUDGE_RC-1}
 df <- ALZ_B9_JUDGE_RC
+
+info(ALZ_B9_JUDGE_RC,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_B9_JUDGE_RC-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_B9_JUDGE_RC-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -750,8 +768,120 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-## I dont see the DD for this dataset
+```{r ALZ_B9_JUDGE_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_B9_JUDGE_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r ALZ_B9_JUDGE_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to numeric
+convert2num <- dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("NUMBER", dfDD$`Data Type`)] ## MS_ALS_BEGIN_AGE
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## [1] "REFCTR"       "REVIEWER"     "MODE_ONSET6A"
+
+## convert
+df[convert2num] <- lapply(df[convert2num], as.numeric)
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r ALZ_B9_JUDGE_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## REVIEW_DATE, ignore it, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r ALZ_B9_JUDGE_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 17 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r ALZ_B9_JUDGE_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 62 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r ALZ_B9_JUDGE_RC-9}
+ALZ_B9_JUDGE_RC<- df
 ```
 
 
@@ -760,19 +890,21 @@ str(df, max.level = 99, list.len = 99999)
 
 ## ALZ_CLINICALSUM
 
-```{r}
+```{r ALZ_CLINICALSUM-1}
 df <- ALZ_CLINICALSUM
+
+info(ALZ_CLINICALSUM,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_CLINICALSUM-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_CLINICALSUM-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -782,17 +914,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_CLINICALSUM")
+```{r ALZ_CLINICALSUM-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_CLINICALSUM")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_CLINICALSUM-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## [1] "REFCTR"            "LAST_CONTACT_DATE" "LAST_CONTACT_AGE" 
+logicols <- colnames(df)[sapply(df, is.logical)] 
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -819,7 +951,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_CLINICALSUM-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "DATE_OF_BIRTH" "VERIFY_DATE"   "FORM_DATE" 
@@ -843,7 +975,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_CLINICALSUM-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 20 vars
 
@@ -870,7 +1002,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_CLINICALSUM-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 15 vars
 
@@ -897,8 +1029,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_CLINICALSUM<- df
+```{r ALZ_CLINICALSUM-9}
+ALZ_CLINICALSUM<- df
 ```
 
 
@@ -907,19 +1039,21 @@ clean_ALZ_CLINICALSUM<- df
 
 ## ALZ_CSDD
 
-```{r}
+```{r ALZ_CSDD-1}
 df <- ALZ_CSDD
+
+info(ALZ_CSDD,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_CSDD-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_CSDD-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -929,15 +1063,15 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_CSDD")
+```{r ALZ_CSDD-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_CSDD")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_CSDD-5}
 ## extract all logical variables
 logicols <- colnames(df)[sapply(df, is.logical)] ## 1
 
@@ -958,7 +1092,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_CSDD-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -982,7 +1116,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_CSDD-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 8 vars
 
@@ -1004,7 +1138,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_CSDD-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 32 vars
 
@@ -1031,8 +1165,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_CSDD <- df
+```{r ALZ_CSDD-9}
+ALZ_CSDD <- df
 ```
 
 
@@ -1041,19 +1175,21 @@ clean_ALZ_CSDD <- df
 
 ## ALZ_EXAM
 
-```{r}
+```{r ALZ_EXAM-1}
 df <- ALZ_EXAM
+
+info(ALZ_EXAM,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_EXAM-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_EXAM-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -1062,17 +1198,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_EXAM")
+```{r ALZ_EXAM-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_EXAM")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_EXAM-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## REFCTR
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -1091,7 +1227,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_EXAM-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "FORM_DATE"       "DATE_OF_BIRTH"   "NEURO_EXAM_DATE" "CLIN_EXAM_DATE" 
@@ -1115,7 +1251,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_EXAM-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 66 vars
 
@@ -1139,7 +1275,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_EXAM-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 10 vars
 
@@ -1166,8 +1302,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_EXAM <- df
+```{r ALZ_EXAM-9}
+ALZ_EXAM <- df
 ```
 
 
@@ -1176,19 +1312,21 @@ clean_ALZ_EXAM <- df
 
 ## ALZ_GAI_SP
 
-```{r}
+```{r ALZ_GAI_SP-1}
 df <- ALZ_GAI_SP
+
+info(ALZ_GAI_SP,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_GAI_SP-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_GAI_SP-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -1197,17 +1335,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_GAI_SP")
+```{r ALZ_GAI_SP-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_GAI_SP")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_GAI_SP-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## [1] "REFCTR"      "REVIEW_DATE" "REVIEWER" 
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -1229,7 +1367,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_GAI_SP-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH" 
@@ -1253,7 +1391,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_GAI_SP-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)]
 ## [1] "LSTUDY"   "DB_OWNER" "STUDY"    "SUBSTUDY" "CENTER"   "REFCTR"   "EXAMINER" "REVIEWER"
@@ -1278,7 +1416,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_GAI_SP-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 31 vars
 
@@ -1304,8 +1442,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_GAI_SP <- df
+```{r ALZ_GAI_SP-9}
+ALZ_GAI_SP <- df
 ```
 
 
@@ -1314,19 +1452,21 @@ clean_ALZ_GAI_SP <- df
 
 ## ALZ_LOAD_COG
 
-```{r}
+```{r ALZ_LOAD_COG-1}
 df <- ALZ_LOAD_COG
+
+info(ALZ_LOAD_COG,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_LOAD_COG-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_LOAD_COG-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -1335,17 +1475,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_LOAD_COG")
+```{r ALZ_LOAD_COG-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_LOAD_COG")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_LOAD_COG-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## [1] "REFCTR"      "FRUITS"      "ANIMALS_REP" "ANIMALS_INT" "VEG_REP"     "VEG_INT" 
+logicols <- colnames(df)[sapply(df, is.logical)] 
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -1368,7 +1508,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_LOAD_COG-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -1393,7 +1533,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_LOAD_COG-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 9 vars
 
@@ -1417,7 +1557,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_LOAD_COG-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 26 vars
 
@@ -1444,8 +1584,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_LOAD_COG <- df
+```{r ALZ_LOAD_COG-9}
+ALZ_LOAD_COG <- df
 ```
 
 
@@ -1454,19 +1594,21 @@ clean_ALZ_LOAD_COG <- df
 
 ## ALZ_NCRAD
 
-```{r}
+```{r ALZ_NCRAD-1}
 df <- ALZ_NCRAD
+
+info(ALZ_NCRAD,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_NCRAD-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_NCRAD-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -1475,17 +1617,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_NCRAD")
+```{r ALZ_NCRAD-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_NCRAD")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_NCRAD-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## 18 vars 
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -1506,7 +1648,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_NCRAD-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "FORM_DATE"     "DATE_OF_BIRTH"
@@ -1530,7 +1672,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_NCRAD-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 14 vars
 
@@ -1554,7 +1696,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_NCRAD-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 37 vars
 
@@ -1581,8 +1723,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_NCRAD <- df
+```{r ALZ_NCRAD-9}
+ALZ_NCRAD <- df
 ```
 
 
@@ -1591,19 +1733,21 @@ clean_ALZ_NCRAD <- df
 
 ## ALZ_NEURO_CDR
 
-```{r}
+```{r ALZ_NEURO_CDR-1}
 df <- ALZ_NEURO_CDR
+
+info(ALZ_NEURO_CDR,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_NEURO_CDR-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_NEURO_CDR-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -1612,17 +1756,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_NEURO_CDR")
+```{r ALZ_NEURO_CDR-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_NEURO_CDR")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_NEURO_CDR-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## REFCTR
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -1642,7 +1786,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_NEURO_CDR-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -1666,7 +1810,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_NEURO_CDR-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 10 vars
 
@@ -1691,7 +1835,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_NEURO_CDR-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 18 vars
 
@@ -1718,8 +1862,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_NEURO_CDR <- df
+```{r ALZ_NEURO_CDR-9}
+ALZ_NEURO_CDR <- df
 ```
 
 <br>
@@ -1727,19 +1871,21 @@ clean_ALZ_NEURO_CDR <- df
 
 ## ALZ_NPIQ_CBRS
 
-```{r}
+```{r ALZ_NPIQ_CBRS-1}
 df <- ALZ_NPIQ_CBRS
+
+info(ALZ_NPIQ_CBRS,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_NPIQ_CBRS-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_NPIQ_CBRS-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -1748,17 +1894,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_NPIQ_CBRS")
+```{r ALZ_NPIQ_CBRS-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_NPIQ_CBRS")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_NPIQ_CBRS-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## REFCTR 
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -1777,7 +1923,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_NPIQ_CBRS-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -1801,7 +1947,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_NPIQ_CBRS-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 11 vars
 
@@ -1825,7 +1971,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_NPIQ_CBRS-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 103 vars
 
@@ -1852,8 +1998,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_NPIQ_CBRS <- df
+```{r ALZ_NPIQ_CBRS-9}
+ALZ_NPIQ_CBRS <- df
 ```
 
 
@@ -1862,19 +2008,21 @@ clean_ALZ_NPIQ_CBRS <- df
 
 ## ALZ_RPFQ
 
-```{r}
+```{r ALZ_RPFQ-1}
 df <- ALZ_RPFQ
+
+info(ALZ_RPFQ,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_RPFQ-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_RPFQ-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -1883,17 +2031,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_RPFQ")
+```{r ALZ_RPFQ-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_RPFQ")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_RPFQ-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## [1] "REFCTR"      "REVIEW_DATE" "REVIEWER" 
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -1914,7 +2062,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_RPFQ-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -1938,7 +2086,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_RPFQ-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 17 vars
 
@@ -1963,7 +2111,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_RPFQ-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 47 vars
 
@@ -1990,8 +2138,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_RPFQ <- df
+```{r ALZ_RPFQ-9}
+ALZ_RPFQ <- df
 ```
 
 
@@ -2000,19 +2148,21 @@ clean_ALZ_RPFQ <- df
 
 ## ALZ_SCREENING
 
-```{r}
+```{r ALZ_SCREENING-1}
 df <- ALZ_SCREENING
+
+info(ALZ_SCREENING,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_SCREENING-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_SCREENING-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -2021,17 +2171,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_SCREENING")
+```{r ALZ_SCREENING-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_SCREENING")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_SCREENING-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## 10 vars
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -2052,7 +2202,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_SCREENING-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "FORM_DATE"      "DATE_OF_BIRTH"  "LUMBAR_DATE"    "BRAIN_MRI_DATE" "BRAIN_CT_DATE"  "EEG_DATE"       "PET_SP_DATE"  
@@ -2076,7 +2226,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_SCREENING-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 31 vars
 
@@ -2101,7 +2251,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_SCREENING-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 10 vars
 
@@ -2128,8 +2278,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_SCREENING <- df
+```{r ALZ_SCREENING-9}
+ALZ_SCREENING <- df
 ```
 
 
@@ -2138,19 +2288,21 @@ clean_ALZ_SCREENING <- df
 
 ## ALZ_SCREENING_RC
 
-```{r}
+```{r ALZ_SCREENING_RC-1}
 df <- ALZ_SCREENING_RC
+
+info(ALZ_SCREENING_RC,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r ALZ_SCREENING_RC-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r ALZ_SCREENING_RC-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -2159,17 +2311,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "ALZ_SCREENING_RC")
+```{r ALZ_SCREENING_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_SCREENING_RC")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r ALZ_SCREENING_RC-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## 20 vars
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -2192,7 +2344,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r ALZ_SCREENING_RC-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH" "LUMB_DT"       "BRNMRI_DT"     "BRNCT_DT"      "EEG_DT"        "PETSP_DT" 
@@ -2219,7 +2371,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r ALZ_SCREENING_RC-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 29 vars
 
@@ -2244,7 +2396,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r ALZ_SCREENING_RC-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 17 vars
 
@@ -2271,8 +2423,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_ALZ_SCREENING_RC <- df
+```{r ALZ_SCREENING_RC-9}
+ALZ_SCREENING_RC <- df
 ```
 
 <br>
@@ -2280,10 +2432,286 @@ clean_ALZ_SCREENING_RC <- df
 
 ## ALZ_STICK_D_RC
 
+```{r ALZ_STICK_D_RC-1}
+df <- ALZ_STICK_D_RC
+
+info(ALZ_STICK_D_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r ALZ_STICK_D_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r ALZ_STICK_D_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r ALZ_STICK_D_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "ALZ_STICK_D_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r ALZ_STICK_D_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to numeric
+convert2num <- dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("NUMBER", dfDD$`Data Type`)] ## STATUS_DRSD
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date))
+
+## convert
+df[convert2num] <- lapply(df[convert2num], as.numeric)
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r ALZ_STICK_D_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r ALZ_STICK_D_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 14 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r ALZ_STICK_D_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 29 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r ALZ_STICK_D_RC-9}
+ALZ_STICK_D_RC <- df
+```
+
 <br>
 <br>
 
 ## B4_CDR_RC
+
+```{r B4_CDR_RC-1}
+df <- B4_CDR_RC
+
+info(B4_CDR_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r B4_CDR_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r B4_CDR_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r B4_CDR_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "B4_CDR_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r B4_CDR_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## [1] "REFCTR"   "REVIEWER"
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r B4_CDR_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r B4_CDR_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 16 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r B4_CDR_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 19 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r B4_CDR_RC-9}
+B4_CDR_RC <- df
+```
 
 
 <br>
@@ -2291,19 +2719,21 @@ clean_ALZ_SCREENING_RC <- df
 
 ## B5_NPIQ_RC
 
-```{r}
+```{r B5_NPIQ_RC-1}
 df <- B5_NPIQ_RC
+
+info(B5_NPIQ_RC,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r B5_NPIQ_RC-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r B5_NPIQ_RC-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -2312,17 +2742,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "B5_NPIQ_RC")
+```{r B5_NPIQ_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "B5_NPIQ_RC")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r B5_NPIQ_RC-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## [1] "REFCTR"      "REVIEW_DATE" "REVIEWER" 
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -2343,7 +2773,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r B5_NPIQ_RC-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -2367,7 +2797,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r B5_NPIQ_RC-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 10 vars
 
@@ -2392,7 +2822,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r B5_NPIQ_RC-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 25 vars
 
@@ -2419,8 +2849,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_B5_NPIQ_RC <- df
+```{r B5_NPIQ_RC-9}
+B5_NPIQ_RC <- df
 ```
 
 
@@ -2429,19 +2859,21 @@ clean_B5_NPIQ_RC <- df
 
 ## B6_GDS_RC
 
-```{r}
+```{r B6_GDS_RC-1}
 df <- B6_GDS_RC
+
+info(B6_GDS_RC,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r B6_GDS_RC-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r B6_GDS_RC-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -2450,17 +2882,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "B6_GDS_RC")
+```{r B6_GDS_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "B6_GDS_RC")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r B6_GDS_RC-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## [1] "REFCTR"      "REVIEW_DATE" "REVIEWER"
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -2481,7 +2913,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r B6_GDS_RC-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -2506,7 +2938,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r B6_GDS_RC-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 9 vars
 
@@ -2530,7 +2962,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r B6_GDS_RC-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 27 vars
 
@@ -2557,8 +2989,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_B6_GDS_RC <- df
+```{r B6_GDS_RC-9}
+B6_GDS_RC <- df
 ```
 
 <br>
@@ -2566,19 +2998,21 @@ clean_B6_GDS_RC <- df
 
 ## B7_FAS_RC
 
-```{r}
+```{r B7_FAS_RC-1}
 df <- B7_FAS_RC
+
+info(B7_FAS_RC,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r B7_FAS_RC-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r B7_FAS_RC-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -2587,17 +3021,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "B7_FAS_RC")
+```{r B7_FAS_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "B7_FAS_RC")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r B7_FAS_RC-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## [1] "REFCTR"      "REVIEW_DATE" "REVIEWER" 
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -2618,7 +3052,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r B7_FAS_RC-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -2642,7 +3076,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r B7_FAS_RC-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 9 vars
 
@@ -2667,7 +3101,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r B7_FAS_RC-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 21 vars
 
@@ -2694,8 +3128,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_B7_FAS_RC<- df
+```{r B7_FAS_RC-9}
+B7_FAS_RC<- df
 ```
 
 
@@ -2704,72 +3138,1603 @@ clean_B7_FAS_RC<- df
 
 ## BCF_RECOG_RC
 
+```{r BCF_RECOG_RC-1}
+df <- BCF_RECOG_RC
+
+info(BCF_RECOG_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r BCF_RECOG_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r BCF_RECOG_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r BCF_RECOG_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "BCF_RECOG_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r BCF_RECOG_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## [1] "REFCTR"   "REVIEWER"
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r BCF_RECOG_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH" 
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r BCF_RECOG_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 9 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r BCF_RECOG_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 12 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r BCF_RECOG_RC-9}
+BCF_RECOG_RC <- df
+```
+
 <br>
 <br>
 
 ## BCFCD_RC
+
+```{r BCFCD_RC-1}
+df <- BCFCD_RC
+
+info(BCFCD_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r BCFCD_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r BCFCD_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r BCFCD_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "BCFCD_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r BCFCD_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## "REFCTR" "REVIEWER" "TOTAL_SCORE_BENSON_DEL_STATUS"
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r BCFCD_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r BCFCD_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 13 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r BCFCD_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 22 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r BCFCD_RC-9}
+BCFCD_RC <- df
+```
 
 <br>
 <br>
 
 ## BCFCI_RC
 
+```{r BCFCI_RC-1}
+df <- BCFCI_RC
+
+info(BCFCI_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r BCFCI_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r BCFCI_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r BCFCI_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "BCFCI_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r BCFCI_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## [1] "REFCTR"  "REVIEWER"  "BCF_COPY_SCORE_STATUS"
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r BCFCI_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## REVIEW_DATE, ignore it, as it has been converted in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r BCFCI_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 13 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r BCFCI_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 22 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r BCFCI_RC-9}
+BCFCI_RC <- df
+```
+
+
 <br>
 <br>
 
 ## BILINGUAL_SCALE_RC
+
+```{r BILINGUAL_SCALE_RC-1}
+df <- BILINGUAL_SCALE_RC
+
+info(BILINGUAL_SCALE_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r BILINGUAL_SCALE_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r BILINGUAL_SCALE_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r BILINGUAL_SCALE_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "BILINGUAL_SCALE_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r BILINGUAL_SCALE_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)] ## 23 vars
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to numeric
+convert2num <- dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("NUMBER", dfDD$`Data Type`)]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date))
+
+## convert
+df[convert2num] <- lapply(df[convert2num], as.numeric)
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r BILINGUAL_SCALE_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r BILINGUAL_SCALE_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 33 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r BILINGUAL_SCALE_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 15 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r BILINGUAL_SCALE_RC-9}
+BILINGUAL_SCALE_RC <- df
+```
 
 <br>
 <br>
 
 ## CAT_FLUENCY_RC
 
+```{r CAT_FLUENCY_RC-1}
+df <- CAT_FLUENCY_RC
+
+info(CAT_FLUENCY_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r CAT_FLUENCY_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r CAT_FLUENCY_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r CAT_FLUENCY_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "CAT_FLUENCY_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r CAT_FLUENCY_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## [1] "REFCTR"   "REVIEWER"
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r CAT_FLUENCY_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH" 
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r CAT_FLUENCY_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 11 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r CAT_FLUENCY_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 15 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r CAT_FLUENCY_RC-9}
+CAT_FLUENCY_RC <- df
+```
+
+
 <br>
 <br>
 
 ## CERAD_DEL_RC
+
+```{r CERAD_DEL_RC-1}
+df <- CERAD_DEL_RC
+
+info(CERAD_DEL_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r CERAD_DEL_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r CERAD_DEL_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r CERAD_DEL_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "CERAD_DEL_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r CERAD_DEL_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## [1] "REFCTR"   "REVIEWER"
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r CERAD_DEL_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH" 
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r CERAD_DEL_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 13 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## [1] SCALES_CERADRECALL
+## SCALES_CERADRECALL shows numeric in DD, but read in as character
+## the reason it pops up is because they use "na" to represent the NAs
+## I will correct it and convert it to numeric
+
+df$SCALES_CERADRECALL[df$SCALES_CERADRECALL == "na"] <- NA
+unique(df$SCALES_CERADRECALL)
+df$SCALES_CERADRECALL <- as.numeric(df$SCALES_CERADRECALL)
+
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r CERAD_DEL_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 29 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r CERAD_DEL_RC-9}
+CERAD_DEL_RC <- df
+```
+
 
 <br>
 <br>
 
 ## CERAD_IMM_RC
 
+```{r CERAD_IMM_RC-1}
+df <- CERAD_IMM_RC
+
+info(CERAD_IMM_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r CERAD_IMM_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r CERAD_IMM_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r CERAD_IMM_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "CERAD_IMM_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r CERAD_IMM_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to numeric
+convert2num <- dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("NUMBER", dfDD$`Data Type`)]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## [1] "REFCTR"   "REVIEWER"
+
+## convert
+df[convert2num] <- lapply(df[convert2num], as.numeric)
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r CERAD_IMM_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH" 
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r CERAD_IMM_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 17 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r CERAD_IMM_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 68 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r CERAD_IMM_RC-9}
+CERAD_IMM_RC <- df
+```
+
+
 <br>
 <br>
 
 ## CERAD_RECOG_RC
+
+```{r CERAD_RECOG_RC-1}
+df <- CERAD_RECOG_RC
+
+info(CERAD_RECOG_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r CERAD_RECOG_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r CERAD_RECOG_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r CERAD_RECOG_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "CERAD_RECOG_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r CERAD_RECOG_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## [1] "REFCTR"  "REVIEWER" "WLRG_YES_STATUS" "WLRG_NO_STATUS" 
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r CERAD_RECOG_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH" 
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r CERAD_RECOG_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 11 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r CERAD_RECOG_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 34 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r CERAD_RECOG_RC-9}
+CERAD_RECOG_RC <- df
+```
+
 
 <br>
 <br>
 
 ## CONSENSUS_DX
 
+```{r CONSENSUS_DX-1}
+df <- CONSENSUS_DX
+
+info(CONSENSUS_DX,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r CONSENSUS_DX-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r CONSENSUS_DX-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r CONSENSUS_DX-4}
+dfDD <- read_excel(revisedDDpath, sheet = "CONSENSUS_DX")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r CONSENSUS_DX-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to numeric
+convert2num <- dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("NUMBER", dfDD$`Data Type`)] 
+## 11 vars
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## OTHER_DATE1
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) 
+## "REFCTR"  "CLINICAL_COMMENTS" "OTHER_TXT1"  "OTHER_TXT2"  "OTHER_TXT3" 
+
+## convert
+df[convert2num] <- lapply(df[convert2num], as.numeric)
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r CONSENSUS_DX-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "REVIEW_DATE"   "DATE_OF_BIRTH" "DATE_DX"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "OTHER_DATE1" can ignore OTHER_DATE1, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r CONSENSUS_DX-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 17 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## Ignore REVIEWER, for others, waiting for confirmation from Mike, should I add those invalid values to the DD?
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r CONSENSUS_DX-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 22 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r CONSENSUS_DX-9}
+CONSENSUS_DX <- df
+```
+
 <br>
 <br>
 
 ## CRAFT_21_DEL_RC
+
+```{r CRAFT_21_DEL_RC-1}
+df <- CRAFT_21_DEL_RC
+
+info(CRAFT_21_DEL_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r CRAFT_21_DEL_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r CRAFT_21_DEL_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r CRAFT_21_DEL_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "CRAFT_21_DEL_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r CRAFT_21_DEL_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## [1] "REFCTR"         "REVIEWER"       "CRAFTDVR_ENTRY"
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r CRAFT_21_DEL_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH" "CRAFTDTI"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r CRAFT_21_DEL_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 10 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r CRAFT_21_DEL_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 81 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r CRAFT_21_DEL_RC-9}
+CRAFT_21_DEL_RC <- df
+```
 
 <br>
 <br>
 
 ## CRAFT_21_IMM_RC
 
+```{r CRAFT_21_IMM_RC-1}
+df <- CRAFT_21_IMM_RC
 
-## MEDCON_RC
-
-```{r}
-df <- MEDCON_RC
+info(CRAFT_21_IMM_RC,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r CRAFT_21_IMM_RC-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r CRAFT_21_IMM_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r CRAFT_21_IMM_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "CRAFT_21_IMM_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r CRAFT_21_IMM_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## "REFCTR"         "REVIEWER"       "CRAFTVRS_ENTRY"
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r CRAFT_21_IMM_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH" "CRAFTVRS_TIME" 
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+## I will leave CRAFTVRS_TIME with format POSIXct since it contains the timestamp
+## and I will convert the other two to date format
+datecols <- setdiff(datecols, "CRAFTVRS_TIME")
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r CRAFT_21_IMM_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 12 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+## ignore EXAMINER
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r CRAFT_21_IMM_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 82 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r CRAFT_21_IMM_RC-9}
+CRAFT_21_IMM_RC <- df
+```
+
+
+<br>
+<br>
+
+## MEDCON_RC
+
+```{r MEDCON_RC-1 }
+df <- MEDCON_RC
+
+info(MEDCON_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r MEDCON_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r MEDCON_RC-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -2778,15 +4743,15 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "MEDCON_RC")
+```{r MEDCON_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "MEDCON_RC")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r MEDCON_RC-5}
 ## extract all logical variables
 logicols <- colnames(df)[sapply(df, is.logical)] ## 7 vars
 
@@ -2811,7 +4776,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r MEDCON_RC-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH" "DATE_OF_ONSET"
@@ -2835,7 +4800,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r MEDCON_RC-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 69 vars
 
@@ -2864,7 +4829,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r MEDCON_RC-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 164 vars
 
@@ -2891,8 +4856,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_MEDCON_RC <- df
+```{r MEDCON_RC-9}
+MEDCON_RC <- df
 ```
 
 <br>
@@ -2900,19 +4865,21 @@ clean_MEDCON_RC <- df
 
 ## MEDICAL_HIST
 
-```{r}
+```{r MEDICAL_HIST-1}
 df <- MEDICAL_HIST
+
+info(MEDICAL_HIST,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r MEDICAL_HIST-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r MEDICAL_HIST-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -2921,17 +4888,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "MEDICAL_HIST")
+```{r MEDICAL_HIST-4}
+dfDD <- read_excel(revisedDDpath, sheet = "MEDICAL_HIST")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r MEDICAL_HIST-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## [1] "REFCTR"     "CIGARETTES" "CURR_MEDS" 
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -2950,7 +4917,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r MEDICAL_HIST-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -2974,7 +4941,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r MEDICAL_HIST-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 40 vars
 
@@ -2999,7 +4966,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r MEDICAL_HIST-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 11 vars
 
@@ -3026,8 +4993,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_MEDICAL_HIST <- df
+```{r MEDICAL_HIST-9}
+MEDICAL_HIST <- df
 ```
 
 
@@ -3036,19 +5003,21 @@ clean_MEDICAL_HIST <- df
 
 ## MINT_RC
 
-```{r}
+```{r MINT_RC-1}
 df <- MINT_RC
+
+info(MINT_RC,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r MINT_RC-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r MINT_RC-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -3057,15 +5026,15 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "MINT_RC")
+```{r MINT_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "MINT_RC")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r MINT_RC-5}
 ## extract all logical variables
 logicols <- colnames(df)[sapply(df, is.logical)] ## 115 vars 
 
@@ -3090,7 +5059,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r MINT_RC-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -3114,7 +5083,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r MINT_RC-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 42 vars
 
@@ -3139,7 +5108,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r MINT_RC-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 176 vars
 
@@ -3166,8 +5135,8 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_MINT_RC <- df
+```{r MINT_RC-9}
+MINT_RC <- df
 ```
 
 
@@ -3176,19 +5145,21 @@ clean_MINT_RC <- df
 
 ## MINT_SP_RC
 
-```{r}
+```{r MINT_SP_RC-1}
 df <- MINT_SP_RC
+
+info(MINT_SP_RC,"SYSIND")
 
 ## extract all the unique data types
 unique(sapply(df, class))
 ```
 
-```{r,eval=FALSE}
+```{r MINT_SP_RC-2,eval=FALSE}
 str(df, max.level = 99, list.len = 99999)
 ```
 <details>
 <summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
+```{r MINT_SP_RC-3, echo=FALSE, eval=TRUE}
 str(df, max.level = 99, list.len = 99999)
 ```
 </details> 
@@ -3197,17 +5168,17 @@ str(df, max.level = 99, list.len = 99999)
 
 ### Pull the regenerated DD
 
-```{r}
-dfDD <- read_excel("/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Clean/colnamesPerSubdata.xlsx", sheet = "MINT_SP_RC")
+```{r MINT_SP_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "MINT_SP_RC")
 ```
 
 <br>
 
 ### Handling Logical Variables
 
-```{r}
+```{r MINT_SP_RC-5}
 ## extract all logical variables
-logicols <- colnames(df)[sapply(df, is.logical)] ## [1] "REFCTR"      "REVIEW_DATE" "REVIEWER"  
+logicols <- colnames(df)[sapply(df, is.logical)]
 
 ## view those variables in the regeneraed DD
 dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
@@ -3228,7 +5199,7 @@ unique(sapply(df, class))
 
 ### Handling Date Variables
 
-```{r}
+```{r MINT_SP_RC-6}
 ## extract date variables from sub-dataset
 datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
 ## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
@@ -3252,7 +5223,7 @@ unique(sapply(df, class))
 <br>
 
 ### Handling Character Variables
-```{r}
+```{r MINT_SP_RC-7}
 ## extract characteristic variables from sub-dataset
 chrcols <- colnames(df)[sapply(df, is.character)] ## 42 vars
 
@@ -3277,7 +5248,7 @@ DT::datatable(check_valid_responses(tmp,df))
 <br>
 
 ### Handling Numeric Variables
-```{r}
+```{r MINT_SP_RC-8}
 ## extract numeric variables from sub-dataset
 numcols <- colnames(df)[sapply(df, is.numeric)] ## 176 vars
 
@@ -3304,7 +5275,563 @@ DT::datatable(check_valid_numeric_responses(tmp,df))
 
 ### Save Cleaned Data
 
-```{r}
-clean_MINT_SP_RC <- df
+```{r MINT_SP_RC-9}
+MINT_SP_RC <- df
 ```
+
+<br>
+<br>
+
+## MOCA_RC
+
+```{r MOCA_RC-1}
+df <- MOCA_RC
+
+info(MOCA_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r MOCA_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r MOCA_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+### Pull the regenerated DD
+
+```{r MOCA_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "MOCA_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r MOCA_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## 17 vars
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r MOCA_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"      "DATE_OF_BIRTH"  "MOCAORDT_ENTRY"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date","Date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r MOCA_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 46 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0) 
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r MOCA_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 90 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r MOCA_RC-9}
+MOCA_RC <- df
+```
+
+<br>
+<br>
+
+## NUMBER_SPAN_RC
+
+```{r NUMBER_SPAN_RC-1}
+df <- NUMBER_SPAN_RC
+
+info(NUMBER_SPAN_RC,"SYSIND")
+
+## extract all the unique data types
+unique(sapply(df, class))
+```
+
+```{r NUMBER_SPAN_RC-2,eval=FALSE}
+str(df, max.level = 99, list.len = 99999)
+```
+<details>
+<summary>Click for details</summary>
+```{r NUMBER_SPAN_RC-3, echo=FALSE, eval=TRUE}
+str(df, max.level = 99, list.len = 99999)
+```
+</details> 
+
+<br>
+
+
+### Pull the regenerated DD
+
+```{r NUMBER_SPAN_RC-4}
+dfDD <- read_excel(revisedDDpath, sheet = "NUMBER_SPAN_RC")
+```
+
+<br>
+
+### Handling Logical Variables
+
+```{r NUMBER_SPAN_RC-5}
+## extract all logical variables
+logicols <- colnames(df)[sapply(df, is.logical)]
+
+## view those variables in the regeneraed DD
+dfDD[dfDD$VarNames %in% logicols,c("VarNames","Data Type")]
+
+## select the vars to be converted to date
+convert2date <-  dfDD$VarNames[dfDD$VarNames %in% logicols & grepl("date",dfDD$`Data Type`,ignore.case = T)] ## REVIEW_DATE
+
+## the rest should be converted to character
+convert2chr <- setdiff(logicols,c(convert2num,convert2date)) ## [1] "REFCTR"   "REVIEWER"
+
+## convert
+df[convert2date] <- lapply(df[convert2date], as.Date)
+df[convert2chr] <- lapply(df[convert2chr], as.character)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Date Variables
+
+```{r NUMBER_SPAN_RC-6}
+## extract date variables from sub-dataset
+datecols <- colnames(df)[sapply(df, function(x) inherits(x, c("POSIXct", "POSIXt")))]
+## [1] "EXAM_DATE"     "DATE_OF_BIRTH"
+
+## extract date variables from regenerated DD
+datecolsFromDD <- dfDD$VarNames[dfDD$`Data Type` %in% c("DATE","date")]
+
+## compare the two to see if we missing any date variables
+setdiff(datecols,datecolsFromDD) ## character(0)
+setdiff(datecolsFromDD,datecols) ## [1] "REVIEW_DATE" can ignore REVIEW_DATE, as it has been corrected in previous step
+
+head(df[,datecols])
+
+## convert format
+df[datecols] <- lapply(df[datecols], as.Date)
+
+## recheck the unique data types
+unique(sapply(df, class))
+```
+
+<br>
+
+### Handling Character Variables
+```{r NUMBER_SPAN_RC-7}
+## extract characteristic variables from sub-dataset
+chrcols <- colnames(df)[sapply(df, is.character)] ## 39 vars
+
+## check data type inconsistency:
+## mismatchChrs_1: present as chr in data but others in the DD
+## mismatchChrs_2: present as chr in DD but others in the data
+chrColsfromDD <- dfDD[grepl("^(varchar|char)", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Data Type")]
+
+mismatchChrs_1 <- setdiff(chrcols,chrColsfromDD$VarNames) ## character(0)
+mismatchChrs_2 <- setdiff(chrColsfromDD$VarNames,chrcols) ## character(0)
+
+## extract characteristic variables with value specification
+tmp <- dfDD[grepl("CHAR|VARCHAR", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+## check if the unique values for the chr columns in the dataset matching with the DD
+DT::datatable(check_valid_responses(tmp,df))
+
+```
+
+<br>
+
+### Handling Numeric Variables
+```{r NUMBER_SPAN_RC-8}
+## extract numeric variables from sub-dataset
+numcols <- colnames(df)[sapply(df, is.numeric)] ## 43 vars
+
+## extract numeric variables from DD
+
+## check data type inconsistency:
+## mismatchNums_1: present as numeric in data but others in the DD
+## mismatchNums_2: present as numeric in DD but others in the data
+numColsfromDD <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE),c("VarNames","Valid Responses")]
+
+mismatchNums_1 <- setdiff(numcols,numColsfromDD$VarNames) ## character(0)
+mismatchNums_2 <- setdiff(numColsfromDD$VarNames,numcols) ## character(0)
+
+unique(numColsfromDD$`Valid Responses`)
+
+tmp <- dfDD[grepl("number", dfDD$`Data Type`, ignore.case = TRUE) & !is.na(dfDD$`Valid Responses`),c("VarNames","Valid Responses")]
+
+DT::datatable(check_valid_numeric_responses(tmp,df))
+
+## ignore GP
+```
+
+<br>
+
+### Save Cleaned Data
+
+```{r NUMBER_SPAN_RC-9}
+NUMBER_SPAN_RC <- df
+```
+
+<br>
+<br>
+
+# Duplicates Check
+
+## Duplicates Detection
+
+```{r dupCheck-2}
+# Get names of all data frames in the environment
+longDfwithDuplicates <- c()
+otherwithDuplicates <- c()
+index = 0
+
+## following function will do:
+## 1. filter out the okay cross-sectional datasets
+## 2. for the rest: return the longitudinal/cross-sectional dataset names if duplicates got detected
+for (df_name in df_names) {
+  df <- get(df_name)
+  
+  ## filter out the okay cross-sectional datasets
+  if (length(unique(df[["SYSIND"]])) == nrow(df)) {
+    index = index + 1
+    cat(index,
+        "No duplicates found in cross-sectional dataset: ",
+        df_name,
+        "\n")
+  } else{
+    ## Check if columns ID and Visit exist (longitduinal data or not)
+    if (all(c("SYSIND", "EXAM_DATE") %in% colnames(df))) {
+      # Find duplicates using dplyr
+      dup_rows <- df %>%
+        dplyr::group_by(SYSIND, EXAM_DATE) %>%
+        dplyr::filter(n() > 1) %>%
+        dplyr::ungroup()
+      
+      # If any duplicates found, assign to new data frame with _Duplicates
+      if (nrow(dup_rows) > 0) {
+        longDfwithDuplicates <- c(longDfwithDuplicates, df_name)
+      } else {
+        index = index + 1
+        cat(index,
+            "No duplicates found in longitudinal dataset: ",
+            df_name,
+            "\n")
+      }
+    } else {
+      otherwithDuplicates <- c(otherwithDuplicates, df_name)
+    }
+  }
+}
+```
+
+<br>
+
+
+```{r dupCheck-3}
+## longidtudinal datatset with duplicate
+longDfwithDuplicates
+```
+
+```{r dupCheck-4}
+## otherwithDuplicates
+## the following variables do not have EXAM_DATE but have other time variables
+## so I will check duplicates one by one for them based on their unique time variables
+otherwithDuplicates
+```
+
+```{r dupCheck-5}
+## check duplicates for ALZ_CLINICALSUM
+ALZ_CLINICALSUM %>%
+  dplyr::group_by(SYSIND, FORM_DATE) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup() %>%
+  nrow() %>% print() ## 0 row
+
+## check duplicates for ALZ_EXAM
+ALZ_EXAM %>%
+  dplyr::group_by(SYSIND, FORM_DATE) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup() %>%
+  nrow() %>% print() ## 0 row
+
+## check duplicates for ALZ_LOAD_COG
+ALZ_LOAD_COG %>%
+  dplyr::group_by(SYSIND, INTERVIEW_DATE) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup() %>%
+  nrow() %>% print() ## 0 row
+
+## check duplicates for ALZ_NCRAD
+ALZ_NCRAD %>%
+  dplyr::group_by(SYSIND, FORM_DATE) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup() %>%
+  nrow() %>% print() ## 2 rows
+
+## ALZ_SCREENING
+ALZ_SCREENING %>%
+  dplyr::group_by(SYSIND, FORM_DATE) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup() %>%
+  nrow() %>% print() ## 0 row
+
+## CONSENSUS_DX
+CONSENSUS_DX %>%
+  dplyr::group_by(SYSIND, DATE_DX) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup() %>%
+  nrow() %>% print() ## 211 rows
+
+```
+
+
+<br>
+<br>
+
+## Duplicates Handling Per Dataset
+
+### ALZ_NPIQ_CBRS
+
+```{r dupHandle-1}
+cat("Before duplicates handling - SYSIND*EXAM_DATE is: ",dupFixCheck(ALZ_NPIQ_CBRS,"SYSIND","EXAM_DATE"),"\n")
+```
+
+```{r dupHandle-2}
+info(ALZ_NPIQ_CBRS,"SYSIND")
+```
+
+```{r dupHandle-3}
+## view the duplicates
+ALZ_NPIQ_CBRS %>%
+  dplyr::group_by(SYSIND, EXAM_DATE) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup()
+```
+
+```{r dupHandle-4}
+## after checking the duplicates, I decided to keep the second obs as it has less missingness
+ALZ_NPIQ_CBRS <- ALZ_NPIQ_CBRS[ALZ_NPIQ_CBRS$SYSXM != "7540713", ]
+```
+
+```{r dupHandle-5}
+info(ALZ_NPIQ_CBRS,"SYSIND")
+```
+
+```{r dupHandle-6}
+cat("After duplicates handling - SYSIND*EXAM_DATE is: ",dupFixCheck(ALZ_NPIQ_CBRS,"SYSIND","EXAM_DATE"),"\n")
+```
+
+<br>
+<br>
+
+### ALZ_NCRAD
+
+```{r dupHandle-7}
+cat("Before duplicates handling - SYSIND*FORM_DATE is: ",dupFixCheck(ALZ_NCRAD,"SYSIND","FORM_DATE"),"\n")
+```
+
+```{r dupHandle-8}
+info(ALZ_NCRAD,"SYSIND")
+```
+
+```{r dupHandle-9}
+## view the duplicates
+ALZ_NCRAD %>%
+  dplyr::group_by(SYSIND, FORM_DATE) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup()
+```
+
+```{r dupHandle-10}
+## the duplicates are exactly same, so we can randomly drop one, I will drop the first observation
+ALZ_NCRAD <- ALZ_NCRAD[ALZ_NCRAD$SYSXM != "7906253", ]
+```
+
+```{r dupHandle-11}
+info(ALZ_NCRAD,"SYSIND")
+```
+
+```{r dupHandle-12}
+cat("After duplicates handling - SYSIND*FORM_DATE is: ",dupFixCheck(ALZ_NCRAD,"SYSIND","FORM_DATE"),"\n")
+```
+
+<br>
+<br>
+
+### CONSENSUS_DX
+
+```{r dupHandle-13}
+cat("Before duplicates handling - SYSIND*DATE_DX is: ",dupFixCheck(CONSENSUS_DX,"SYSIND","DATE_DX"),"\n")
+```
+
+```{r dupHandle-14}
+info(CONSENSUS_DX,"SYSIND")
+```
+
+```{r dupHandle-15}
+## view the duplicates
+dups_CONSENSUS_DX <- CONSENSUS_DX %>%
+  dplyr::group_by(SYSIND, DATE_DX) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup()
+
+info(dups_CONSENSUS_DX,"SYSIND") 
+``` 
+
+```{r dupHandle-16}
+## some individuals have multiple CDX, and the RANK variable records the number of visits
+## so I decided to use pivot_wider function to keep all the CDX values
+## remove duplicates
+
+IDcols <- c(names(CONSENSUS_DX)[1:16],"DATE_OF_BIRTH","DATE_DX",names(CONSENSUS_DX)[27:43])
+IDcols
+
+CONSENSUS_DX <- CONSENSUS_DX %>%
+  pivot_wider(
+    id_cols = all_of(IDcols),
+    names_from = RANK,
+    values_from = c(REVIEW_DATE, REVIEWER, RANK:WHO_DX,COMMENTS),
+    names_sep = "_"
+  )
+
+```
+
+
+```{r dupHandle-17}
+info(CONSENSUS_DX,"SYSIND")
+```
+
+```{r dupHandle-18}
+cat("After duplicates handling - SYSIND*DATE_DX is: ",dupFixCheck(CONSENSUS_DX,"SYSIND","DATE_DX"),"\n")
+```
+
+<br>
+<br>
+
+
+# Individuals Count
+
+## Total Number of Individuals
+```{r pp-count-1}
+## get total number of unique inviduals
+all_ids <- unlist(
+  lapply(df_names, function(d) get(d)$SYSIND)
+)
+
+# Count unique SYSINDs
+n_unique <- length(unique(all_ids))
+
+n_unique ## 1994 individuals
+```
+
+<br>
+
+## Individuals Missingness Per Study
+
+```{r pp-count-2}
+summary_df <- do.call(rbind, lapply(df_names, function(d) {
+  df <- get(d)
+  df_individuals <- unique(df$SYSIND)
+  
+  data.frame(
+    dataset   = d,
+    n_individuals = length(df_individuals),
+    n_obs         = nrow(df),
+    n_individials_missing   = length(setdiff(all_ids, df_individuals)),
+    stringsAsFactors = FALSE
+  )
+}))
+
+DT::datatable(summary_df)
+```
+
+<br>
+<br>
+
+
 

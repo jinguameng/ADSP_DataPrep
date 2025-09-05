@@ -1,6 +1,32 @@
+################################################################################
+## Alaina's functions
+#get copy-able information about a data frames observations, columns, and individuals
+info <- function(df, ID_name) {
+  # Get the number of rows
+  num_rows <- nrow(df)
+  
+  # Get the number of columns
+  num_cols <- ncol(df)
+  
+  # Get the number of unique IDs in the specified column
+  num_unique_ids <- length(unique(df[[ID_name]]))
+  
+  # Construct the formatted string
+  output <- paste0("#obs:", num_rows, ", cols:", num_cols, ", inds:", num_unique_ids)
+  
+  # Print the output using cat
+  cat(output, "\n")
+  
+  #prints: #obs:X, cols:Y, inds:Z
+}
+################################################################################
+
+
+################################################################################
 ## this function check mismatched chr columns between dataset and DD
 ## df_valid: contains VarNames and Valid Responses
 ## df_data: the dataset to check
+################################################################################
 check_valid_responses <- function(df_valid, df_data) {
   # Clean up Valid Responses: remove \r\n and split into list of valid values
   df_valid <- df_valid %>%
@@ -42,6 +68,7 @@ check_valid_responses <- function(df_valid, df_data) {
   }
 }
 
+################################################################################
 ## similar as above, but for numeric columns
 # parse_range("1 - 99999")                # seq(1, 99999)
 # parse_range("1;2;8;9")                  # c(1, 2, 8, 9)
@@ -49,6 +76,7 @@ check_valid_responses <- function(df_valid, df_data) {
 # parse_range("0.0 - 3.4")                # 0.0, 0.1, 0.2, ..., 3.4
 # parse_range("-1.5 - 0.5;2.25;3")        # supports negatives and decimals
 # parse_range("0.0 - 3.4", step = 0.2)    # override step: 0.0, 0.2, ..., 3.4
+################################################################################
 parse_range <- function(x,
                         step = NULL,
                         unique_sort = FALSE) {
@@ -116,6 +144,7 @@ check_valid_numeric_responses <- function(df_valid, df_data) {
     mutate(
       cleaned_response = gsub("\r\n", "", `Valid Responses`),
       cleaned_response = str_replace_all(cleaned_response, "thru", "-"),
+      cleaned_response = str_replace_all(cleaned_response, "through", "-"),
       cleaned_response = str_replace_all(cleaned_response, ";\\s*", ";"),
       cleaned_response = str_replace_all(cleaned_response, ";+$", "")
     )
@@ -157,3 +186,12 @@ check_valid_numeric_responses <- function(df_valid, df_data) {
     return(invisible(NULL))
   }
 }
+
+
+################################################################################
+## Duplicates handling before/after check for longitudinal datasets
+################################################################################
+dupFixCheck <- function(df,id_col,visit_col){
+  return(length(unique(interaction(df[[id_col]],  df[[visit_col]], drop = TRUE))))
+}
+
