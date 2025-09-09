@@ -56,6 +56,8 @@ require(readxl)
 require(openxlsx)
 require(stringr)
 require(tidyr)
+require(lubridate)
+`%!in%` <- Negate(`%in%`)
 ```
 
 <br>
@@ -74,7 +76,7 @@ require(tidyr)
 <!-- wc -l ${mypath}filelist.txt ## 38 sub files in total -->
 <!-- ``` -->
 
-oA
+
 ## Load All Subfiles
 
 ```{r load-all-files}
@@ -5833,5 +5835,353 @@ DT::datatable(summary_df)
 <br>
 <br>
 
+# Merge Sub-Datasets
 
+## Grouping Datasets
+```{r}
+cross_dfs<- c()
+long_dfs_wEXAM_DATE <- c()
+long_dfs_woEXAM_DATE <- c()
+
+for (df_name in df_names) {
+  df_obj <- get(df_name)  # get the dataframe
+  if (nrow(df_obj) == length(unique(df_obj[["SYSIND"]]))) {
+    cross_dfs <- c(cross_dfs, df_name)
+  } else if ("EXAM_DATE" %in% names(df_obj)) {
+    long_dfs_wEXAM_DATE <- c(long_dfs_wEXAM_DATE, df_name)
+  } else{
+    long_dfs_woEXAM_DATE <- c(long_dfs_woEXAM_DATE,df_name)
+  }
+}
+
+cross_dfs
+long_dfs_wEXAM_DATE
+long_dfs_woEXAM_DATE
+```
+```{r}
+dfwEXAM_DATE <- c()
+dfwoEXAM_DATE <- c()
+
+for (df_name in df_names) {
+  df_obj <- get(df_name)  # get the dataframe
+  
+  if ("EXAM_DATE" %in% names(df_obj)) {
+    dfwEXAM_DATE <- c(dfwEXAM_DATE, df_name)
+  } else{
+    dfwoEXAM_DATE <- c(dfwoEXAM_DATE,df_name)
+  }
+  
+}
+
+print(dfwEXAM_DATE)
+
+print(dfwoEXAM_DATE)
+```
+
+
+<br>
+<br>
+
+## AGE_AT_EXAM Variable Explore
+
+```{r}
+## detect which dataset has AGE_AT_EXAM variable
+index = 1
+
+for (df_name in df_names) {
+  df_obj <- get(df_name, inherits = TRUE)
+  nms <- names(df_obj)
+
+  has_age  <- "AGE_AT_EXAM" %in% nms
+  has_date <- "EXAM_DATE"   %in% nms
+
+  if (has_age && has_date) {
+    cat(index, ":", df_name, ": both EXAM_DATE and AGE_AT_EXAM present\n")
+  } else if (has_age && !has_date) {
+    cat(index, ":", df_name, ": only AGE_AT_EXAM present\n")
+  } else if (has_date && !has_age) {
+    cat(index, ":", df_name, ": only EXAM_DATE present\n")
+  } else {
+    cat(index, ":", df_name, ": ============ none of them present ============\n")
+  }
+
+  index <- index + 1
+}
+
+## findings: AGE_AT_EXAM and EXAM_DATE variables are paired. If one presents, the other also presents.
+```
+
+```{r}
+## group by SYSIND and AGE_AT_EXAM then check duplicates
+index = 1
+for (df_name in df_names) {
+  df_obj <- get(df_name)  # get the dataframe
+  if ("AGE_AT_EXAM" %in% names(df_obj)) {
+    cat(index, " :", df_name, " : AGE_AT_EXAM present", "\n")
+    
+    dup_rows_AGE_AT_EXAM <- df_obj %>%
+      dplyr::group_by(SYSIND, AGE_AT_EXAM) %>%
+      dplyr::filter(n() > 1) %>%
+      dplyr::ungroup()
+    
+    dup_rows_EXAM_DATE <- df_obj %>%
+      dplyr::group_by(SYSIND, EXAM_DATE) %>%
+      dplyr::filter(n() > 1) %>%
+      dplyr::ungroup()
+    
+    if (nrow(dup_rows_AGE_AT_EXAM) > 0) {
+      cat(index,
+          " :",
+          df_name,
+          " : !!!duplicates present (checking by AGE_AT_EXAM )!!!",
+          "\n")
+    } else if (nrow(dup_rows_EXAM_DATE) > 0) {
+      cat(index,
+          " :",
+          df_name,
+          " : !!!duplicates present (checking by EXAM_DATE )!!!",
+          "\n")
+    } else{
+      cat(index, " :", df_name, " : no duplicates found:)", "\n")
+    }
+    
+  } else{
+    cat(index, " :", df_name, "===============================================","\n")
+  }
+  index = index + 1
+}
+
+## findings: when mergeing, AGE_AT_EXAM can not be used as the key column, cause duplicates existed for some people with different AGE_AT_EXAM
+## after rounding up, those obs have same AGE_AT_EXAM values
+
+```
+
+<br>
+<br>
+
+## Generate Visit Index Variable
+
+```{r}
+## for every individual, get all their date data
+ppdat <- data.frame(SYSIND = numeric(0), EXAM_DATE = as.Date(character(0)))
+
+## for dataset with EXAM_DATE, we just need to extract the relevant information and appending to the ppdat
+for (df_name in dfwEXAM_DATE) {
+  df_obj <- get(df_name)  # get the dataframe
+  
+  df_obj <- df_obj[,c("SYSIND","EXAM_DATE")]
+  
+  ppdat <- rbind(ppdat,df_obj)
+}
+
+ppdat <- ppdat[!duplicated(ppdat),]
+
+## for dataset without EXAM_DATE, extract other data variables and appending to the ppdat
+
+## ALZ_CLINICALSUM: has FORM_DATE
+## ALZ_EXAM: has FORM_DATE
+## ALZ_LOAD_COG: has INTERVIEW_DATE
+## ALZ_NCRAD: has FORM_DATE
+## ALZ_SCREENING: has FORM_DATE
+## CONSENSUS_DX: DATE_DX
+
+dfwFORM_DATE <- c("ALZ_CLINICALSUM","ALZ_EXAM","ALZ_NCRAD","ALZ_SCREENING")
+for (df_name in dfwFORM_DATE) {
+  df_obj <- get(df_name)  # get the dataframe
+  
+  df_obj <- df_obj[,c("SYSIND","FORM_DATE")]
+  names(df_obj) <- c("SYSIND","EXAM_DATE")
+  
+  ppdat <- rbind(ppdat,df_obj)
+}
+
+ppdat <- ppdat[!duplicated(ppdat),]
+
+df_obj <- ALZ_LOAD_COG
+df_obj <- df_obj[,c("SYSIND","INTERVIEW_DATE")]
+names(df_obj) <- c("SYSIND","EXAM_DATE")
+ppdat <- rbind(ppdat,df_obj)
+ppdat <- ppdat[!duplicated(ppdat),]
+
+df_obj <- CONSENSUS_DX
+df_obj <- df_obj[,c("SYSIND","DATE_DX")]
+names(df_obj) <- c("SYSIND","EXAM_DATE")
+ppdat <- rbind(ppdat,df_obj)
+ppdat <- ppdat[!duplicated(ppdat),]
+
+info(ppdat,"SYSIND") #obs:5204, cols:2, inds:1994
+
+sorted_ppdat <- ppdat %>% arrange(SYSIND, EXAM_DATE)
+
+## creating the Visit Index variable
+## If a subject’s next exam is < 3 months after the last one, it stays in the same visit.
+## If it’s ≥ 3 months, it becomes the next visit.
+## Starts at 1 for each subject.
+sorted_ppdat2 <- sorted_ppdat %>%
+  group_by(SYSIND) %>%
+  mutate(
+    new_visit = is.na(lag(EXAM_DATE)) |
+      EXAM_DATE >= (lag(EXAM_DATE) %m+% months(6)),
+    Visit_Index = cumsum(new_visit) ## start a new visit when the gap from the previous exam is ≥ 3 months
+  ) %>%
+  select(-new_visit) %>%
+  ungroup()
+
+## Visit summary
+visit_summary <- sorted_ppdat2 %>%
+  group_by(SYSIND) %>%
+  summarise(
+    total_visits = n_distinct(Visit_Index),
+    total_obs    = n(),                 # how many raw rows for this person
+    first_date   = min(EXAM_DATE, na.rm = TRUE),
+    last_date    = max(EXAM_DATE, na.rm = TRUE),
+    span_days    = as.integer(last_date - first_date)
+  ) %>%
+  arrange(desc(total_visits))
+
+DT::datatable(visit_summary)
+
+```
+
+
+```{r}
+## add Visit index back to each dataset
+
+## for dataset with EXAM_DATE variable:
+index = 1
+for (df_name in dfwEXAM_DATE) {
+  
+  cat("======================================================================","\n")
+  df_obj <- get(df_name)  # get the dataframe
+  
+  cat(index,": Currently processing dataset: ",df_name,"\n")
+  cat("Dataset dimension: ","\n")
+  info(df_obj,"SYSIND")
+  
+  df_obj <- merge(df_obj,sorted_ppdat2,by=c("SYSIND","EXAM_DATE"))
+  
+  cat("After adding visit index, dataset dimension: ","\n")
+  info(df_obj,"SYSIND")
+  
+  ## change dataset name
+  newdfname <- paste0("wVisitIndex_",df_name)
+  assign(newdfname, df_obj)
+  
+  index = index + 1
+}
+
+```
+
+```{r}
+## Now add visit index to dataset with FORM_DATE
+sorted_ppdat3 <- sorted_ppdat2
+names(sorted_ppdat3)[names(sorted_ppdat3)=="EXAM_DATE"] <- "FORM_DATE"
+
+for (df_name in dfwFORM_DATE) {
+  cat("======================================================================","\n")
+  df_obj <- get(df_name)  # get the dataframe
+  
+  cat(index,": Currently processing dataset: ",df_name,"\n")
+  cat("Dataset dimension: ","\n")
+  info(df_obj,"SYSIND")
+  
+  df_obj <- merge(df_obj,sorted_ppdat3,by=c("SYSIND","FORM_DATE"))
+  
+  cat("After adding visit index, dataset dimension: ","\n")
+  info(df_obj,"SYSIND")
+  
+  ## change dataset name
+  newdfname <- paste0("wVisitIndex_",df_name)
+  assign(newdfname, df_obj)
+  
+  index = index + 1
+}
+```
+
+```{r}
+## Finally, we add visit index to the last two datasets: ALZ_LOAD_COG and CONSENSUS_DX
+
+cat("======================================================================","\n")
+df_obj <- ALZ_LOAD_COG  # get the dataframe
+df_name <- "ALZ_LOAD_COG"
+cat(index,": Currently processing dataset: ",df_name,"\n")
+cat("Dataset dimension: ","\n")
+info(df_obj,"SYSIND")
+df_obj <- merge(df_obj,sorted_ppdat2,by.x=c("SYSIND","INTERVIEW_DATE"),by.y = c("SYSIND","EXAM_DATE"))
+cat("After adding visit index, dataset dimension: ","\n")
+info(df_obj,"SYSIND")
+## change dataset name
+newdfname <- paste0("wVisitIndex_",df_name)
+assign(newdfname, df_obj)
+index = index + 1
+
+cat("======================================================================","\n")
+df_obj <- CONSENSUS_DX  # get the dataframe
+df_name <- "CONSENSUS_DX"
+cat(index,": Currently processing dataset: ",df_name,"\n")
+cat("Dataset dimension: ","\n")
+info(df_obj,"SYSIND")
+df_obj <- merge(df_obj,sorted_ppdat2,by.x=c("SYSIND","DATE_DX"),by.y = c("SYSIND","EXAM_DATE"))
+cat("After adding visit index, dataset dimension: ","\n")
+info(df_obj,"SYSIND")
+## change dataset name
+newdfname <- paste0("wVisitIndex_",df_name)
+assign(newdfname, df_obj)
+
+```
+
+## Merge All Datasets
+
+```{r}
+## since there are a lot of columns for individuals identifiers, instead of merging the dataset by all of these, I decided to taking them out and merge it back to the very end
+
+colsWfixedValues <- c("SYSGP","SYSGPSTUDY","SYSINDGP","CGI_ORDER","GPS_ORDER","STDCGI_ORDER","LSTUDY","DB_OWNER","STUDY","SUBSTUDY","CENTER","GP","IND","REFCTR","DATE_OF_BIRTH") ## 15 vars
+
+df_names <- ls(pattern = "^wVisitIndex_")
+length(df_names)
+
+## this dataset will stored all those identifer values which will be merged to the final dataset at the very end
+colsWfixedValuesDF <- wVisitIndex_AAAD_GERIAT[,colsWfixedValues]
+
+index = 1
+for (df_name in df_names) {
+  cat("======================================================================","\n")
+  df_obj <- get(df_name)
+  cat(index,": Currently processing dataset: ",df_name,"\n")
+  cat("Dataset dimension: ","\n")
+  info(df_obj,"SYSIND")
+  
+  colsWfixedValuesDF <- rbind(colsWfixedValuesDF,df_obj[,colsWfixedValues])
+  
+  ## drop columns of colsWfixedValues
+  df_obj <- df_obj[, setdiff(names(df_obj), colsWfixedValues), drop = FALSE]
+  
+  cat("After removing indetifer columns, dataset dimension: ","\n")
+  info(df_obj,"SYSIND")
+  
+  assign(df_name, df_obj)
+  index = index + 1
+}
+
+colsWfixedValuesDF <- colsWfixedValuesDF[!duplicated(colsWfixedValuesDF),]
+info(colsWfixedValuesDF,"SYSINDGP") #obs:1994, cols:15, inds:1994 
+
+```
+
+
+
+```{r}
+## Now we can merge all datasets!!
+mergedDF <- get(df_names[1])
+
+for (i in 2:length(df_names)) { 
+  mergedDF <- merge_with_info("mergedDF", df_names[i], merge_cols = c("SYSIND","Visit_Index"), info_col = "SYSIND") 
+}
+
+
+```
+
+```{r}
+
+```
 

@@ -195,3 +195,43 @@ dupFixCheck <- function(df,id_col,visit_col){
   return(length(unique(interaction(df[[id_col]],  df[[visit_col]], drop = TRUE))))
 }
 
+
+
+################################################################################
+## merge function
+################################################################################
+merge_with_info <- function(df1name, df2name, merge_cols, info_col) {
+  df1 <- get(df1name)
+  df2 <- get(df2name)
+  
+  cat("=======================================================================","\n")
+  cat("Currently merging with dataset: ",df2name,"\n")
+  cat("Before merging: Info of ",df2name,":","\n")
+  info(df2,info_col)
+  cat("\n")
+  
+  ## get individuals information from the two datasets
+  cat("Number of individuals that only present in ",df1name," : ",length(setdiff(unique(df1[[info_col]]),unique(df2[[info_col]]))),"\n")
+  cat("Number of individuals that only present in ",df2name," : ",length(setdiff(unique(df2[[info_col]]),unique(df1[[info_col]]))),"\n")
+  cat("Number of individuals present in both datasets : ",length(intersect(unique(df2[[info_col]]),unique(df1[[info_col]]))),"\n")
+  
+  cat("\n")
+  
+  ## find the common columns from df1 and df2, and rename those common columns except merged_cols
+  commonCols <- intersect(names(df1),names(df2))
+  commonCols_2 <- setdiff(commonCols,merge_cols)
+  
+  cat("Common columns between the two datatsets are: ",commonCols_2,"\n")
+  
+  ## rename those columns
+  idx <- match(commonCols_2, colnames(df2))   # positions of those columns in df2
+  colnames(df2)[idx] <- paste0(commonCols_2, "_", df2name)
+  
+  ## merge df1 and df2 by merged_cols
+  merged <- merge(df1, df2, all = TRUE)  # use merge_cols for the merge
+  
+  cat("\nInfo for merged dataset:\n")
+  info(merged, info_col)
+  
+  return(merged)
+}
