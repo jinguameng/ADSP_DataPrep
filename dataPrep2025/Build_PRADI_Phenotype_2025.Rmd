@@ -5979,10 +5979,23 @@ render_dataset_tab <- function(dfn, common_cols, id_col = "SYSIND") {
 
 ## Individual Missingness Per Variable Across Datasets {.tabset}
 
-```{r, results='asis'}
+```{r tabs, results='asis', echo=FALSE, message=FALSE, warning=FALSE}
+library(htmltools)  # needed for tagList()
+
 for (dfn in df_names) {
-  print(render_dataset_tab(dfn, common_cols, id_col = "SYSIND"))
+  # Tab header (must be raw markdown => asis)
+  cat(sprintf("### %s\n\n", dfn))
+  
+  # Build the widget
+  widget <- render_dataset_tab(dfn, common_cols, id_col = "SYSIND")
+  
+  # Force proper rendering of htmlwidget inside asis chunk
+  print(htmltools::tagList(widget))
+  
+  # spacing
+  cat("\n\n")
 }
+
 ```
 
 
