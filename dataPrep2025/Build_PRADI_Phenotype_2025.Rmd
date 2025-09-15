@@ -6334,16 +6334,30 @@ assign(newdfname, df_obj)
 
 
 ## Duplicates Detection by SYSIND and Visit_Index
-```{r}
+```{r,results='asis'}
 df_names <- ls(pattern = "^wVisitIndex_")
 length(df_names)
 
+df_names_wDuplicates <- c()
+
 for (df_name in df_names) {
   df <- get(df_name)
-  print(df %>% group_by(SYSIND,Visit_Index) %>% filter(n() > 1))
+  df <- df %>%
+    dplyr::group_by(SYSIND, Visit_Index) %>%
+    dplyr::filter(n() > 1)
+  
+  if (nrow(df) > 0) {
+    df_names_wDuplicates <- c(df_names_wDuplicates, df_name)
+    print( htmltools::tagList(DT::datatable(df,caption=df_name)))
+  }
 }
 
+cat("Datasets with duplicates after grouping by SYSIND and Visit_Index: ",
+    "\n")
+print(df_names_wDuplicates)
+
 ```
+
 
 
 <!-- ## Merge All Datasets -->
