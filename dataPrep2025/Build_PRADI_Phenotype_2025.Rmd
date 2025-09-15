@@ -57,6 +57,7 @@ require(openxlsx)
 require(stringr)
 require(tidyr)
 require(lubridate)
+require(ggplot2)
 `%!in%` <- Negate(`%in%`)
 ```
 
@@ -5871,132 +5872,132 @@ DT::datatable(summary_df)
 
 <br>
 
-```{r pp-count-3}
-# Vectorized "filled" check per column
-is_filled_col <- function(x) {
-  if (is.factor(x)) x <- as.character(x)
-  if (is.character(x)) {
-    z <- trimws(x)
-    !is.na(z) & nzchar(z)
-  } else if (is.list(x)) {
-    !vapply(x, function(el) is.null(el) || (length(el) == 0) || all(is.na(el)), logical(1))
-  } else {
-    !is.na(x)
-  }
-}
+<!-- ```{r pp-count-3} -->
+<!-- # Vectorized "filled" check per column -->
+<!-- is_filled_col <- function(x) { -->
+<!--   if (is.factor(x)) x <- as.character(x) -->
+<!--   if (is.character(x)) { -->
+<!--     z <- trimws(x) -->
+<!--     !is.na(z) & nzchar(z) -->
+<!--   } else if (is.list(x)) { -->
+<!--     !vapply(x, function(el) is.null(el) || (length(el) == 0) || all(is.na(el)), logical(1)) -->
+<!--   } else { -->
+<!--     !is.na(x) -->
+<!--   } -->
+<!-- } -->
 
-# Build presence table: drop common_cols (except keep SYSIND), keep SYSIND as-is
-make_var_presence_table_filtered <- function(df, common_cols, id_col = "SYSIND") {
-  stopifnot(is.data.frame(df))
+<!-- # Build presence table: drop common_cols (except keep SYSIND), keep SYSIND as-is -->
+<!-- make_var_presence_table_filtered <- function(df, common_cols, id_col = "SYSIND") { -->
+<!--   stopifnot(is.data.frame(df)) -->
 
-  # Columns to keep: SYSIND + (all others not in common_cols)
-  keep_cols <- c(id_col, setdiff(names(df), common_cols))
-  keep_cols <- intersect(keep_cols, names(df))   # ensure existence
-  df <- df[, keep_cols, drop = FALSE]
+<!--   # Columns to keep: SYSIND + (all others not in common_cols) -->
+<!--   keep_cols <- c(id_col, setdiff(names(df), common_cols)) -->
+<!--   keep_cols <- intersect(keep_cols, names(df))   # ensure existence -->
+<!--   df <- df[, keep_cols, drop = FALSE] -->
 
-  # If SYSIND is missing after filtering, return empty structure (handled by caller)
-  if (!id_col %in% names(df)) return(NULL)
+<!--   # If SYSIND is missing after filtering, return empty structure (handled by caller) -->
+<!--   if (!id_col %in% names(df)) return(NULL) -->
 
-  id_vals   <- df[[id_col]]
-  other_cols <- setdiff(names(df), id_col)
+<!--   id_vals   <- df[[id_col]] -->
+<!--   other_cols <- setdiff(names(df), id_col) -->
 
-  if (length(other_cols) == 0) {
-    # Only SYSIND remains
-    out <- setNames(data.frame(id_vals, check.names = FALSE), id_col)
-    return(out)
-  }
+<!--   if (length(other_cols) == 0) { -->
+<!--     # Only SYSIND remains -->
+<!--     out <- setNames(data.frame(id_vals, check.names = FALSE), id_col) -->
+<!--     return(out) -->
+<!--   } -->
 
-  # Logical filled matrix for other columns
-  pres_list <- lapply(other_cols, function(v) is_filled_col(df[[v]]))
-  pres_df   <- as.data.frame(pres_list, check.names = FALSE)
-  names(pres_df) <- other_cols
+<!--   # Logical filled matrix for other columns -->
+<!--   pres_list <- lapply(other_cols, function(v) is_filled_col(df[[v]])) -->
+<!--   pres_df   <- as.data.frame(pres_list, check.names = FALSE) -->
+<!--   names(pres_df) <- other_cols -->
 
-  # Map to colored symbols
-  pretty <- as.data.frame(
-    lapply(pres_df, function(col)
-      ifelse(col,
-             '<span style="color:green; font-weight:bold;">✔</span>',
-             '<span style="color:red; font-weight:bold;">✘</span>')
-    ),
-    check.names = FALSE
-  )
+<!--   # Map to colored symbols -->
+<!--   pretty <- as.data.frame( -->
+<!--     lapply(pres_df, function(col) -->
+<!--       ifelse(col, -->
+<!--              '<span style="color:green; font-weight:bold;">✔</span>', -->
+<!--              '<span style="color:red; font-weight:bold;">✘</span>') -->
+<!--     ), -->
+<!--     check.names = FALSE -->
+<!--   ) -->
 
-  # Bind SYSIND first (no data.table syntax)
-  out <- cbind(setNames(data.frame(id_vals, check.names = FALSE), id_col), pretty)
-  out
-}
+<!--   # Bind SYSIND first (no data.table syntax) -->
+<!--   out <- cbind(setNames(data.frame(id_vals, check.names = FALSE), id_col), pretty) -->
+<!--   out -->
+<!-- } -->
 
-# Render one dataset tab (by name)
-render_dataset_tab <- function(dfn, common_cols, id_col = "SYSIND") {
-  # If object is missing, show a note
-  if (!exists(dfn, envir = .GlobalEnv)) {
-    note <- data.frame(Warning = sprintf("Object '%s' not found.", dfn))
-    return(DT::datatable(note, rownames = FALSE, options = list(dom = "t")))
-  }
+<!-- # Render one dataset tab (by name) -->
+<!-- render_dataset_tab <- function(dfn, common_cols, id_col = "SYSIND") { -->
+<!--   # If object is missing, show a note -->
+<!--   if (!exists(dfn, envir = .GlobalEnv)) { -->
+<!--     note <- data.frame(Warning = sprintf("Object '%s' not found.", dfn)) -->
+<!--     return(DT::datatable(note, rownames = FALSE, options = list(dom = "t"))) -->
+<!--   } -->
 
-  df <- get(dfn, envir = .GlobalEnv)
+<!--   df <- get(dfn, envir = .GlobalEnv) -->
 
-  if (!id_col %in% names(df)) {
-    note <- data.frame(Warning = sprintf("Column '%s' not found in '%s'.", id_col, dfn))
-    return(DT::datatable(note, rownames = FALSE, options = list(dom = "t")))
-  }
+<!--   if (!id_col %in% names(df)) { -->
+<!--     note <- data.frame(Warning = sprintf("Column '%s' not found in '%s'.", id_col, dfn)) -->
+<!--     return(DT::datatable(note, rownames = FALSE, options = list(dom = "t"))) -->
+<!--   } -->
 
-  presence_df <- make_var_presence_table_filtered(df, common_cols, id_col = id_col)
+<!--   presence_df <- make_var_presence_table_filtered(df, common_cols, id_col = id_col) -->
 
-  # Fallback if filtering removed everything (shouldn’t, but safe)
-  if (is.null(presence_df)) {
-    note <- data.frame(Warning = sprintf("After filtering, no columns remain in '%s'.", dfn))
-    return(DT::datatable(note, rownames = FALSE, options = list(dom = "t")))
-  }
+<!--   # Fallback if filtering removed everything (shouldn’t, but safe) -->
+<!--   if (is.null(presence_df)) { -->
+<!--     note <- data.frame(Warning = sprintf("After filtering, no columns remain in '%s'.", dfn)) -->
+<!--     return(DT::datatable(note, rownames = FALSE, options = list(dom = "t"))) -->
+<!--   } -->
 
-  DT::datatable(
-    presence_df,
-    escape = FALSE,
-    rownames = FALSE,
-    caption = htmltools::tags$caption(
-      style = "caption-side: top; text-align: left; font-weight: bold; font-size: 110%;",
-      paste0(
-        "Dataset: ", dfn,
-        "  (rows: ", nrow(df), ", cols shown: ", ncol(presence_df), ")"
-      )
-    ),
-    options = list(
-      pageLength = 50,
-      scrollX = TRUE,
-      deferRender = TRUE,
-      columnDefs = list(
-        # Center all columns except the first (SYSIND). DataTables uses 0-based indexes.
-        list(className = "dt-center",
-             targets = if (ncol(presence_df) > 1) 1:(ncol(presence_df) - 1) else integer(0))
-      )
-    )
-  )
-}
+<!--   DT::datatable( -->
+<!--     presence_df, -->
+<!--     escape = FALSE, -->
+<!--     rownames = FALSE, -->
+<!--     caption = htmltools::tags$caption( -->
+<!--       style = "caption-side: top; text-align: left; font-weight: bold; font-size: 110%;", -->
+<!--       paste0( -->
+<!--         "Dataset: ", dfn, -->
+<!--         "  (rows: ", nrow(df), ", cols shown: ", ncol(presence_df), ")" -->
+<!--       ) -->
+<!--     ), -->
+<!--     options = list( -->
+<!--       pageLength = 50, -->
+<!--       scrollX = TRUE, -->
+<!--       deferRender = TRUE, -->
+<!--       columnDefs = list( -->
+<!--         # Center all columns except the first (SYSIND). DataTables uses 0-based indexes. -->
+<!--         list(className = "dt-center", -->
+<!--              targets = if (ncol(presence_df) > 1) 1:(ncol(presence_df) - 1) else integer(0)) -->
+<!--       ) -->
+<!--     ) -->
+<!--   ) -->
+<!-- } -->
 
-```
+<!-- ``` -->
 
 
 
-## Individual Missingness Per Variable Across Datasets {.tabset}
+<!-- ## Individual Missingness Per Variable Across Datasets {.tabset} -->
 
-```{r tabs, results='asis', echo=FALSE, message=FALSE, warning=FALSE}
-library(htmltools)  # needed for tagList()
+<!-- ```{r tabs, results='asis', echo=FALSE, message=FALSE, warning=FALSE} -->
+<!-- library(htmltools)  # needed for tagList() -->
 
-for (dfn in df_names) {
-  # Tab header (must be raw markdown => asis)
-  cat(sprintf("### %s\n\n", dfn))
-  
-  # Build the widget
-  widget <- render_dataset_tab(dfn, common_cols, id_col = "SYSIND")
-  
-  # Force proper rendering of htmlwidget inside asis chunk
-  print(htmltools::tagList(widget))
-  
-  # spacing
-  cat("\n\n")
-}
+<!-- for (dfn in df_names) { -->
+<!--   # Tab header (must be raw markdown => asis) -->
+<!--   cat(sprintf("### %s\n\n", dfn)) -->
 
-```
+<!--   # Build the widget -->
+<!--   widget <- render_dataset_tab(dfn, common_cols, id_col = "SYSIND") -->
+
+<!--   # Force proper rendering of htmlwidget inside asis chunk -->
+<!--   print(htmltools::tagList(widget)) -->
+
+<!--   # spacing -->
+<!--   cat("\n\n") -->
+<!-- } -->
+
+<!-- ``` -->
 
 
 <br>
@@ -6131,9 +6132,10 @@ after rounding up, those obs have same AGE_AT_EXAM values.</mark>
 <br>
 <br>
 
-## Generate Visit Index Variable
+## Generate Visit Index Variable for Individuals
 
 ```{r}
+##########################################################################################
 ## for every individual, get all their date data
 ppdat <- data.frame(SYSIND = numeric(0), EXAM_DATE = as.Date(character(0)))
 
@@ -6179,12 +6181,31 @@ df_obj <- CONSENSUS_DX
 df_obj <- df_obj[,c("SYSIND","DATE_DX")]
 names(df_obj) <- c("SYSIND","EXAM_DATE")
 ppdat <- rbind(ppdat,df_obj)
+
 ppdat <- ppdat[!duplicated(ppdat),]
 
 info(ppdat,"SYSIND") #obs:5204, cols:2, inds:1994
 
 sorted_ppdat <- ppdat %>% arrange(SYSIND, EXAM_DATE)
 
+##########################################################################################
+## check the time range between visits and get the distribution plot
+
+# Step 1: Calculate intervals per individual
+sorted_ppdat_intervals <- sorted_ppdat %>%
+  group_by(SYSIND) %>%
+  mutate(interval_days = as.numeric(difftime(EXAM_DATE, lag(EXAM_DATE), units = "days"))) %>%
+  mutate(interval_month = interval_days/30.436875) %>%
+  ungroup()
+
+# Step 2: Look at the intervals (excluding first visit per subject which is NA)
+DT::datatable(sorted_ppdat_intervals)
+
+# Step 3: Plot histogram of all intervals
+hist(sorted_ppdat_intervals$interval_month)
+
+summary(sorted_ppdat_intervals$interval_month)
+##########################################################################################
 ## creating the Visit Index variable
 ## If a subject’s next exam is < 3 months after the last one, it stays in the same visit.
 ## If it’s ≥ 3 months, it becomes the next visit.
@@ -6193,7 +6214,7 @@ sorted_ppdat2 <- sorted_ppdat %>%
   group_by(SYSIND) %>%
   mutate(
     new_visit = is.na(lag(EXAM_DATE)) |
-      EXAM_DATE >= (lag(EXAM_DATE) %m+% months(6)),
+      EXAM_DATE >= (lag(EXAM_DATE) %m+% months(3)),
     Visit_Index = cumsum(new_visit) ## start a new visit when the gap from the previous exam is ≥ 3 months
   ) %>%
   select(-new_visit) %>%
@@ -6214,6 +6235,13 @@ visit_summary <- sorted_ppdat2 %>%
 DT::datatable(visit_summary)
 
 ```
+
+
+
+<br>
+<br>
+
+## Add Visit Index Back to Dataset
 
 ```{r}
 ## add Visit index back to each dataset
@@ -6242,6 +6270,7 @@ for (df_name in dfwEXAM_DATE) {
 }
 
 ```
+
 
 ```{r}
 ## Now add visit index to dataset with FORM_DATE
@@ -6301,61 +6330,71 @@ assign(newdfname, df_obj)
 
 ```
 
+<br>
 
-## Merge All Datasets
 
+## Duplicates Detection by SYSIND and Visit_Index
 ```{r}
-## since there are a lot of columns for individuals identifiers, instead of merging the dataset by all of these, I decided to taking them out and merge it back to the very end
-
-colsWfixedValues <- c("SYSGP","SYSGPSTUDY","SYSINDGP","CGI_ORDER","GPS_ORDER","STDCGI_ORDER","LSTUDY","DB_OWNER","STUDY","SUBSTUDY","CENTER","GP","IND","REFCTR","DATE_OF_BIRTH") ## 15 vars
-
 df_names <- ls(pattern = "^wVisitIndex_")
 length(df_names)
 
-## this dataset will stored all those identifer values which will be merged to the final dataset at the very end
-colsWfixedValuesDF <- wVisitIndex_AAAD_GERIAT[,colsWfixedValues]
-
-index = 1
 for (df_name in df_names) {
-  cat("======================================================================","\n")
-  df_obj <- get(df_name)
-  cat(index,": Currently processing dataset: ",df_name,"\n")
-  cat("Dataset dimension: ","\n")
-  info(df_obj,"SYSIND")
-  
-  colsWfixedValuesDF <- rbind(colsWfixedValuesDF,df_obj[,colsWfixedValues])
-  
-  ## drop columns of colsWfixedValues
-  df_obj <- df_obj[, setdiff(names(df_obj), colsWfixedValues), drop = FALSE]
-  
-  cat("After removing indetifer columns, dataset dimension: ","\n")
-  info(df_obj,"SYSIND")
-  
-  assign(df_name, df_obj)
-  index = index + 1
-}
-
-colsWfixedValuesDF <- colsWfixedValuesDF[!duplicated(colsWfixedValuesDF),]
-info(colsWfixedValuesDF,"SYSINDGP") #obs:1994, cols:15, inds:1994 
-
-```
-
-
-```{r,eval=FALSE}
-## Now we can merge all datasets!!
-mergedDF <- get(df_names[1])
-tc <- c("EXAM_DATE","SYSXM","EXAMINER","AGE_AT_EXAM")
-idx <- match(tc, colnames(mergedDF))
-colnames(mergedDF)[idx] <- paste0(tc, "_", df_names[1])
-
-for (i in 2:length(df_names)) { 
-  mergedDF <- merge_with_info("mergedDF", df_names[i], merge_cols = c("SYSIND","Visit_Index"), info_col = "SYSIND") 
+  df <- get(df_name)
+  print(df %>% group_by(SYSIND,Visit_Index) %>% filter(n() > 1))
 }
 
 ```
 
 
-```{r}
-## merge with 
-```
+<!-- ## Merge All Datasets -->
 
+<!-- ```{r} -->
+<!-- ## since there are a lot of columns for individuals identifiers, instead of merging the dataset by all of these, I decided to taking them out and merge it back to the very end -->
+
+<!-- colsWfixedValues <- c("SYSGP","SYSGPSTUDY","SYSINDGP","CGI_ORDER","GPS_ORDER","STDCGI_ORDER","LSTUDY","DB_OWNER","STUDY","SUBSTUDY","CENTER","GP","IND","REFCTR","DATE_OF_BIRTH") ## 15 vars -->
+
+
+<!-- ## this dataset will stored all those identifer values which will be merged to the final dataset at the very end -->
+<!-- colsWfixedValuesDF <- wVisitIndex_AAAD_GERIAT[,colsWfixedValues] -->
+
+<!-- index = 1 -->
+<!-- for (df_name in df_names) { -->
+<!--   cat("======================================================================","\n") -->
+<!--   df_obj <- get(df_name) -->
+<!--   cat(index,": Currently processing dataset: ",df_name,"\n") -->
+<!--   cat("Dataset dimension: ","\n") -->
+<!--   info(df_obj,"SYSIND") -->
+
+<!--   colsWfixedValuesDF <- rbind(colsWfixedValuesDF,df_obj[,colsWfixedValues]) -->
+
+<!--   ## drop columns of colsWfixedValues -->
+<!--   df_obj <- df_obj[, setdiff(names(df_obj), colsWfixedValues), drop = FALSE] -->
+
+<!--   cat("After removing indetifer columns, dataset dimension: ","\n") -->
+<!--   info(df_obj,"SYSIND") -->
+
+<!--   assign(df_name, df_obj) -->
+<!--   index = index + 1 -->
+<!-- } -->
+
+<!-- colsWfixedValuesDF <- colsWfixedValuesDF[!duplicated(colsWfixedValuesDF),] -->
+<!-- info(colsWfixedValuesDF,"SYSINDGP") #obs:1994, cols:15, inds:1994  -->
+
+<!-- ``` -->
+
+
+<!-- <br> -->
+
+
+<!-- ```{r,eval=FALSE} -->
+<!-- ## Now we can merge all datasets!! -->
+<!-- mergedDF <- get(df_names[1]) -->
+<!-- tc <- c("EXAM_DATE","SYSXM","EXAMINER","AGE_AT_EXAM") -->
+<!-- idx <- match(tc, colnames(mergedDF)) -->
+<!-- colnames(mergedDF)[idx] <- paste0(tc, "_", df_names[1]) -->
+
+<!-- for (i in 2:length(df_names)) {  -->
+<!--   mergedDF <- merge_with_info("mergedDF", df_names[i], merge_cols = c("SYSIND","Visit_Index"), info_col = "SYSIND")  -->
+<!-- } -->
+
+<!-- ``` -->
