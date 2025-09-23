@@ -143,10 +143,7 @@ img_MR_wVisNo <- merge(merged_subset, img_MR, by = "wrapnum", all.y = T) %>%
 
 info(img_MR_wVisNo,"wrapnum") #obs:2181, cols:44, inds:768 
 
-## if you check the img_MR_wVisNo, you will notice that some people have mutiple observations by wrapnum * VisNo
-## the reason is that, when we merging with wrapnum, we grouped by wrapnum, Days_Since_Baseline_Imaging_MR to make sure each individual at each 
-## imaging visit, they can be matched to a clinical visit. The next thing is we need to only to pick one imgaing obs after grouping by wrapnum * VisNo
-## and the picking criteria will be exactly as how we handle the duplicates: pick the obs with minimum missingness
+
 img_MR_wVisNo <- img_MR_wVisNo %>%
   mutate(missing_count = rowSums(is.na(.))) %>%  # Count missing values per row
   group_by(wrapnum, VisNo) %>%
@@ -190,7 +187,10 @@ img_PT_wVisNo <- img_PT_wVisNo %>%
 info(img_PT_wVisNo,"wrapnum") #obs:1204, cols:44, inds:604 
 
 ```
+<mark>If you check the img_MR_wVisNo, you will notice that some people have multiple observations by wrapnum * VisNo. The reason is that, when we merging with wrapnum, we grouped by wrapnum, Days_Since_Baseline_Imaging_MR to make sure each individual at each imaging visit only got one observation and be matched to one clinical visit. 
 
+The next thing is we need to only to pick only one imaging obs after grouping by wrapnum * VisNo
+and the picking criteria will be exactly as how we handle the duplicates: pick the obs with minimum missingness</mark>
 
 <br>
 
