@@ -3602,92 +3602,85 @@ print(df_names2_woVisNo)
 
 <br>
 
-<!-- ## Merge Sub-Datasets without VisNo -->
+## Merge Sub-Datasets without VisNo
 
-<!-- ```{r merge-4} -->
-<!-- ## Merge all cross-sectional dfs - those with WRAPNo/wrapnum only -->
+```{r merge-4}
+## Merge all cross-sectional dfs - those with WRAPNo/wrapnum only
 
-<!-- merged_data_cross <- get(df_names2_woVisNo[1]) -->
+merged_data_cross <- get(df_names2_woVisNo[1])
 
-<!-- cat("Info for", df_names2_woVisNo[1], ":\n")  -->
+cat("Info for", df_names2_woVisNo[1], ":\n")
 
-<!-- info(get(df_names2_woVisNo[1]), "WRAPNo") -->
+info(get(df_names2_woVisNo[1]), "WRAPNo")
 
-<!-- for (i in 2:length(df_names2_woVisNo)) {  -->
-<!--   merged_data_cross <- merge_with_info(merged_data_cross, df_names2_woVisNo[i], merge_cols = c("wrapnum", "WRAPNo"), info_col = "WRAPNo")  -->
-<!-- } -->
+for (i in 2:length(df_names2_woVisNo)) {
+  merged_data_cross <- merge_with_info(merged_data_cross, df_names2_woVisNo[i], merge_cols = c("wrapnum", "WRAPNo"), info_col = "WRAPNo")
+}
 
-<!-- info(merged_data_cross, "WRAPNo") #obs:1816, cols:173, inds:1816  -->
+info(merged_data_cross, "WRAPNo") #obs:1816, cols:173, inds:1816
 
-<!-- ``` -->
-
-
-<!-- <br> -->
-
-<!-- ## Merge Sub-Datasets with VisNo -->
-
-<!-- ```{r merge-5} -->
-<!-- ## Merge all longitudinal dfs - those with WRAPNo/wrapnum and VisNo -->
-<!-- merged_data_long <- get(df_names2_wVisNo[1])  -->
-
-<!-- print(intersect(names(merged_data_long),c("wrapnum","WRAPNo","VisNo"))) -->
-
-<!-- cat("Info for", df_names2_wVisNo[1], ":\n")  -->
-
-<!-- info(get(df_names2_wVisNo[1]), "WRAPNo") -->
-
-<!-- for (i in 2:length(df_names2_wVisNo)) {  -->
-<!--   print(intersect(names(get(df_names2_wVisNo[i])),c("wrapnum","WRAPNo","VisNo"))) -->
-<!-- } -->
+```
 
 
-<!-- for (i in 2:length(df_names2_wVisNo)) { -->
-<!--   merged_data_long <- merge_with_info( -->
-<!--     merged_data_long, -->
-<!--     df_names2_wVisNo[i], -->
-<!--     merge_cols = c("wrapnum", "WRAPNo", "VisNo"), -->
-<!--     info_col   = "WRAPNo" -->
-<!--   ) -->
-<!-- } -->
+<br>
 
-<!-- info(merged_data_long, "WRAPNo") #obs:8293, cols:2285, inds:1835  -->
+## Merge Sub-Datasets with VisNo
 
-<!-- check_dups_long <- merged_data_long %>% dplyr::group_by(wrapnum, WRAPNo, VisNo) %>% dplyr::filter(n() > 1) %>% dplyr::ungroup() -->
+```{r merge-5}
+## Merge all longitudinal dfs - those with WRAPNo/wrapnum and VisNo
+merged_data_long <- get(df_names2_wVisNo[1])
 
-<!-- nrow(check_dups_long) #obs: 0 - good -->
-<!-- ``` -->
+cat("Info for", df_names2_wVisNo[1], ":\n")
 
-<!-- <br> -->
+info(get(df_names2_wVisNo[1]), "WRAPNo")
 
-<!-- ## Merge All -->
+for (i in 2:length(df_names2_wVisNo)) {
+  merged_data_long <- merge_with_info(
+    merged_data_long,
+    df_names2_wVisNo[i],
+    merge_cols = c("wrapnum", "WRAPNo", "VisNo"),
+    info_col   = "WRAPNo"
+  )
+}
 
-<!-- ```{r merge-6} -->
-<!-- #Merge cross-sectional and longitudinal together -->
-<!-- merged_data_all <- merge(merged_data_cross, merged_data_long, by = c("wrapnum", "WRAPNo"), all = T) -->
+info(merged_data_long, "WRAPNo") #obs:8293, cols:2285, inds:1835
 
-<!-- info(merged_data_all, "WRAPNo") #obs:8295, cols:2456, inds:1837  -->
-<!-- ``` -->
+check_dups_long <- merged_data_long %>% dplyr::group_by(wrapnum, WRAPNo, VisNo) %>% dplyr::filter(n() > 1) %>% dplyr::ungroup()
 
-<!-- <br> -->
+nrow(check_dups_long) #obs: 0 - good
+```
 
-<!-- ## Final Merge Check -->
-<!-- ```{r merge-7} -->
-<!-- #look more into the increase to make sure it makes sense -->
-<!-- in_cross_not_long <- anti_join(merged_data_cross, merged_data_long, by = "WRAPNo") #confirmed nothing like them in long -->
-<!-- info(in_cross_not_long, "WRAPNo") -->
+<br>
 
-<!-- in_long_not_cross <- anti_join(merged_data_long, merged_data_cross, by = "WRAPNo") #confirmed nothing like them in cross -->
-<!-- info(in_long_not_cross, "WRAPNo") -->
+## Merge All
 
-<!-- #realistically the 2+22 will probably be dropped from analyses for not having important info (age/birth/sex/diagnosis), but ok to leave in for now -->
-<!-- ``` -->
+```{r merge-6}
+#Merge cross-sectional and longitudinal together
+merged_data_all <- merge(merged_data_cross, merged_data_long, by = c("wrapnum", "WRAPNo"), all = T)
 
-<!-- <br> -->
+info(merged_data_all, "WRAPNo") #obs:8295, cols:2456, inds:1837
+```
 
-<!-- ## Save Finalized Merged Dataset -->
+<br>
 
-<!-- ```{r merge-8} -->
-<!-- ## save rds -->
-<!-- saveRDS(merged_data_all,paste0(out_directory,"Build_WRAP_woImagingMetaData.rds")) -->
-<!-- ``` -->
+## Final Merge Check
+```{r merge-7}
+#look more into the increase to make sure it makes sense
+in_cross_not_long <- anti_join(merged_data_cross, merged_data_long, by = "WRAPNo") #confirmed nothing like them in long
+info(in_cross_not_long, "WRAPNo")
+
+in_long_not_cross <- anti_join(merged_data_long, merged_data_cross, by = "WRAPNo") #confirmed nothing like them in cross
+info(in_long_not_cross, "WRAPNo")
+
+#realistically the 2+22 will probably be dropped from analyses for not having important info (age/birth/sex/diagnosis), but ok to leave in for now
+```
+
+<br>
+
+## Save Finalized Merged Dataset
+
+```{r merge-8}
+## save rds
+saveRDS(merged_data_all,paste0(out_directory,"Build_WRAP_woImagingMetaData.rds"))
+```
 
