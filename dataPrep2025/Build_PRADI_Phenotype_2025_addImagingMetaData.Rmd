@@ -1,0 +1,211 @@
+---
+title: "WRAP Data Prep 2025 - Add Imaging Meta Data"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+    css: "style.css"
+---
+
+Author: Mengna Zhang
+
+*Last updated on:* `r Sys.Date()`
+
+# Set Path
+
+```{r}
+## directory: can extend to the main CNT folder
+directory <- "/Users/"
+
+## your own directory
+my_directory <- paste0(directory, "mengnazhang/Desktop/")
+
+## set WRAP path
+wrap_directory <- paste0(my_directory, "ADSP_DataPrep_local/WRAP/Phenotype/2025/Raw/")
+
+## output path
+out_directory <- paste0(my_directory, "ADSP_DataPrep_local/WRAP/Phenotype/2025/Cleaned/")
+
+## script path
+script_directory <- paste0(my_directory, "ADSP_DataPrep_local/WRAP/Phenotype/2025/Scripts/")
+
+## imaging meta data file path
+img_path <- "/Users/mengnazhang/Library/CloudStorage/OneDrive-VUMC/Research\ -\ Hohman\ -\ CNT/Team/Derek_Archer/Projects/U24/WRAP/Imaging_metadata_01Apr2025.csv"
+```
+
+<br>
+
+# Load Helper Scripts
+```{r}
+source(paste0(script_directory,"helperScripts_WRAP.R"))
+```
+
+<br>
+
+# Load Packages
+```{r,message=FALSE,warning=FALSE}
+require(dplyr)
+require(tidyr)
+require(stringr)
+```
+
+<br>
+
+# Load and Process Cleaned Merged Dataset
+
+```{r}
+merged <- readRDS(paste0(out_directory,"Build_WRAP_woImagingMetaData.rds"))
+
+info(merged,"wrapnum") #obs:8295, cols:2456, inds:1837 
+
+## subset columns and generate the age at each visit variable
+merged_subset <- merged %>% 
+  dplyr::select(wrapnum, VisNo, Age_At_Baseline_Int, Days_Since_Baseline) %>% 
+  dplyr::filter(!is.na(Days_Since_Baseline)) %>% 
+  dplyr::mutate(Age = Age_At_Baseline_Int + (Days_Since_Baseline/365.25))
+
+```
+
+<br>
+
+# Load and Process Imaging Mete Data
+```{r}
+img <- read.csv(img_path)
+
+info(img,"wrapnum") #obs:14999, cols:45, inds:818 
+
+###########################################################################
+## drop update_stamp column
+img <- img[, setdiff(names(img), "update_stamp")]
+
+###########################################################################
+## rename Days_Since_Baseline to Days_Since_Baseline_Imaging
+names(img)[names(img)=="Days_Since_Baseline"] <- "Days_Since_Baseline_Imaging"
+
+## rename age to Age_Imaging
+names(img)[names(img)=="age"] <- "Age_Imaging"
+
+###########################################################################
+## remove duplicates
+
+cat("Before duplicates handling - wrapnum*Days_Since_Baseline_Imaging is: ",dupFixCheck(img,"wrapnum","Days_Since_Baseline_Imaging"),"\n")  ## 3443
+
+## group by subject ID and Days_Since_Baseline_Imaging and Modality, we are going to retain only one obs per group. The selection criteria is as following: 
+## 1. pick the obs with least missing values
+## 2. if same, then randomly pick one
+## the purpose of this step is to make sure at each imaging visit by Modality, only one obs reserved
+img <- img %>%
+  mutate(missing_count = rowSums(is.na(.))) %>%  # Count missing values per row
+  group_by(wrapnum, Days_Since_Baseline_Imaging, Modality) %>%
+  arrange(missing_count) %>%
+  slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %>%
+  ungroup() %>%
+  select(-missing_count) %>% # Remove helper column
+  mutate(WRAPNo = gsub("wrap", "", wrapnum)) #make WRAPNo column to use for merging later on
+
+cat("After duplicates handling - WRAPNo*Days_Since_Baseline_Imaging is: ",dupFixCheck(img,"WRAPNo","Days_Since_Baseline_Imaging"),"\n") ## 3443
+
+info(img,"wrapnum") #obs:3729, cols:45, inds:818 
+
+###########################################################################
+
+table(img$imaging_visit,img$Modality)
+```
+
+
+```{r}
+## split dataset by modality
+
+###########################################################################
+img_MR <- subset(img,img$Modality == "MR")
+
+## drop imaging_visit and Modality columns
+img_MR <- img_MR[,setdiff(names(img_MR),c("imaging_visit","Modality"))]
+
+## add suffix to all columns except the wrapnum and WRAPNo
+names(img_MR) <- ifelse(names(img_MR) %in% c("wrapnum", "WRAPNo"),
+                        names(img_MR),
+                        paste0(names(img_MR), "_MR"))
+
+info(img_MR,"wrapnum") #obs:2181, cols:43, inds:768
+
+
+img_MR_wVisNo <- merge(merged_subset, img_MR, by = "wrapnum", all.y = T) %>%
+  dplyr::mutate(Days_change = abs(Days_Since_Baseline - Days_Since_Baseline_Imaging_MR)) %>% 
+  dplyr::group_by(wrapnum, Days_Since_Baseline_Imaging_MR) %>% 
+  dplyr::slice_min(Days_change, n= 1, with_ties = F) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::select(c(names(img_MR),"VisNo"))
+
+info(img_MR_wVisNo,"wrapnum") #obs:2181, cols:44, inds:768 
+
+## if you check the img_MR_wVisNo, you will notice that some people have mutiple observations by wrapnum * VisNo
+## the reason is that, when we merging with wrapnum, we grouped by wrapnum, Days_Since_Baseline_Imaging_MR to make sure each individual at each 
+## imaging visit, they can be matched to a clinical visit. The next thing is we need to only to pick one imgaing obs after grouping by wrapnum * VisNo
+## and the picking criteria will be exactly as how we handle the duplicates: pick the obs with minimum missingness
+img_MR_wVisNo <- img_MR_wVisNo %>%
+  mutate(missing_count = rowSums(is.na(.))) %>%  # Count missing values per row
+  group_by(wrapnum, VisNo) %>%
+  arrange(missing_count) %>%
+  slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %>%
+  ungroup() %>%
+  select(-missing_count)
+
+info(img_MR_wVisNo,"wrapnum") #obs:1922, cols:44, inds:768
+
+###########################################################################
+img_PT <- subset(img,img$Modality == "PT")
+
+## drop imaging_visit and Modality columns
+img_PT <- img_PT[,setdiff(names(img_PT),c("imaging_visit","Modality"))]
+
+## add suffix to all columns except the wrapnum and WRAPNo
+names(img_PT) <- ifelse(names(img_PT) %in% c("wrapnum", "WRAPNo"),
+                        names(img_PT),
+                        paste0(names(img_PT), "_PT"))
+
+info(img_PT,"wrapnum") #obs:1548, cols:43, inds:604
+
+img_PT_wVisNo <- merge(merged_subset, img_PT, by = "wrapnum", all.y = T) %>%
+  dplyr::mutate(Days_change = abs(Days_Since_Baseline - Days_Since_Baseline_Imaging_PT)) %>% 
+  dplyr::group_by(wrapnum, Days_Since_Baseline_Imaging_PT) %>% 
+  dplyr::slice_min(Days_change, n= 1, with_ties = F) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::select(c(names(img_PT),"VisNo"))
+
+info(img_PT_wVisNo,"wrapnum") #obs:1548, cols:44, inds:604
+
+img_PT_wVisNo <- img_PT_wVisNo %>%
+  mutate(missing_count = rowSums(is.na(.))) %>%  # Count missing values per row
+  group_by(wrapnum, VisNo) %>%
+  arrange(missing_count) %>%
+  slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %>%
+  ungroup() %>%
+  select(-missing_count)
+
+info(img_PT_wVisNo,"wrapnum") #obs:1204, cols:44, inds:604 
+
+```
+
+
+<br>
+
+# Final Merge
+
+```{r}
+## add MR images to final file
+info(merged,"wrapnum") #obs:8295, cols:2456, inds:1837 
+
+merged <- merge(merged,img_MR_wVisNo,all.x = T,by=c("wrapnum","VisNo"))
+
+info(merged,"wrapnum") #obs:8295, cols:2498, inds:1837 
+
+merged <- merge(merged,img_PT_wVisNo,all.x = T,by=c("wrapnum","VisNo"))
+
+info(merged,"wrapnum") #obs:8295, cols:2540, inds:1837
+```
+

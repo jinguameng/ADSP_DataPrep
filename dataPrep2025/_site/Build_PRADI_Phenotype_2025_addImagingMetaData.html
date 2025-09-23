@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>WRAP Data Prep 2025 - Add Imaging Meta Data</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">My Website</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="Build_WRAP_Phenotype_2025.html">WRAP</a>
+</li>
+<li>
+  <a href="Build_PRADI_Phenotype_2025_addImagingMetaData.html">WRAP-sup</a>
+</li>
+<li>
+  <a href="Build_PRADI_Phenotype_2025.html">PRADI</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">WRAP Data Prep 2025 - Add Imaging Meta
+Data</h1>
+
+</div>
+
+
+<p>Author: Mengna Zhang</p>
+<p><em>Last updated on:</em> 2025-09-23</p>
+<div id="set-path" class="section level1">
+<h1>Set Path</h1>
+<pre class="r"><code>## directory: can extend to the main CNT folder
+directory &lt;- &quot;/Users/&quot;
+
+## your own directory
+my_directory &lt;- paste0(directory, &quot;mengnazhang/Desktop/&quot;)
+
+## set WRAP path
+wrap_directory &lt;- paste0(my_directory, &quot;ADSP_DataPrep_local/WRAP/Phenotype/2025/Raw/&quot;)
+
+## output path
+out_directory &lt;- paste0(my_directory, &quot;ADSP_DataPrep_local/WRAP/Phenotype/2025/Cleaned/&quot;)
+
+## script path
+script_directory &lt;- paste0(my_directory, &quot;ADSP_DataPrep_local/WRAP/Phenotype/2025/Scripts/&quot;)
+
+## imaging meta data file path
+img_path &lt;- &quot;/Users/mengnazhang/Library/CloudStorage/OneDrive-VUMC/Research\ -\ Hohman\ -\ CNT/Team/Derek_Archer/Projects/U24/WRAP/Imaging_metadata_01Apr2025.csv&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="load-helper-scripts" class="section level1">
+<h1>Load Helper Scripts</h1>
+<pre class="r"><code>source(paste0(script_directory,&quot;helperScripts_WRAP.R&quot;))</code></pre>
+<p><br></p>
+</div>
+<div id="load-packages" class="section level1">
+<h1>Load Packages</h1>
+<pre class="r"><code>require(dplyr)
+require(tidyr)
+require(stringr)</code></pre>
+<p><br></p>
+</div>
+<div id="load-and-process-cleaned-merged-dataset"
+class="section level1">
+<h1>Load and Process Cleaned Merged Dataset</h1>
+<pre class="r"><code>merged &lt;- readRDS(paste0(out_directory,&quot;Build_WRAP_woImagingMetaData.rds&quot;))
+
+info(merged,&quot;wrapnum&quot;) #obs:8295, cols:2456, inds:1837 </code></pre>
+<pre><code>## #obs:8295, cols:2456, inds:1837</code></pre>
+<pre class="r"><code>## subset columns and generate the age at each visit variable
+merged_subset &lt;- merged %&gt;% 
+  dplyr::select(wrapnum, VisNo, Age_At_Baseline_Int, Days_Since_Baseline) %&gt;% 
+  dplyr::filter(!is.na(Days_Since_Baseline)) %&gt;% 
+  dplyr::mutate(Age = Age_At_Baseline_Int + (Days_Since_Baseline/365.25))</code></pre>
+<p><br></p>
+</div>
+<div id="load-and-process-imaging-mete-data" class="section level1">
+<h1>Load and Process Imaging Mete Data</h1>
+<pre class="r"><code>img &lt;- read.csv(img_path)
+
+info(img,&quot;wrapnum&quot;) #obs:14999, cols:45, inds:818 </code></pre>
+<pre><code>## #obs:14999, cols:45, inds:818</code></pre>
+<pre class="r"><code>###########################################################################
+## drop update_stamp column
+img &lt;- img[, setdiff(names(img), &quot;update_stamp&quot;)]
+
+###########################################################################
+## rename Days_Since_Baseline to Days_Since_Baseline_Imaging
+names(img)[names(img)==&quot;Days_Since_Baseline&quot;] &lt;- &quot;Days_Since_Baseline_Imaging&quot;
+
+## rename age to Age_Imaging
+names(img)[names(img)==&quot;age&quot;] &lt;- &quot;Age_Imaging&quot;
+
+###########################################################################
+## remove duplicates
+
+cat(&quot;Before duplicates handling - wrapnum*Days_Since_Baseline_Imaging is: &quot;,dupFixCheck(img,&quot;wrapnum&quot;,&quot;Days_Since_Baseline_Imaging&quot;),&quot;\n&quot;)  ## 3443</code></pre>
+<pre><code>## Before duplicates handling - wrapnum*Days_Since_Baseline_Imaging is:  3443</code></pre>
+<pre class="r"><code>## group by subject ID and Days_Since_Baseline_Imaging and Modality, we are going to retain only one obs per group. The selection criteria is as following: 
+## 1. pick the obs with least missing values
+## 2. if same, then randomly pick one
+## the purpose of this step is to make sure at each imaging visit by Modality, only one obs reserved
+img &lt;- img %&gt;%
+  mutate(missing_count = rowSums(is.na(.))) %&gt;%  # Count missing values per row
+  group_by(wrapnum, Days_Since_Baseline_Imaging, Modality) %&gt;%
+  arrange(missing_count) %&gt;%
+  slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %&gt;%
+  ungroup() %&gt;%
+  select(-missing_count) %&gt;% # Remove helper column
+  mutate(WRAPNo = gsub(&quot;wrap&quot;, &quot;&quot;, wrapnum)) #make WRAPNo column to use for merging later on
+
+cat(&quot;After duplicates handling - WRAPNo*Days_Since_Baseline_Imaging is: &quot;,dupFixCheck(img,&quot;WRAPNo&quot;,&quot;Days_Since_Baseline_Imaging&quot;),&quot;\n&quot;) ## 3443</code></pre>
+<pre><code>## After duplicates handling - WRAPNo*Days_Since_Baseline_Imaging is:  3443</code></pre>
+<pre class="r"><code>info(img,&quot;wrapnum&quot;) #obs:3729, cols:45, inds:818 </code></pre>
+<pre><code>## #obs:3729, cols:45, inds:818</code></pre>
+<pre class="r"><code>###########################################################################
+
+table(img$imaging_visit,img$Modality)</code></pre>
+<pre><code>##                   
+##                     MR  PT
+##   Imaging Visit 1  303 128
+##   Imaging Visit 10  25  71
+##   Imaging Visit 11  23  49
+##   Imaging Visit 12  19  37
+##   Imaging Visit 13   9  32
+##   Imaging Visit 14  10  20
+##   Imaging Visit 15   9  15
+##   Imaging Visit 16   2  10
+##   Imaging Visit 2  204 231
+##   Imaging Visit 3  160 197
+##   Imaging Visit 4  119 199
+##   Imaging Visit 5   88 159
+##   Imaging Visit 6   64 123
+##   Imaging Visit 7   54 104
+##   Imaging Visit 8   51  90
+##   Imaging Visit 9   29  83
+##   IV01             266   0
+##   IV02             193   0
+##   IV03             122   0
+##   IV04              94   0
+##   IV05              83   0
+##   IV06              66   0
+##   IV07              53   0
+##   IV08              26   0
+##   IV09              33   0
+##   IV10              23   0
+##   IV11              16   0
+##   IV12              10   0
+##   IV13              13   0
+##   IV14               7   0
+##   IV15               3   0
+##   IV16               2   0
+##   IV17               2   0</code></pre>
+<pre class="r"><code>## split dataset by modality
+
+###########################################################################
+img_MR &lt;- subset(img,img$Modality == &quot;MR&quot;)
+
+## drop imaging_visit and Modality columns
+img_MR &lt;- img_MR[,setdiff(names(img_MR),c(&quot;imaging_visit&quot;,&quot;Modality&quot;))]
+
+## add suffix to all columns except the wrapnum and WRAPNo
+names(img_MR) &lt;- ifelse(names(img_MR) %in% c(&quot;wrapnum&quot;, &quot;WRAPNo&quot;),
+                        names(img_MR),
+                        paste0(names(img_MR), &quot;_MR&quot;))
+
+info(img_MR,&quot;wrapnum&quot;) #obs:2181, cols:43, inds:768</code></pre>
+<pre><code>## #obs:2181, cols:43, inds:768</code></pre>
+<pre class="r"><code>img_MR_wVisNo &lt;- merge(merged_subset, img_MR, by = &quot;wrapnum&quot;, all.y = T) %&gt;%
+  dplyr::mutate(Days_change = abs(Days_Since_Baseline - Days_Since_Baseline_Imaging_MR)) %&gt;% 
+  dplyr::group_by(wrapnum, Days_Since_Baseline_Imaging_MR) %&gt;% 
+  dplyr::slice_min(Days_change, n= 1, with_ties = F) %&gt;% 
+  dplyr::ungroup() %&gt;% 
+  dplyr::select(c(names(img_MR),&quot;VisNo&quot;))
+
+info(img_MR_wVisNo,&quot;wrapnum&quot;) #obs:2181, cols:44, inds:768 </code></pre>
+<pre><code>## #obs:2181, cols:44, inds:768</code></pre>
+<pre class="r"><code>## if you check the img_MR_wVisNo, you will notice that some people have mutiple observations by wrapnum * VisNo
+## the reason is that, when we merging with wrapnum, we grouped by wrapnum, Days_Since_Baseline_Imaging_MR to make sure each individual at each 
+## imaging visit, they can be matched to a clinical visit. The next thing is we need to only to pick one imgaing obs after grouping by wrapnum * VisNo
+## and the picking criteria will be exactly as how we handle the duplicates: pick the obs with minimum missingness
+img_MR_wVisNo &lt;- img_MR_wVisNo %&gt;%
+  mutate(missing_count = rowSums(is.na(.))) %&gt;%  # Count missing values per row
+  group_by(wrapnum, VisNo) %&gt;%
+  arrange(missing_count) %&gt;%
+  slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %&gt;%
+  ungroup() %&gt;%
+  select(-missing_count)
+
+info(img_MR_wVisNo,&quot;wrapnum&quot;) #obs:1922, cols:44, inds:768</code></pre>
+<pre><code>## #obs:1922, cols:44, inds:768</code></pre>
+<pre class="r"><code>###########################################################################
+img_PT &lt;- subset(img,img$Modality == &quot;PT&quot;)
+
+## drop imaging_visit and Modality columns
+img_PT &lt;- img_PT[,setdiff(names(img_PT),c(&quot;imaging_visit&quot;,&quot;Modality&quot;))]
+
+## add suffix to all columns except the wrapnum and WRAPNo
+names(img_PT) &lt;- ifelse(names(img_PT) %in% c(&quot;wrapnum&quot;, &quot;WRAPNo&quot;),
+                        names(img_PT),
+                        paste0(names(img_PT), &quot;_PT&quot;))
+
+info(img_PT,&quot;wrapnum&quot;) #obs:1548, cols:43, inds:604</code></pre>
+<pre><code>## #obs:1548, cols:43, inds:604</code></pre>
+<pre class="r"><code>img_PT_wVisNo &lt;- merge(merged_subset, img_PT, by = &quot;wrapnum&quot;, all.y = T) %&gt;%
+  dplyr::mutate(Days_change = abs(Days_Since_Baseline - Days_Since_Baseline_Imaging_PT)) %&gt;% 
+  dplyr::group_by(wrapnum, Days_Since_Baseline_Imaging_PT) %&gt;% 
+  dplyr::slice_min(Days_change, n= 1, with_ties = F) %&gt;% 
+  dplyr::ungroup() %&gt;% 
+  dplyr::select(c(names(img_PT),&quot;VisNo&quot;))
+
+info(img_PT_wVisNo,&quot;wrapnum&quot;) #obs:1548, cols:44, inds:604</code></pre>
+<pre><code>## #obs:1548, cols:44, inds:604</code></pre>
+<pre class="r"><code>img_PT_wVisNo &lt;- img_PT_wVisNo %&gt;%
+  mutate(missing_count = rowSums(is.na(.))) %&gt;%  # Count missing values per row
+  group_by(wrapnum, VisNo) %&gt;%
+  arrange(missing_count) %&gt;%
+  slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %&gt;%
+  ungroup() %&gt;%
+  select(-missing_count)
+
+info(img_PT_wVisNo,&quot;wrapnum&quot;) #obs:1204, cols:44, inds:604 </code></pre>
+<pre><code>## #obs:1204, cols:44, inds:604</code></pre>
+<p><br></p>
+</div>
+<div id="final-merge" class="section level1">
+<h1>Final Merge</h1>
+<pre class="r"><code>## add MR images to final file
+info(merged,&quot;wrapnum&quot;) #obs:8295, cols:2456, inds:1837 </code></pre>
+<pre><code>## #obs:8295, cols:2456, inds:1837</code></pre>
+<pre class="r"><code>merged &lt;- merge(merged,img_MR_wVisNo,all.x = T,by=c(&quot;wrapnum&quot;,&quot;VisNo&quot;))
+
+info(merged,&quot;wrapnum&quot;) #obs:8295, cols:2498, inds:1837 </code></pre>
+<pre><code>## #obs:8295, cols:2498, inds:1837</code></pre>
+<pre class="r"><code>merged &lt;- merge(merged,img_PT_wVisNo,all.x = T,by=c(&quot;wrapnum&quot;,&quot;VisNo&quot;))
+
+info(merged,&quot;wrapnum&quot;) #obs:8295, cols:2540, inds:1837</code></pre>
+<pre><code>## #obs:8295, cols:2540, inds:1837</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -2789,55 +2789,54 @@ str(WRAP_to_DBID)
 <br>
 <br>
 
-## Imaging_metadata
+<!-- ## Imaging_metadata -->
 
-WRAP Imaging Metadata
+<!-- WRAP Imaging Metadata -->
 
-```{r}
-## load data
-Imaging_metadata <- read.csv(paste0(wrap_directory, "Imaging_metadata_05Jun2025.csv"))
-info(Imaging_metadata,"wrapnum")
-```
+<!-- ```{r} -->
+<!-- ## load data -->
+<!-- Imaging_metadata <- read.csv(paste0(wrap_directory, "Imaging_metadata_05Jun2025.csv")) -->
+<!-- info(Imaging_metadata,"wrapnum") -->
+<!-- ``` -->
 
+<!-- ```{r,eval=FALSE} -->
+<!-- str(Imaging_metadata) -->
+<!-- ``` -->
+<!-- <details> -->
+<!-- <summary>Click for details</summary> -->
+<!-- ```{r, echo=FALSE, eval=TRUE} -->
+<!-- str(Imaging_metadata) -->
+<!-- ``` -->
 
-```{r,eval=FALSE}
-str(Imaging_metadata)
-```
-<details>
-<summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
-str(Imaging_metadata)
-```
+<!-- ```{r} -->
+<!-- ## check table frequency for all variables -->
 
-```{r}
-## check table frequency for all variables
+<!-- ## convert "" to NA for chr columns -->
+<!-- chrcols <- colnames(Imaging_metadata)[sapply(Imaging_metadata, is.character)] -->
+<!-- Imaging_metadata[chrcols] <- lapply(Imaging_metadata[chrcols], function(x) ifelse(x == "", NA, x)) -->
 
-## convert "" to NA for chr columns
-chrcols <- colnames(Imaging_metadata)[sapply(Imaging_metadata, is.character)]
-Imaging_metadata[chrcols] <- lapply(Imaging_metadata[chrcols], function(x) ifelse(x == "", NA, x))
-
-## drop update_stamp column
-Imaging_metadata <- subset(Imaging_metadata,select = -c(update_stamp))
-```
-
+<!-- ## drop update_stamp column -->
+<!-- Imaging_metadata <- subset(Imaging_metadata,select = -c(update_stamp)) -->
+<!-- ``` -->
 
 
-```{r,eval=FALSE}
-str(Imaging_metadata)
-```
-<details>
-<summary>Click for details</summary>
-```{r, echo=FALSE, eval=TRUE}
-str(Imaging_metadata)
-```
+
+<!-- ```{r,eval=FALSE} -->
+<!-- str(Imaging_metadata) -->
+<!-- ``` -->
+<!-- <details> -->
+<!-- <summary>Click for details</summary> -->
+<!-- ```{r, echo=FALSE, eval=TRUE} -->
+<!-- str(Imaging_metadata) -->
+<!-- ``` -->
 
 
-<br>
-<br>
+<!-- <br> -->
+<!-- <br> -->
 
 # Get Sub-Dataset Names
 ```{r}
-df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))] ## 58 datasets
+df_names <- ls()[sapply(ls(), function(x) is.data.frame(get(x)))] ## 57 datasets
 ```
 
 <br>
@@ -2881,7 +2880,7 @@ DT::datatable(results_df)
 
 ## Duplicates Detection
 
-```{r}
+```{r DH-1}
 # Get names of all data frames in the environment
 longDfwithDuplicates <- c()
 otherwithDuplicates <- c()
@@ -2932,45 +2931,45 @@ for (df_name in df_names) {
 
 ## Duplicates Handling Per Dataset
 
-```{r}
+```{r DH-2}
 print(otherwithDuplicates)
 ```
 
 
-###  Imaging_metadata
+<!-- ###  Imaging_metadata -->
 
-```{r}
-## the imaging_visit is coded inconsistenly across the observations, so I generated a new numeric column for visit index
-Imaging_metadata <- Imaging_metadata %>%
-  mutate(
-    VisNo = str_extract(imaging_visit, "\\d+") %>% as.numeric()
-  )
+<!-- ```{r} -->
+<!-- ## the imaging_visit is coded inconsistenly across the observations, so I generated a new numeric column for visit index -->
+<!-- Imaging_metadata <- Imaging_metadata %>% -->
+<!--   mutate( -->
+<!--     VisNo = str_extract(imaging_visit, "\\d+") %>% as.numeric() -->
+<!--   ) -->
 
-cat("Before duplicates handling - wrapnum*VisNo is: ",dupFixCheck(Imaging_metadata,"wrapnum","VisNo"),"\n")
+<!-- cat("Before duplicates handling - wrapnum*Days_Since_Baseline is: ",dupFixCheck(Imaging_metadata,"wrapnum","Days_Since_Baseline"),"\n") -->
 
-## group by subject ID and visit index, we are going to retain only one obs per group. The selection criteria is as following: 
-## 1. pick the obs with least missing values
-## 2. if same, then randomly pick one
+<!-- ## group by subject ID and visit index, we are going to retain only one obs per group. The selection criteria is as following:  -->
+<!-- ## 1. pick the obs with least missing values -->
+<!-- ## 2. if same, then randomly pick one -->
 
-Imaging_metadata <- Imaging_metadata %>%
-  mutate(missing_count = rowSums(is.na(.))) %>%  # Count missing values per row
-  group_by(wrapnum, VisNo) %>%
-  arrange(missing_count) %>%
-  slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %>%
-  ungroup() %>%
-  select(-missing_count) %>% # Remove helper column
-  mutate(WRAPNo = gsub("wrap", "", wrapnum)) #make WRAPNo column to use for merging later on
+<!-- Imaging_metadata <- Imaging_metadata %>% -->
+<!--   mutate(missing_count = rowSums(is.na(.))) %>%  # Count missing values per row -->
+<!--   group_by(wrapnum, Days_Since_Baseline) %>% -->
+<!--   arrange(missing_count) %>% -->
+<!--   slice_sample(n = 1, weight_by = (missing_count == min(missing_count))) %>% -->
+<!--   ungroup() %>% -->
+<!--   select(-missing_count) %>% # Remove helper column -->
+<!--   mutate(WRAPNo = gsub("wrap", "", wrapnum)) #make WRAPNo column to use for merging later on -->
 
-cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Imaging_metadata,"WRAPNo","VisNo"),"\n")
+<!-- cat("After duplicates handling - WRAPNo*Days_Since_Baseline is: ",dupFixCheck(Imaging_metadata,"WRAPNo","Days_Since_Baseline"),"\n") -->
 
-```
+<!-- ``` -->
 
 
 <br>
 
 ### WorkHistory
 
-```{r}
+```{r DH-3}
 ## check unique values for each columns, for columns with just one unique value,
 ## we leave it out from the pivot_wider function
 result <- lapply(names(WorkHistory), function(x) {
@@ -2978,7 +2977,7 @@ result <- lapply(names(WorkHistory), function(x) {
 })
 ```
 
-```{r}
+```{r DH-4}
 cat("Before duplicates handling: ",dim(WorkHistory),"\n")
 
 tmp <- WorkHistory %>%
@@ -3000,7 +2999,7 @@ cat("After duplicates handling: ",dim(WorkHistory),"\n")
 
 ### HeadInjurySub
 
-```{r}
+```{r DH-5}
 ## check unique values for each columns, for columns with just one unique value,
 ## we leave it out from the pivot_wider function
 result <- lapply(names(HeadInjurySub), function(x) {
@@ -3009,7 +3008,7 @@ result <- lapply(names(HeadInjurySub), function(x) {
 ```
 
 
-```{r}
+```{r DH-6}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(HeadInjurySub,"WRAPNo","VisNo"),"\n")
 
 tmp <- HeadInjurySub %>%
@@ -3031,14 +3030,14 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(HeadInjurySub,"W
 
 ### Med_Lab_NPDC
 
-```{r}
+```{r DH-7}
 result <- lapply(names(Med_Lab_NPDC), function(x) {
   cat(x, " ", length(unique(Med_Lab_NPDC[[x]])), "\n")
 })
 ```
 
 
-```{r}
+```{r DH-8}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Med_Lab_NPDC,"WRAPNo","VisNo"),"\n")
 
 tmp <- Med_Lab_NPDC %>%
@@ -3059,13 +3058,13 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Med_Lab_NPDC,"WR
 
 ### Med_Lab_PDC
 
-```{r}
+```{r DH-9}
 result <- lapply(names(Med_Lab_PDC), function(x) {
   cat(x, " ", length(unique(Med_Lab_PDC[[x]])), "\n")
 })
 ```
 
-```{r}
+```{r DH-10}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Med_Lab_PDC,"WRAPNo","VisNo"),"\n")
 
 tmp <- Med_Lab_PDC %>%
@@ -3086,13 +3085,13 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Med_Lab_PDC,"WRA
 
 ### MedHistory_Admit
 
-```{r}
+```{r DH-11}
 result <- lapply(names(MedHistory_Admit), function(x) {
   cat(x, " ", length(unique(MedHistory_Admit[[x]])), "\n")
 })
 ```
 
-```{r}
+```{r DH-12}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_Admit,"WRAPNo","VisNo"),"\n")
 
 tmp <- MedHistory_Admit %>%
@@ -3112,13 +3111,13 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_Admit
 
 ### MedHistory_SurgBF
 
-```{r}
+```{r DH-13}
 result <- lapply(names(MedHistory_SurgBF), function(x) {
   cat(x, " ", length(unique(MedHistory_SurgBF[[x]])), "\n")
 })
 ```
 
-```{r}
+```{r DH-14}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_SurgBF,"WRAPNo","VisNo"),"\n")
 
 tmp <- MedHistory_SurgBF %>%
@@ -3139,13 +3138,13 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_SurgB
 
 ### MedHistory_SurgS
 
-```{r}
+```{r DH-15}
 result <- lapply(names(MedHistory_SurgS), function(x) {
   cat(x, " ", length(unique(MedHistory_SurgS[[x]])), "\n")
 })
 ```
 
-```{r}
+```{r DH-16}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_SurgS,"WRAPNo","VisNo"),"\n")
 
 tmp <- MedHistory_SurgS %>%
@@ -3166,13 +3165,13 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(MedHistory_SurgS
 
 ### PFMB_SibWAD_or_OtherMemIssue
 
-```{r}
+```{r DH-17}
 result <- lapply(names(PFMB_SibWAD_or_OtherMemIssue), function(x) {
   cat(x, " ", length(unique(PFMB_SibWAD_or_OtherMemIssue[[x]])), "\n")
 })
 ```
 
-```{r}
+```{r DH-18}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(PFMB_SibWAD_or_OtherMemIssue,"WRAPNo","VisNo"),"\n")
 
 tmp <- PFMB_SibWAD_or_OtherMemIssue %>%
@@ -3193,13 +3192,13 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(PFMB_SibWAD_or_O
 
 ### Sleep_MentalAct_OthDevice
 
-```{r}
+```{r DH-19}
 result <- lapply(names(Sleep_MentalAct_OthDevice), function(x) {
   cat(x, " ", length(unique(Sleep_MentalAct_OthDevice[[x]])), "\n")
 })
 ```
 
-```{r}
+```{r DH-20}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Sleep_MentalAct_OthDevice,"WRAPNo","VisNo"),"\n")
 
 tmp <- Sleep_MentalAct_OthDevice %>%
@@ -3219,13 +3218,13 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(Sleep_MentalAct_
 
 ### WomenQuestions_BCP
 
-```{r}
+```{r DH-21}
 result <- lapply(names(WomenQuestions_BCP), function(x) {
   cat(x, " ", length(unique(WomenQuestions_BCP[[x]])), "\n")
 })
 ```
 
-```{r}
+```{r DH-22}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_BCP,"WRAPNo","VisNo"),"\n")
 
 tmp <- WomenQuestions_BCP %>%
@@ -3246,13 +3245,13 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_B
 
 ### WomenQuestions_Current_HormoneTherapy
 
-```{r}
+```{r DH-23}
 result <- lapply(names(WomenQuestions_Current_HormoneTherapy), function(x) {
   cat(x, " ", length(unique(WomenQuestions_Current_HormoneTherapy[[x]])), "\n")
 })
 ```
 
-```{r}
+```{r DH-24}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_Current_HormoneTherapy,"WRAPNo","VisNo"),"\n")
 
 tmp <- WomenQuestions_Current_HormoneTherapy %>%
@@ -3272,14 +3271,14 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_C
 
 ### WomenQuestions_NonPresc_HormoneTherapy
 
-```{r}
+```{r DH-25}
 result <- lapply(names(WomenQuestions_NonPresc_HormoneTherapy), function(x) {
   cat(x, " ", length(unique(WomenQuestions_NonPresc_HormoneTherapy[[x]])), "\n")
 })
 ```
 
 
-```{r}
+```{r DH-26}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_NonPresc_HormoneTherapy,"WRAPNo","VisNo"),"\n")
 
 tmp <- WomenQuestions_NonPresc_HormoneTherapy %>%
@@ -3299,13 +3298,13 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_N
 
 ### WomenQuestions_Past_HormoneTherapy
 
-```{r}
+```{r DH-27}
 result <- lapply(names(WomenQuestions_Past_HormoneTherapy), function(x) {
   cat(x, " ", length(unique(WomenQuestions_Past_HormoneTherapy[[x]])), "\n")
 })
 ```
 
-```{r}
+```{r DH-28}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_Past_HormoneTherapy,"WRAPNo","VisNo"),"\n")
 
 tmp <- WomenQuestions_Past_HormoneTherapy %>%
@@ -3326,13 +3325,13 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_P
 
 ### WomenQuestions_SERM
 
-```{r}
+```{r DH-29}
 result <- lapply(names(WomenQuestions_SERM), function(x) {
   cat(x, " ", length(unique(WomenQuestions_SERM[[x]])), "\n")
 })
 ```
 
-```{r}
+```{r DH-30}
 cat("Before duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_SERM,"WRAPNo","VisNo"),"\n")
 
 tmp <- WomenQuestions_SERM %>%
@@ -3353,7 +3352,7 @@ cat("After duplicates handling - WRAPNo*VisNo is: ",dupFixCheck(WomenQuestions_S
 
 
 # Common Columns Detection
-```{r}
+```{r ccd-1}
 commonColsDetect(df_names)
 ```
 
@@ -3361,7 +3360,7 @@ commonColsDetect(df_names)
 
 ## Remove Explanation Column from all Datasets
 
-```{r}
+```{r ccd-2}
 ## This column is recording the WRAP webseite link. We remove it to avoid duplicated cases in the merge step
 for (df_name in df_names) {
   if ("Explanation" %in% names(get(df_name))) {
@@ -3372,19 +3371,19 @@ for (df_name in df_names) {
 
 
 ## Med_Lab_PDC | Med_Lab_NPDC
-```{r}
+```{r ccd-3}
 ## the common columns between these two data framed are caused by the piovot_wider, mg is the Dose measurement
 intersect(names(Med_Lab_PDC),names(Med_Lab_NPDC))
 ```
 
-```{r}
+```{r ccd-4}
 ## I decided to add prefix in each file
 colnames(Med_Lab_PDC)[grepl("^mg_", colnames(Med_Lab_PDC))] <- paste0("pdc_", colnames(Med_Lab_PDC)[grepl("^mg_", colnames(Med_Lab_PDC))])
 
 colnames(Med_Lab_NPDC)[grepl("^mg_", colnames(Med_Lab_NPDC))] <- paste0("npdc_", colnames(Med_Lab_NPDC)[grepl("^mg_", colnames(Med_Lab_NPDC))])
 ```
 
-```{r}
+```{r ccd-5}
 ## print colnames to check the modification
 print(colnames(Med_Lab_PDC))
 print(colnames(Med_Lab_NPDC))
@@ -3395,19 +3394,19 @@ print(colnames(Med_Lab_NPDC))
 
 ## IQCode | IADL | CDR | QuickDementia
 
-```{r}
+```{r ccd-6}
 intersect(names(IQCode),names(IADL))
 ```
 
-```{r}
+```{r ccd-7}
 intersect(names(CDR),names(IADL))
 ```
 
-```{r}
+```{r ccd-8}
 intersect(names(CDR),names(QuickDementia))
 ```
 
-```{r}
+```{r ccd-9}
 ## common columns between IQCode and IADL
 commnames_1 <- "Total"
 
@@ -3429,12 +3428,12 @@ colnames(CDR)[colnames(CDR) %in% commnames_2] <-  paste0(colnames(CDR)[colnames(
 ```
 
 
-```{r}
+```{r ccd-10}
 ## rerun the Common Columns Detection code
 commonColsDetect(df_names)
 ```
 
-```{r}
+```{r ccd-11}
 ## print colnames to check the modification
 print(colnames(IQCode))
 print(colnames(IADL))
@@ -3447,17 +3446,17 @@ print(colnames(CDR))
 
 ## NeuropsychScores | CompositeScoreCalcValues
 
-```{r}
+```{r ccd-12}
 intersect(names(NeuropsychScores),names(CompositeScoreCalcValues))
 ```
 
-```{r}
+```{r ccd-13}
 ## add prefix to CompositeScoreCalcValues
 tNames <- c("flucfl","drraw","stroocw","stroocwe","trlb")
 colnames(CompositeScoreCalcValues)[colnames(CompositeScoreCalcValues) %in% tNames] <-  paste0(colnames(CompositeScoreCalcValues)[colnames(CompositeScoreCalcValues) %in% tNames],"_CompositeScoreCalcValues")
 ```
 
-```{r}
+```{r ccd-14}
 ## print colnames to check the modification
 print(colnames(CompositeScoreCalcValues))
 ```
@@ -3466,17 +3465,17 @@ print(colnames(CompositeScoreCalcValues))
 
 ## IADL | GenHealthDailyAct
 
-```{r}
+```{r ccd-15}
 intersect(names(IADL),names(GenHealthDailyAct))
 ```
 
-```{r}
+```{r ccd-16}
 ## add prefix to both datasets
 colnames(IADL)[colnames(IADL) == "Money"] <- "Money_IADL"
 colnames(GenHealthDailyAct)[colnames(GenHealthDailyAct) == "Money"] <- "Money_GenHealthDailyAct"
 ```
 
-```{r}
+```{r ccd-17}
 ## print colnames to check the modification
 print(colnames(IADL))
 print(colnames(GenHealthDailyAct))
@@ -3486,16 +3485,16 @@ print(colnames(GenHealthDailyAct))
 
 ## Morbidity_Mortality | GenHealthDailyAct
 
-```{r}
+```{r ccd-18}
 intersect(names(Morbidity_Mortality),names(GenHealthDailyAct))
 ```
 
-```{r}
+```{r ccd-19}
 colnames(Morbidity_Mortality)[colnames(Morbidity_Mortality) == "MemProb"] <- "MemProb_Morbidity_Mortality"
 colnames(GenHealthDailyAct)[colnames(GenHealthDailyAct) == "MemProb"] <- "MemProb_GenHealthDailyAct"
 ```
 
-```{r}
+```{r ccd-20}
 ## print colnames to check the modification
 print(colnames(Morbidity_Mortality))
 print(colnames(GenHealthDailyAct))
@@ -3505,16 +3504,16 @@ print(colnames(GenHealthDailyAct))
 
 ## NeuropsychScores | Demographics
 
-```{r}
+```{r ccd-21}
 intersect(names(NeuropsychScores),names(Demographics))
 ```
 
-```{r}
+```{r ccd-22}
 colnames(NeuropsychScores)[colnames(NeuropsychScores) == "interv"] <- "interv_NeuropsychScores"
 colnames(Demographics)[colnames(Demographics) == "interv"] <- "interv_Demographics"
 ```
 
-```{r}
+```{r ccd-23}
 ## print colnames to check the modification
 print(colnames(NeuropsychScores))
 print(colnames(Demographics))
@@ -3524,38 +3523,38 @@ print(colnames(Demographics))
 
 ## PersFamMedBack | Demographics
 
-```{r}
+```{r ccd-24}
 intersect(names(PersFamMedBack),names(Demographics))
 ```
 
-```{r}
+```{r ccd-25}
 ## remove geneder column from PersFamMedBack
 PersFamMedBack <- subset(PersFamMedBack, select = -gender)
 ```
 
-```{r}
+```{r ccd-26}
 ## print colnames to check the modification
 print(colnames(PersFamMedBack))
 ```
 
 
 
-<br>
+<!-- <br> -->
 
-## Imaging_metadata | fqryStatisticalData
+<!-- ## Imaging_metadata | fqryStatisticalData -->
 
-```{r}
-intersect(names(Imaging_metadata),names(fqryStatisticalData))
-```
+<!-- ```{r} -->
+<!-- intersect(names(Imaging_metadata),names(fqryStatisticalData)) -->
+<!-- ``` -->
 
-```{r}
-colnames(Imaging_metadata)[colnames(Imaging_metadata) == "Days_Since_Baseline"] <- "Days_Since_Baseline_Imaging"
-```
+<!-- ```{r} -->
+<!-- colnames(Imaging_metadata)[colnames(Imaging_metadata) == "Days_Since_Baseline"] <- "Days_Since_Baseline_Imaging" -->
+<!-- ``` -->
 
-```{r}
-## print colnames to check the modification
-print(colnames(Imaging_metadata))
-```
+<!-- ```{r} -->
+<!-- ## print colnames to check the modification -->
+<!-- print(colnames(Imaging_metadata)) -->
+<!-- ``` -->
 
 
 <br>
@@ -3566,7 +3565,7 @@ print(colnames(Imaging_metadata))
 
 Exclude the MIND_Diet_ScoreValues as this exactly the same as the MIND_Diet data frame.
 
-```{r}
+```{r merge-1}
 remove <- c("MIND_Diet_ScoredValues") ## this dataset is exactly same as MIND_Diet
 df_names2 <- setdiff(df_names,remove)
 ```
@@ -3578,7 +3577,7 @@ df_names2 <- setdiff(df_names,remove)
 
 Group all sub datasets into two: one with WRAPNo+VisNo combo; one without VisNo
 
-```{r}
+```{r merge-2}
 df_names2_wVisNo <- c()
 df_names2_woVisNo <- c()
 
@@ -3592,95 +3591,103 @@ for (df_name in df_names2) {
   }
 }
 
-length(df_names2_wVisNo) ## 47
+length(df_names2_wVisNo) ## 46
 length(df_names2_woVisNo) ## 10
 ```
 
-```{r}
+```{r merge-3}
 print(df_names2_wVisNo)
 print(df_names2_woVisNo)
 ```
 
 <br>
 
-## Merge Sub-Datasets without VisNo
+<!-- ## Merge Sub-Datasets without VisNo -->
 
-```{r}
-## Merge all cross-sectional dfs - those with WRAPNo/wrapnum only
+<!-- ```{r merge-4} -->
+<!-- ## Merge all cross-sectional dfs - those with WRAPNo/wrapnum only -->
 
-merged_data_cross <- get(df_names2_woVisNo[1])
+<!-- merged_data_cross <- get(df_names2_woVisNo[1]) -->
 
-cat("Info for", df_names2_woVisNo[1], ":\n") 
+<!-- cat("Info for", df_names2_woVisNo[1], ":\n")  -->
 
-info(get(df_names2_woVisNo[1]), "WRAPNo")
+<!-- info(get(df_names2_woVisNo[1]), "WRAPNo") -->
 
-for (i in 2:length(df_names2_woVisNo)) { 
-  merged_data_cross <- merge_with_info(merged_data_cross, df_names2_woVisNo[i], merge_cols = c("wrapnum", "WRAPNo"), info_col = "WRAPNo") 
-}
+<!-- for (i in 2:length(df_names2_woVisNo)) {  -->
+<!--   merged_data_cross <- merge_with_info(merged_data_cross, df_names2_woVisNo[i], merge_cols = c("wrapnum", "WRAPNo"), info_col = "WRAPNo")  -->
+<!-- } -->
 
-info(merged_data_cross, "WRAPNo") #obs:1816, cols:173, inds:1816
+<!-- info(merged_data_cross, "WRAPNo") #obs:1816, cols:173, inds:1816  -->
 
-```
+<!-- ``` -->
 
 
-<br>
+<!-- <br> -->
 
-## Merge Sub-Datasets with VisNo
+<!-- ## Merge Sub-Datasets with VisNo -->
 
-```{r}
-## Merge all longitudinal dfs - those with WRAPNo/wrapnum and VisNo
-merged_data_long <- get(df_names2_wVisNo[1]) 
+<!-- ```{r merge-5} -->
+<!-- ## Merge all longitudinal dfs - those with WRAPNo/wrapnum and VisNo -->
+<!-- merged_data_long <- get(df_names2_wVisNo[1])  -->
 
-cat("Info for", df_names2_wVisNo[1], ":\n") 
+<!-- print(intersect(names(merged_data_long),c("wrapnum","WRAPNo","VisNo"))) -->
 
-info(get(df_names2_wVisNo[1]), "WRAPNo")
+<!-- cat("Info for", df_names2_wVisNo[1], ":\n")  -->
 
-for (i in 2:length(df_names2_wVisNo)) {
-  merged_data_long <- merge_with_info(
-    merged_data_long,
-    df_names2_wVisNo[i],
-    merge_cols = c("wrapnum", "WRAPNo", "VisNo"),
-    info_col   = "WRAPNo"
-  )
-}
+<!-- info(get(df_names2_wVisNo[1]), "WRAPNo") -->
 
-info(merged_data_long, "WRAPNo") #obs:8982, cols:2328, inds:1836
+<!-- for (i in 2:length(df_names2_wVisNo)) {  -->
+<!--   print(intersect(names(get(df_names2_wVisNo[i])),c("wrapnum","WRAPNo","VisNo"))) -->
+<!-- } -->
 
-check_dups_long <- merged_data_long %>% dplyr::group_by(wrapnum, WRAPNo, VisNo) %>% dplyr::filter(n() > 1) %>% dplyr::ungroup()
 
-nrow(check_dups_long) #obs: 0 - good
-```
+<!-- for (i in 2:length(df_names2_wVisNo)) { -->
+<!--   merged_data_long <- merge_with_info( -->
+<!--     merged_data_long, -->
+<!--     df_names2_wVisNo[i], -->
+<!--     merge_cols = c("wrapnum", "WRAPNo", "VisNo"), -->
+<!--     info_col   = "WRAPNo" -->
+<!--   ) -->
+<!-- } -->
 
-<br>
+<!-- info(merged_data_long, "WRAPNo") #obs:8293, cols:2285, inds:1835  -->
 
-## Merge All
+<!-- check_dups_long <- merged_data_long %>% dplyr::group_by(wrapnum, WRAPNo, VisNo) %>% dplyr::filter(n() > 1) %>% dplyr::ungroup() -->
 
-```{r}
-#Merge cross-sectional and longitudinal together
-merged_data_all <- merge(merged_data_cross, merged_data_long, by = c("wrapnum", "WRAPNo"), all = T)
-info(merged_data_all, "WRAPNo") #obs:8984, cols:2499, inds:1838 - looks like we are up 2 inds/2 obs from longitudinal and up 22 inds from cross
-```
+<!-- nrow(check_dups_long) #obs: 0 - good -->
+<!-- ``` -->
 
-<br>
+<!-- <br> -->
 
-## Final Merge Check
-```{r}
-#look more into the increase to make sure it makes sense
-in_cross_not_long <- anti_join(merged_data_cross, merged_data_long, by = "WRAPNo") #confirmed nothing like them in long
-info(in_cross_not_long, "WRAPNo")
+<!-- ## Merge All -->
 
-in_long_not_cross <- anti_join(merged_data_long, merged_data_cross, by = "WRAPNo") #confirmed nothing like them in cross
-info(in_long_not_cross, "WRAPNo")
+<!-- ```{r merge-6} -->
+<!-- #Merge cross-sectional and longitudinal together -->
+<!-- merged_data_all <- merge(merged_data_cross, merged_data_long, by = c("wrapnum", "WRAPNo"), all = T) -->
 
-#realistically the 2+22 will probably be dropped from analyses for not having important info (age/birth/sex/diagnosis), but ok to leave in for now
-```
+<!-- info(merged_data_all, "WRAPNo") #obs:8295, cols:2456, inds:1837  -->
+<!-- ``` -->
 
-<br>
+<!-- <br> -->
 
-## Save Finalized Merged Dataset
+<!-- ## Final Merge Check -->
+<!-- ```{r merge-7} -->
+<!-- #look more into the increase to make sure it makes sense -->
+<!-- in_cross_not_long <- anti_join(merged_data_cross, merged_data_long, by = "WRAPNo") #confirmed nothing like them in long -->
+<!-- info(in_cross_not_long, "WRAPNo") -->
 
-```{r}
-## save rds
-saveRDS(merged_data_all,paste0(out_directory,"Build_WRAP.rds"))
-```
+<!-- in_long_not_cross <- anti_join(merged_data_long, merged_data_cross, by = "WRAPNo") #confirmed nothing like them in cross -->
+<!-- info(in_long_not_cross, "WRAPNo") -->
+
+<!-- #realistically the 2+22 will probably be dropped from analyses for not having important info (age/birth/sex/diagnosis), but ok to leave in for now -->
+<!-- ``` -->
+
+<!-- <br> -->
+
+<!-- ## Save Finalized Merged Dataset -->
+
+<!-- ```{r merge-8} -->
+<!-- ## save rds -->
+<!-- saveRDS(merged_data_all,paste0(out_directory,"Build_WRAP_woImagingMetaData.rds")) -->
+<!-- ``` -->
 
