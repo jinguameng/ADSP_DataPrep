@@ -7,6 +7,6 @@ navbar:
     - text: "WRAP"
       href: Build_WRAP_Phenotype_2025.html
     - text: "WRAP-sup"
-      href: Build_PRADI_Phenotype_2025_addImagingMetaData.html
+      href: Build_WRAP_Phenotype_2025_addImagingMetaData.html
     - text: "PRADI"
       href: Build_PRADI_Phenotype_2025.html
