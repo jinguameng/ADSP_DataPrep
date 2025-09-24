@@ -2789,24 +2789,24 @@ str(WRAP_to_DBID)
 <br>
 <br>
 
-<!-- ## Imaging_metadata -->
+## <span style="color: red;">Imaging_metadata</span>
 
-<!-- WRAP Imaging Metadata -->
+WRAP Imaging Metadata
 
-<!-- ```{r} -->
-<!-- ## load data -->
-<!-- Imaging_metadata <- read.csv(paste0(wrap_directory, "Imaging_metadata_05Jun2025.csv")) -->
-<!-- info(Imaging_metadata,"wrapnum") -->
-<!-- ``` -->
+```{r}
+## load data
+Imaging_metadata <- read.csv(paste0(wrap_directory, "Imaging_metadata_05Jun2025.csv"))
+info(Imaging_metadata,"wrapnum")
+```
 
-<!-- ```{r,eval=FALSE} -->
-<!-- str(Imaging_metadata) -->
-<!-- ``` -->
-<!-- <details> -->
-<!-- <summary>Click for details</summary> -->
-<!-- ```{r, echo=FALSE, eval=TRUE} -->
-<!-- str(Imaging_metadata) -->
-<!-- ``` -->
+```{r,eval=FALSE}
+str(Imaging_metadata)
+```
+<details>
+<summary>Click for details</summary>
+```{r, echo=FALSE, eval=TRUE}
+str(Imaging_metadata)
+```
 
 <!-- ```{r} -->
 <!-- ## check table frequency for all variables -->
@@ -2820,7 +2820,6 @@ str(WRAP_to_DBID)
 <!-- ``` -->
 
 
-
 <!-- ```{r,eval=FALSE} -->
 <!-- str(Imaging_metadata) -->
 <!-- ``` -->
@@ -2831,8 +2830,25 @@ str(WRAP_to_DBID)
 <!-- ``` -->
 
 
-<!-- <br> -->
-<!-- <br> -->
+```{r}
+## reorder the columns
+Imaging_metadata <- Imaging_metadata %>% 
+  mutate(WRAPNo = gsub("wrap", "", wrapnum)) %>% ## generate the WRAPNo
+  select(wrapnum, WRAPNo, everything()) ## reorder the columns
+```
+
+
+```{r}
+## save the imaging meta-data
+saveRDS(Imaging_metadata,paste0(out_directory,"Imaging_metadata_05Jun2025.rds"))
+
+## remove it from working space
+rm(Imaging_metadata)
+```
+
+
+<br>
+<br>
 
 # Get Sub-Dataset Names
 ```{r}
@@ -3567,11 +3583,25 @@ Exclude the MIND_Diet_ScoreValues as this exactly the same as the MIND_Diet data
 
 ```{r merge-1}
 remove <- c("MIND_Diet_ScoredValues") ## this dataset is exactly same as MIND_Diet
-df_names2 <- setdiff(df_names,remove)
+df_names2 <- setdiff(df_names,remove) ## 56
 ```
 
 
 <br>
+
+## Label Columns for All Datasets
+```{r}
+for (dfname in df_names2) {
+  df <- get(dfname, envir = .GlobalEnv)  # adjust envir if needed
+
+  for (col in names(df)) {
+    Hmisc::label(df[[col]]) <- dfname
+  }
+
+  assign(dfname, df, envir = .GlobalEnv) # write back to the same env
+}
+```
+
 
 ## Group Sub-Datasets
 
@@ -3665,22 +3695,30 @@ info(merged_data_all, "WRAPNo") #obs:8295, cols:2456, inds:1837
 
 ## Final Merge Check
 ```{r merge-7}
-#look more into the increase to make sure it makes sense
-in_cross_not_long <- anti_join(merged_data_cross, merged_data_long, by = "WRAPNo") #confirmed nothing like them in long
-info(in_cross_not_long, "WRAPNo")
+#individuals present in cross but not in long
+setdiff(merged_data_cross$wrapnum,merged_data_long$wrapnum)
 
-in_long_not_cross <- anti_join(merged_data_long, merged_data_cross, by = "WRAPNo") #confirmed nothing like them in cross
-info(in_long_not_cross, "WRAPNo")
+# indivdiuals present in long but not cross
+setdiff(merged_data_long$wrapnum,merged_data_cross$wrapnum)
 
-#realistically the 2+22 will probably be dropped from analyses for not having important info (age/birth/sex/diagnosis), but ok to leave in for now
+#realistically the 2+21 will probably be dropped from analyses for not having important info (age/birth/sex/diagnosis), but ok to leave in for now
 ```
 
 <br>
+
+## Reorder the Columns
+```{r}
+merged_data_all <- merged_data_all %>% 
+  select(wrapnum, WRAPNo,DBID, VisNo,everything()) %>%
+  arrange(WRAPNo,VisNo)
+
+```
+
 
 ## Save Finalized Merged Dataset
 
 ```{r merge-8}
 ## save rds
-saveRDS(merged_data_all,paste0(out_directory,"Build_WRAP_woImagingMetaData.rds"))
+saveRDS(merged_data_all,paste0(out_directory,"WRAP_June2025_Cleaned.rds"))
 ```
 
