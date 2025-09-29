@@ -8,7 +8,6 @@ output:
     toc_depth: 3
     number_sections: false
     theme: lumen
-    css: "style.css"
 ---
 
 Author: Mengna Zhang
@@ -3721,4 +3720,5 @@ merged_data_all <- merged_data_all %>%
 ## save rds
 saveRDS(merged_data_all,paste0(out_directory,"WRAP_June2025_Cleaned.rds"))
 ```
+
 

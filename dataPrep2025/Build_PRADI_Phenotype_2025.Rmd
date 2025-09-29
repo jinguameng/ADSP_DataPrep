@@ -8,7 +8,6 @@ output:
     toc_depth: 3
     number_sections: false
     theme: lumen
-    css: "style.css"
 ---
 
 Author: Mengna Zhang
@@ -37,14 +36,16 @@ script_directory <- paste0(my_directory, "ADSP_DataPrep_local/PRADI/Phenotype/20
 
 ## revised DD path
 revisedDDpath <- paste0(out_directory,"colnamesPerSubdata.xlsx")
+
+## file list
+file_list <- paste0(out_directory,"filelist.txt")
 ```
 
 <br>
 
 # Load Helper Scripts
 ```{r load-helper-scripts}
-source("/Users/mengnazhang/Desktop/ADSP_DataPrep/dataPrep2025/helperScripts_PRADI.R")
-# source(paste0(script_directory,"helperScripts_WRAP.R"))
+source(paste0(script_directory,"helperScripts_PRADI.R"))
 ```
 
 <br>
@@ -67,23 +68,24 @@ require(ggplot2)
 
 # Sub Files Inspection
 
-<!-- ## Save all sub file names -->
-<!-- **Extract all file names** -->
-<!-- ```{r engine='bash', comment=''} -->
-<!-- mypath="/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Raw/" -->
 
-<!-- ls ${mypath} | grep ".xlsx" > ${mypath}filelist.txt -->
+## Save all sub file names
 
-<!-- wc -l ${mypath}filelist.txt ## 38 sub files in total -->
-<!-- ``` -->
+<mark>This is the code I used to save all the raw file names into a txt file. You dont need to run it. I have provided the file in the one-drive.</mark>
+
+**Extract all file names**
+```{r engine='bash', comment='',eval=F}
+## mypath="/Users/mengnazhang/Desktop/ADSP_DataPrep_local/PRADI/Phenotype/2025/Raw/"
+
+## ls ${mypath} | grep ".xlsx" > ${mypath}filelist.txt
+
+## wc -l ${mypath}filelist.txt ## 38 sub files in total
+```
 
 
 ## Load All Subfiles
 
 ```{r load-all-files}
-
-file_list <- paste0(out_directory,"filelist.txt")
-
 ## read all lines (file names) from the file
 file_names <- readLines(file_list)
 
@@ -125,30 +127,35 @@ print(common_cols)
 <br>
 
 ## Save all Colnames
+
+<mark>The commented code below generates an empty DD file based on the dataset currently loaded in the workspace.
+Since the raw DD from PRADI is disorganized and difficult to read, I decided to create a new DD and manually fill in all the information extracted from the original.
+You don’t need to run the code below unless you want to generate another one yourself.</mark>
+
 ```{r,eval=FALSE}
-## This code only needs to be run once.
-## It will generate an Excel file where each sheet contains the column names for its corresponding dataset.
-## Then I will use this excel and fill the infor for each variable to generate the revise DD: 
-# Create a new workbook
-wb <- createWorkbook()
-
-# For each data frame, add a sheet with its column names
-# Loop through each data frame
-for (df_name in df_names) {
-  df <- get(df_name)  # get the actual data frame
-  col_names_df <- data.frame(VarNames = colnames(df))  # create single-column df
-  
-  # Add sheet with df name (truncated to 31 characters max)
-  sheet_name <- substr(df_name, 1, 31)
-  addWorksheet(wb, sheetName = sheet_name)
-  
-  # Write the column names into the sheet
-  writeData(wb, sheet = sheet_name, col_names_df)
-}
-
-# Save the workbook
-## define the name and location of this file to save
-saveWorkbook(wb, file = colnames_file, overwrite = TRUE)
+# ## This code only needs to be run once.
+# ## It will generate an Excel file where each sheet contains the column names for its corresponding dataset.
+# ## Then I will use this excel and fill the infor for each variable to generate the revise DD:
+# # Create a new workbook
+# wb <- createWorkbook()
+# 
+# # For each data frame, add a sheet with its column names
+# # Loop through each data frame
+# for (df_name in df_names) {
+#   df <- get(df_name)  # get the actual data frame
+#   col_names_df <- data.frame(VarNames = colnames(df))  # create single-column df
+# 
+#   # Add sheet with df name (truncated to 31 characters max)
+#   sheet_name <- substr(df_name, 1, 31)
+#   addWorksheet(wb, sheetName = sheet_name)
+# 
+#   # Write the column names into the sheet
+#   writeData(wb, sheet = sheet_name, col_names_df)
+# }
+# 
+# # Save the workbook
+# ## define the name and location of this file to save
+# saveWorkbook(wb, file = colnames_file, overwrite = TRUE)
 
 ```
 
@@ -4896,6 +4903,7 @@ MEDCON_RC <- df
 <br>
 
 ## MEDICAL_HIST
+Medical History
 
 ```{r MEDICAL_HIST-1}
 df <- MEDICAL_HIST
@@ -5034,6 +5042,7 @@ MEDICAL_HIST <- df
 <br>
 
 ## MINT_RC
+Multilingual Naming Test
 
 ```{r MINT_RC-1}
 df <- MINT_RC
@@ -5592,9 +5601,74 @@ NUMBER_SPAN_RC <- df
 <br>
 <br>
 
+# Common Columns Handling
+
+Among the common columns shared across all datasets:
+
+<mark>
+[1] "SYSXM"       "SYSIND"      "SYSGP"       "SYSGPSTUDY"   
+[5] "SYSINDGP"    "CGI_ORDER"   "GPS_ORDER"   "STDCGI_ORDER" 
+[9] "LSTUDY"      "DB_OWNER"    "STUDY"       "SUBSTUDY"     
+[13] "CENTER"      "GP"          "IND"         "REFCTR"       
+[17] "DATE_OF_BIRTH"
+</mark>
+
+The variable SYSXM is unique within each dataset and not informative, except for the PRADI team. These can likely be dropped.
+Except for SYSIND, the other common variables can be removed from the main datasets and stored separately in a dedicated data frame containing only these shared columns. And they will be merged back to the final dataset.
+
+```{r}
+## drop SYSXM for all datasets
+for (df_name in df_names) {
+  df <- get(df_name)   # retrieve the dataset by name
+  df <- df[ , !(names(df) %in% c("SYSXM"))] # drop 
+  assign(df_name, df)  # save the modified dataset back
+}
+
+common_cols2keep <- setdiff(common_cols,c("SYSXM"))
+common_cols2drop <- setdiff(common_cols2keep,"SYSIND")
+
+df_common_cols <- list() 
+
+## collect and then remove all other common columns for all datasets
+for (df_name in df_names) {
+  df <- get(df_name)   # retrieve the dataset by name
+  
+  df_common_cols[[df_name]] <- df[,common_cols2keep]
+  
+  df <- df[ , !(names(df) %in% common_cols2drop)] 
+  
+  assign(df_name, df)  # save the modified dataset back
+}
+
+df_common_cols <- do.call(rbind, df_common_cols)
+df_common_cols <- df_common_cols %>% distinct()
+rownames(df_common_cols) <- NULL
+str(df_common_cols)
+
+```
+
+
+<br>
+<br>
+
 # Duplicates Check
 
 ## Duplicates Detection
+
+```{r dupCheck-1}
+## Before checking duplicates by SYSIND and date variables,
+## first remove general duplicates. 
+## (Since we dropped SYSXM earlier, some duplicates might have been missed 
+## before removing the SYSXM column.)
+
+for (df_name in df_names) {
+  df <- get(df_name)
+  df <- distinct(df)
+  assign(df_name, df)
+}
+
+```
+
 
 ```{r dupCheck-2}
 # Get names of all data frames in the environment
@@ -5683,7 +5757,7 @@ ALZ_NCRAD %>%
   dplyr::group_by(SYSIND, FORM_DATE) %>%
   dplyr::filter(n() > 1) %>%
   dplyr::ungroup() %>%
-  nrow() %>% print() ## 2 rows
+  nrow() %>% print() ## 0 row
 
 ## ALZ_SCREENING
 ALZ_SCREENING %>%
@@ -5726,8 +5800,16 @@ ALZ_NPIQ_CBRS %>%
 ```
 
 ```{r dupHandle-4}
-## after checking the duplicates, I decided to keep the second obs as it has less missingness
-ALZ_NPIQ_CBRS <- ALZ_NPIQ_CBRS[ALZ_NPIQ_CBRS$SYSXM != "7540713", ]
+## keep the obs with less missingness
+ALZ_NPIQ_CBRS <- ALZ_NPIQ_CBRS %>%
+  group_by(SYSIND, EXAM_DATE) %>%
+  # calculate number of missing values per row
+  mutate(n_missing = rowSums(is.na(across(everything())))) %>%
+  # keep the row(s) with the minimum number of missing values
+  filter(n_missing == min(n_missing)) %>%
+  ungroup() %>%
+  select(-n_missing)   
+
 ```
 
 ```{r dupHandle-5}
@@ -5736,40 +5818,6 @@ info(ALZ_NPIQ_CBRS,"SYSIND")
 
 ```{r dupHandle-6}
 cat("After duplicates handling - SYSIND*EXAM_DATE is: ",dupFixCheck(ALZ_NPIQ_CBRS,"SYSIND","EXAM_DATE"),"\n")
-```
-
-<br>
-<br>
-
-### ALZ_NCRAD
-
-```{r dupHandle-7}
-cat("Before duplicates handling - SYSIND*FORM_DATE is: ",dupFixCheck(ALZ_NCRAD,"SYSIND","FORM_DATE"),"\n")
-```
-
-```{r dupHandle-8}
-info(ALZ_NCRAD,"SYSIND")
-```
-
-```{r dupHandle-9}
-## view the duplicates
-ALZ_NCRAD %>%
-  dplyr::group_by(SYSIND, FORM_DATE) %>%
-  dplyr::filter(n() > 1) %>%
-  dplyr::ungroup()
-```
-
-```{r dupHandle-10}
-## the duplicates are exactly same, so we can randomly drop one, I will drop the first observation
-ALZ_NCRAD <- ALZ_NCRAD[ALZ_NCRAD$SYSXM != "7906253", ]
-```
-
-```{r dupHandle-11}
-info(ALZ_NCRAD,"SYSIND")
-```
-
-```{r dupHandle-12}
-cat("After duplicates handling - SYSIND*FORM_DATE is: ",dupFixCheck(ALZ_NCRAD,"SYSIND","FORM_DATE"),"\n")
 ```
 
 <br>
@@ -5787,39 +5835,59 @@ info(CONSENSUS_DX,"SYSIND")
 
 ```{r dupHandle-15}
 ## view the duplicates
-dups_CONSENSUS_DX <- CONSENSUS_DX %>%
+CONSENSUS_DX %>%
   dplyr::group_by(SYSIND, DATE_DX) %>%
   dplyr::filter(n() > 1) %>%
   dplyr::ungroup()
 
-info(dups_CONSENSUS_DX,"SYSIND") 
+table(CONSENSUS_DX$RANK)
 ``` 
 
 ```{r dupHandle-16}
-## some individuals have multiple CDX, and the RANK variable records the number of visits
-## so I decided to use pivot_wider function to keep all the CDX values
-## remove duplicates
+## Not very much participants got second or thid diagnosis.
+## I decided to split the dataset CONSENSUS_DX into three: CONSENSUS_DX_1, CONSENSUS_DX_2, CONSENSUS_DX_3
+## And then handle the duplicates one by one
+table(CONSENSUS_DX$RANK)
 
-IDcols <- c(names(CONSENSUS_DX)[1:16],"DATE_OF_BIRTH","DATE_DX",names(CONSENSUS_DX)[27:43])
-IDcols
+CONSENSUS_DX_1 <- CONSENSUS_DX[CONSENSUS_DX$RANK == 1,]
 
-CONSENSUS_DX <- CONSENSUS_DX %>%
-  pivot_wider(
-    id_cols = all_of(IDcols),
-    names_from = RANK,
-    values_from = c(REVIEW_DATE, REVIEWER, RANK:WHO_DX,COMMENTS),
-    names_sep = "_"
-  )
+CONSENSUS_DX_1 %>%
+  dplyr::group_by(SYSIND, DATE_DX) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup()
+
+## there are two obs for individual 11040003, I will keep the second obs as it got more information
+CONSENSUS_DX_1 <- CONSENSUS_DX_1 %>%
+   filter(!(SYSIND == 11040003 & REVIEW_DATE == as.Date("2022-01-20")))
 
 ```
 
-
 ```{r dupHandle-17}
-info(CONSENSUS_DX,"SYSIND")
+CONSENSUS_DX_2 <- CONSENSUS_DX[CONSENSUS_DX$RANK == 2,]
+
+CONSENSUS_DX_2 %>%
+  dplyr::group_by(SYSIND, DATE_DX) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup()
+## no duplicates
 ```
 
 ```{r dupHandle-18}
-cat("After duplicates handling - SYSIND*DATE_DX is: ",dupFixCheck(CONSENSUS_DX,"SYSIND","DATE_DX"),"\n")
+CONSENSUS_DX_3 <- CONSENSUS_DX[CONSENSUS_DX$RANK == 3,]
+
+CONSENSUS_DX_3 %>%
+  dplyr::group_by(SYSIND, DATE_DX) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::ungroup()
+
+## no duplicates
+```
+
+```{r dupHandle-19}
+## update the df_names
+df_names <- setdiff(df_names,"CONSENSUS_DX")
+df_names <- c(df_names,"CONSENSUS_DX_1","CONSENSUS_DX_2","CONSENSUS_DX_3")
+print(df_names)
 ```
 
 <br>
@@ -5902,141 +5970,10 @@ DT::datatable(summary_df)
 
 ```
 
-
-<br>
-
-<!-- ```{r pp-count-3} -->
-<!-- # Vectorized "filled" check per column -->
-<!-- is_filled_col <- function(x) { -->
-<!--   if (is.factor(x)) x <- as.character(x) -->
-<!--   if (is.character(x)) { -->
-<!--     z <- trimws(x) -->
-<!--     !is.na(z) & nzchar(z) -->
-<!--   } else if (is.list(x)) { -->
-<!--     !vapply(x, function(el) is.null(el) || (length(el) == 0) || all(is.na(el)), logical(1)) -->
-<!--   } else { -->
-<!--     !is.na(x) -->
-<!--   } -->
-<!-- } -->
-
-<!-- # Build presence table: drop common_cols (except keep SYSIND), keep SYSIND as-is -->
-<!-- make_var_presence_table_filtered <- function(df, common_cols, id_col = "SYSIND") { -->
-<!--   stopifnot(is.data.frame(df)) -->
-
-<!--   # Columns to keep: SYSIND + (all others not in common_cols) -->
-<!--   keep_cols <- c(id_col, setdiff(names(df), common_cols)) -->
-<!--   keep_cols <- intersect(keep_cols, names(df))   # ensure existence -->
-<!--   df <- df[, keep_cols, drop = FALSE] -->
-
-<!--   # If SYSIND is missing after filtering, return empty structure (handled by caller) -->
-<!--   if (!id_col %in% names(df)) return(NULL) -->
-
-<!--   id_vals   <- df[[id_col]] -->
-<!--   other_cols <- setdiff(names(df), id_col) -->
-
-<!--   if (length(other_cols) == 0) { -->
-<!--     # Only SYSIND remains -->
-<!--     out <- setNames(data.frame(id_vals, check.names = FALSE), id_col) -->
-<!--     return(out) -->
-<!--   } -->
-
-<!--   # Logical filled matrix for other columns -->
-<!--   pres_list <- lapply(other_cols, function(v) is_filled_col(df[[v]])) -->
-<!--   pres_df   <- as.data.frame(pres_list, check.names = FALSE) -->
-<!--   names(pres_df) <- other_cols -->
-
-<!--   # Map to colored symbols -->
-<!--   pretty <- as.data.frame( -->
-<!--     lapply(pres_df, function(col) -->
-<!--       ifelse(col, -->
-<!--              '<span style="color:green; font-weight:bold;">✔</span>', -->
-<!--              '<span style="color:red; font-weight:bold;">✘</span>') -->
-<!--     ), -->
-<!--     check.names = FALSE -->
-<!--   ) -->
-
-<!--   # Bind SYSIND first (no data.table syntax) -->
-<!--   out <- cbind(setNames(data.frame(id_vals, check.names = FALSE), id_col), pretty) -->
-<!--   out -->
-<!-- } -->
-
-<!-- # Render one dataset tab (by name) -->
-<!-- render_dataset_tab <- function(dfn, common_cols, id_col = "SYSIND") { -->
-<!--   # If object is missing, show a note -->
-<!--   if (!exists(dfn, envir = .GlobalEnv)) { -->
-<!--     note <- data.frame(Warning = sprintf("Object '%s' not found.", dfn)) -->
-<!--     return(DT::datatable(note, rownames = FALSE, options = list(dom = "t"))) -->
-<!--   } -->
-
-<!--   df <- get(dfn, envir = .GlobalEnv) -->
-
-<!--   if (!id_col %in% names(df)) { -->
-<!--     note <- data.frame(Warning = sprintf("Column '%s' not found in '%s'.", id_col, dfn)) -->
-<!--     return(DT::datatable(note, rownames = FALSE, options = list(dom = "t"))) -->
-<!--   } -->
-
-<!--   presence_df <- make_var_presence_table_filtered(df, common_cols, id_col = id_col) -->
-
-<!--   # Fallback if filtering removed everything (shouldn’t, but safe) -->
-<!--   if (is.null(presence_df)) { -->
-<!--     note <- data.frame(Warning = sprintf("After filtering, no columns remain in '%s'.", dfn)) -->
-<!--     return(DT::datatable(note, rownames = FALSE, options = list(dom = "t"))) -->
-<!--   } -->
-
-<!--   DT::datatable( -->
-<!--     presence_df, -->
-<!--     escape = FALSE, -->
-<!--     rownames = FALSE, -->
-<!--     caption = htmltools::tags$caption( -->
-<!--       style = "caption-side: top; text-align: left; font-weight: bold; font-size: 110%;", -->
-<!--       paste0( -->
-<!--         "Dataset: ", dfn, -->
-<!--         "  (rows: ", nrow(df), ", cols shown: ", ncol(presence_df), ")" -->
-<!--       ) -->
-<!--     ), -->
-<!--     options = list( -->
-<!--       pageLength = 50, -->
-<!--       scrollX = TRUE, -->
-<!--       deferRender = TRUE, -->
-<!--       columnDefs = list( -->
-<!--         # Center all columns except the first (SYSIND). DataTables uses 0-based indexes. -->
-<!--         list(className = "dt-center", -->
-<!--              targets = if (ncol(presence_df) > 1) 1:(ncol(presence_df) - 1) else integer(0)) -->
-<!--       ) -->
-<!--     ) -->
-<!--   ) -->
-<!-- } -->
-
-<!-- ``` -->
-
-
-
-<!-- ## Individual Missingness Per Variable Across Datasets {.tabset} -->
-
-<!-- ```{r tabs, results='asis', echo=FALSE, message=FALSE, warning=FALSE} -->
-<!-- library(htmltools)  # needed for tagList() -->
-
-<!-- for (dfn in df_names) { -->
-<!--   # Tab header (must be raw markdown => asis) -->
-<!--   cat(sprintf("### %s\n\n", dfn)) -->
-
-<!--   # Build the widget -->
-<!--   widget <- render_dataset_tab(dfn, common_cols, id_col = "SYSIND") -->
-
-<!--   # Force proper rendering of htmlwidget inside asis chunk -->
-<!--   print(htmltools::tagList(widget)) -->
-
-<!--   # spacing -->
-<!--   cat("\n\n") -->
-<!-- } -->
-
-<!-- ``` -->
-
-
 <br>
 <br>
 
-# Merge Sub-Datasets
+# Data Process before Merge
 
 ## Grouping Datasets
 
@@ -6171,19 +6108,24 @@ after rounding up, those obs have same AGE_AT_EXAM values.</mark>
 ```{r}
 ##########################################################################################
 ## for every individual, get all their date data
-ppdat <- data.frame(SYSIND = numeric(0), EXAM_DATE = as.Date(character(0)))
+ppdat <- data.frame(SYSIND = numeric(0), EXAM_DATE = as.Date(character(0)), fromData = character(0))
 
 ## for dataset with EXAM_DATE, we just need to extract the relevant information and appending to the ppdat
 for (df_name in dfwEXAM_DATE) {
   df_obj <- get(df_name)  # get the dataframe
+
+  tmp <- data.frame(
+    SYSIND = df_obj[["SYSIND"]],
+    EXAM_DATE = df_obj[["EXAM_DATE"]],
+    fromData = df_name
+  )
   
-  df_obj <- df_obj[,c("SYSIND","EXAM_DATE")]
-  
-  ppdat <- rbind(ppdat,df_obj)
+  ppdat <- rbind(ppdat,tmp)
 }
 
 ppdat <- ppdat[!duplicated(ppdat),]
 
+##----------------------------------------------------------------------------
 ## for dataset without EXAM_DATE, extract other data variables and appending to the ppdat
 
 ## ALZ_CLINICALSUM: has FORM_DATE
@@ -6191,35 +6133,52 @@ ppdat <- ppdat[!duplicated(ppdat),]
 ## ALZ_LOAD_COG: has INTERVIEW_DATE
 ## ALZ_NCRAD: has FORM_DATE
 ## ALZ_SCREENING: has FORM_DATE
-## CONSENSUS_DX: DATE_DX
+## CONSENSUS_DX_1: DATE_DX
+## CONSENSUS_DX_2: DATE_DX
+## CONSENSUS_DX_3: DATE_DX
 
 dfwFORM_DATE <- c("ALZ_CLINICALSUM","ALZ_EXAM","ALZ_NCRAD","ALZ_SCREENING")
 for (df_name in dfwFORM_DATE) {
   df_obj <- get(df_name)  # get the dataframe
   
-  df_obj <- df_obj[,c("SYSIND","FORM_DATE")]
-  names(df_obj) <- c("SYSIND","EXAM_DATE")
-  
-  ppdat <- rbind(ppdat,df_obj)
+   tmp <- data.frame(
+    SYSIND = df_obj[["SYSIND"]],
+    EXAM_DATE = df_obj[["FORM_DATE"]],
+    fromData = df_name
+  )
+  ppdat <- rbind(ppdat,tmp)
 }
 
 ppdat <- ppdat[!duplicated(ppdat),]
 
+##----------------------------------------------------------------------------
 df_obj <- ALZ_LOAD_COG
-df_obj <- df_obj[,c("SYSIND","INTERVIEW_DATE")]
-names(df_obj) <- c("SYSIND","EXAM_DATE")
-ppdat <- rbind(ppdat,df_obj)
+
+tmp <- data.frame(SYSIND = df_obj[["SYSIND"]],
+                  EXAM_DATE = df_obj[["INTERVIEW_DATE"]],
+                  fromData = "ALZ_LOAD_COG")
+
+ppdat <- rbind(ppdat,tmp)
 ppdat <- ppdat[!duplicated(ppdat),]
 
-df_obj <- CONSENSUS_DX
-df_obj <- df_obj[,c("SYSIND","DATE_DX")]
-names(df_obj) <- c("SYSIND","EXAM_DATE")
-ppdat <- rbind(ppdat,df_obj)
+##----------------------------------------------------------------------------
+for (df_name in c("CONSENSUS_DX_1","CONSENSUS_DX_2","CONSENSUS_DX_3")) {
+  df_obj <- get(df_name)  # get the dataframe
+
+  tmp <- data.frame(
+    SYSIND = df_obj[["SYSIND"]],
+    EXAM_DATE = df_obj[["DATE_DX"]],
+    fromData = df_name
+  )
+  
+  ppdat <- rbind(ppdat,tmp)
+}
 
 ppdat <- ppdat[!duplicated(ppdat),]
+
+##----------------------------------------------------------------------------
 
 info(ppdat,"SYSIND") #obs:5204, cols:2, inds:1994
-
 sorted_ppdat <- ppdat %>% arrange(SYSIND, EXAM_DATE)
 
 ##########################################################################################
@@ -6244,15 +6203,32 @@ summary(sorted_ppdat_intervals$interval_month)
 ## If a subject’s next exam is < 3 months after the last one, it stays in the same visit.
 ## If it’s ≥ 3 months, it becomes the next visit.
 ## Starts at 1 for each subject.
+
 sorted_ppdat2 <- sorted_ppdat %>%
   group_by(SYSIND) %>%
-  mutate(
-    new_visit = is.na(lag(EXAM_DATE)) |
-      EXAM_DATE >= (lag(EXAM_DATE) %m+% months(3)),
-    Visit_Index = cumsum(new_visit) ## start a new visit when the gap from the previous exam is ≥ 3 months
-  ) %>%
-  select(-new_visit) %>%
+  group_modify(~{
+    df <- .x
+    n  <- nrow(df)
+    idx <- integer(n)
+    if (n == 0) return(df)
+    v <- 1L
+    start <- df$EXAM_DATE[1]
+    idx[1] <- v
+    if (n > 1) {
+      for (i in 2:n) {
+        # start a new visit if current date is >= 3 months after the anchor
+        if (df$EXAM_DATE[i] >= (start %m+% months(3))) {
+          v <- v + 1L
+          start <- df$EXAM_DATE[i]
+        }
+        idx[i] <- v
+      }
+    }
+    df$Visit_Index <- idx
+    df
+  }) %>%
   ungroup()
+
 
 ## Visit summary
 visit_summary <- sorted_ppdat2 %>%
@@ -6279,6 +6255,9 @@ DT::datatable(visit_summary)
 
 ```{r}
 ## add Visit index back to each dataset
+sorted_ppdat3 <- sorted_ppdat2 %>%
+  select(SYSIND,EXAM_DATE,Visit_Index) %>%
+  distinct()
 
 ## for dataset with EXAM_DATE variable:
 index = 1
@@ -6291,8 +6270,13 @@ for (df_name in dfwEXAM_DATE) {
   cat("Dataset dimension: ","\n")
   info(df_obj,"SYSIND")
   
-  df_obj <- merge(df_obj,sorted_ppdat2,by=c("SYSIND","EXAM_DATE"))
+  cat("\n")
+  num_miss <- nrow(df_obj[is.na(df_obj[["EXAM_DATE"]]),])
+  cat("NUmber of observations missing in EXAM_DATE: ",num_miss, "\n")
   
+  df_obj <- merge(df_obj,sorted_ppdat3,by=c("SYSIND","EXAM_DATE"))
+  
+  cat("\n")
   cat("After adding visit index, dataset dimension: ","\n")
   info(df_obj,"SYSIND")
   
@@ -6308,7 +6292,10 @@ for (df_name in dfwEXAM_DATE) {
 
 ```{r}
 ## Now add visit index to dataset with FORM_DATE
-sorted_ppdat3 <- sorted_ppdat2
+sorted_ppdat3 <- sorted_ppdat2 %>%
+  select(SYSIND,EXAM_DATE,Visit_Index) %>%
+  distinct()
+
 names(sorted_ppdat3)[names(sorted_ppdat3)=="EXAM_DATE"] <- "FORM_DATE"
 
 for (df_name in dfwFORM_DATE) {
@@ -6319,8 +6306,14 @@ for (df_name in dfwFORM_DATE) {
   cat("Dataset dimension: ","\n")
   info(df_obj,"SYSIND")
   
+  cat("\n")
+  num_miss <- nrow(df_obj[is.na(df_obj[["FORM_DATE"]]),])
+  cat("NUmber of observations missing in FORM_DATE: ",num_miss, "\n")
+  
+  
   df_obj <- merge(df_obj,sorted_ppdat3,by=c("SYSIND","FORM_DATE"))
   
+  cat("\n")
   cat("After adding visit index, dataset dimension: ","\n")
   info(df_obj,"SYSIND")
   
@@ -6332,8 +6325,12 @@ for (df_name in dfwFORM_DATE) {
 }
 ```
 
+
 ```{r}
 ## Finally, we add visit index to the last two datasets: ALZ_LOAD_COG and CONSENSUS_DX
+sorted_ppdat3 <- sorted_ppdat2 %>%
+  select(SYSIND,EXAM_DATE,Visit_Index) %>%
+  distinct()
 
 cat("======================================================================","\n")
 df_obj <- ALZ_LOAD_COG  # get the dataframe
@@ -6341,7 +6338,14 @@ df_name <- "ALZ_LOAD_COG"
 cat(index,": Currently processing dataset: ",df_name,"\n")
 cat("Dataset dimension: ","\n")
 info(df_obj,"SYSIND")
-df_obj <- merge(df_obj,sorted_ppdat2,by.x=c("SYSIND","INTERVIEW_DATE"),by.y = c("SYSIND","EXAM_DATE"))
+
+cat("\n")
+num_miss <- nrow(df_obj[is.na(df_obj[["INTERVIEW_DATE"]]),])
+cat("NUmber of observations missing in INTERVIEW_DATE: ",num_miss, "\n")
+  
+df_obj <- merge(df_obj,sorted_ppdat3,by.x=c("SYSIND","INTERVIEW_DATE"),by.y = c("SYSIND","EXAM_DATE"))
+
+cat("\n")
 cat("After adding visit index, dataset dimension: ","\n")
 info(df_obj,"SYSIND")
 ## change dataset name
@@ -6350,17 +6354,34 @@ assign(newdfname, df_obj)
 index = index + 1
 
 cat("======================================================================","\n")
-df_obj <- CONSENSUS_DX  # get the dataframe
-df_name <- "CONSENSUS_DX"
-cat(index,": Currently processing dataset: ",df_name,"\n")
-cat("Dataset dimension: ","\n")
-info(df_obj,"SYSIND")
-df_obj <- merge(df_obj,sorted_ppdat2,by.x=c("SYSIND","DATE_DX"),by.y = c("SYSIND","EXAM_DATE"))
-cat("After adding visit index, dataset dimension: ","\n")
-info(df_obj,"SYSIND")
-## change dataset name
-newdfname <- paste0("wVisitIndex_",df_name)
-assign(newdfname, df_obj)
+
+for (df_name in c("CONSENSUS_DX_1", "CONSENSUS_DX_2", "CONSENSUS_DX_3")) {
+  cat("======================================================================","\n")
+  df_obj <- get(df_name)  # get the dataframe
+  
+  cat(index, ": Currently processing dataset: ", df_name, "\n")
+  cat("Dataset dimension: ", "\n")
+  info(df_obj, "SYSIND")
+  
+  cat("\n")
+  num_miss <- nrow(df_obj[is.na(df_obj[["DATE_DX"]]), ])
+  cat("NUmber of observations missing in DATE_DX: ", num_miss, "\n")
+  
+  df_obj <- merge(
+    df_obj,
+    sorted_ppdat3,
+    by.x = c("SYSIND", "DATE_DX"),
+    by.y = c("SYSIND", "EXAM_DATE")
+  )
+  
+  cat("\n")
+  cat("After adding visit index, dataset dimension: ", "\n")
+  info(df_obj, "SYSIND")
+  ## change dataset name
+  newdfname <- paste0("wVisitIndex_", df_name)
+  assign(newdfname, df_obj)
+  index = index + 1
+}
 
 ```
 
@@ -6392,57 +6413,387 @@ print(df_names_wDuplicates)
 
 ```
 
+<br>
+<br>
+
+## Duplicates Handling Per Dataset
+
+### AAAD_GERIAT
+
+```{r DH-1}
+## list all the duplicates
+tmp <- wVisitIndex_AAAD_GERIAT %>%
+  dplyr::group_by(SYSIND, Visit_Index) %>%
+  dplyr::filter(n() > 1)
+
+DT::datatable(tmp)
+```
 
 
-<!-- ## Merge All Datasets -->
 
-<!-- ```{r} -->
-<!-- ## since there are a lot of columns for individuals identifiers, instead of merging the dataset by all of these, I decided to taking them out and merge it back to the very end -->
+```{r DH-2}
+## those two visits are quite close, I don't have a preference, I am just going to randomly pick the first observation
+cat("Before removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_AAAD_GERIAT,"SYSIND","Visit_Index"),"\n")
 
-<!-- colsWfixedValues <- c("SYSGP","SYSGPSTUDY","SYSINDGP","CGI_ORDER","GPS_ORDER","STDCGI_ORDER","LSTUDY","DB_OWNER","STUDY","SUBSTUDY","CENTER","GP","IND","REFCTR","DATE_OF_BIRTH") ## 15 vars -->
+info(wVisitIndex_AAAD_GERIAT,"SYSIND")
 
+wVisitIndex_AAAD_GERIAT <- wVisitIndex_AAAD_GERIAT %>%
+  dplyr::group_by(SYSIND, Visit_Index) %>%
+  slice(1)
 
-<!-- ## this dataset will stored all those identifer values which will be merged to the final dataset at the very end -->
-<!-- colsWfixedValuesDF <- wVisitIndex_AAAD_GERIAT[,colsWfixedValues] -->
+cat("After removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_AAAD_GERIAT,"SYSIND","Visit_Index"),"\n")
+info(wVisitIndex_AAAD_GERIAT,"SYSIND")
+```
 
-<!-- index = 1 -->
-<!-- for (df_name in df_names) { -->
-<!--   cat("======================================================================","\n") -->
-<!--   df_obj <- get(df_name) -->
-<!--   cat(index,": Currently processing dataset: ",df_name,"\n") -->
-<!--   cat("Dataset dimension: ","\n") -->
-<!--   info(df_obj,"SYSIND") -->
+<br>
 
-<!--   colsWfixedValuesDF <- rbind(colsWfixedValuesDF,df_obj[,colsWfixedValues]) -->
+### ALZ_CLINICALSUM
 
-<!--   ## drop columns of colsWfixedValues -->
-<!--   df_obj <- df_obj[, setdiff(names(df_obj), colsWfixedValues), drop = FALSE] -->
+```{r DH-3}
+## list all the duplicates
+tmp <- wVisitIndex_ALZ_CLINICALSUM %>%
+  dplyr::group_by(SYSIND, Visit_Index) %>%
+  dplyr::filter(n() > 1)
 
-<!--   cat("After removing indetifer columns, dataset dimension: ","\n") -->
-<!--   info(df_obj,"SYSIND") -->
-
-<!--   assign(df_name, df_obj) -->
-<!--   index = index + 1 -->
-<!-- } -->
-
-<!-- colsWfixedValuesDF <- colsWfixedValuesDF[!duplicated(colsWfixedValuesDF),] -->
-<!-- info(colsWfixedValuesDF,"SYSINDGP") #obs:1994, cols:15, inds:1994  -->
-
-<!-- ``` -->
+DT::datatable(tmp)
+```
 
 
-<!-- <br> -->
+```{r DH-4}
+## after checking these two observations, all info in first observation were included in the second one, so I decided to remove the first obs since it got more missingness
+
+cat("Before removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_ALZ_CLINICALSUM,"SYSIND","Visit_Index"),"\n")
+
+info(wVisitIndex_ALZ_CLINICALSUM,"SYSIND")
+
+wVisitIndex_ALZ_CLINICALSUM <- wVisitIndex_ALZ_CLINICALSUM %>%
+   filter(!(SYSIND == 11220743 & FORM_DATE == as.Date("2020-05-20")))
+
+cat("After removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_ALZ_CLINICALSUM,"SYSIND","Visit_Index"),"\n")
+
+info(wVisitIndex_ALZ_CLINICALSUM,"SYSIND")
+```
 
 
-<!-- ```{r,eval=FALSE} -->
-<!-- ## Now we can merge all datasets!! -->
-<!-- mergedDF <- get(df_names[1]) -->
-<!-- tc <- c("EXAM_DATE","SYSXM","EXAMINER","AGE_AT_EXAM") -->
-<!-- idx <- match(tc, colnames(mergedDF)) -->
-<!-- colnames(mergedDF)[idx] <- paste0(tc, "_", df_names[1]) -->
+<br>
 
-<!-- for (i in 2:length(df_names)) {  -->
-<!--   mergedDF <- merge_with_info("mergedDF", df_names[i], merge_cols = c("SYSIND","Visit_Index"), info_col = "SYSIND")  -->
-<!-- } -->
+### ALZ_CSDD
 
-<!-- ``` -->
+```{r DH-5}
+## list all the duplicates
+tmp <- wVisitIndex_ALZ_CSDD %>%
+  dplyr::group_by(SYSIND, Visit_Index) %>%
+  dplyr::filter(n() > 1)
+
+DT::datatable(tmp)
+```
+
+```{r DH-6}
+## I dont have a preference for this person as well....
+## I think I will pick the first one, since it got the NOTES_MEDS information
+
+cat("Before removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_ALZ_CSDD,"SYSIND","Visit_Index"),"\n")
+
+info(wVisitIndex_ALZ_CSDD,"SYSIND")
+
+wVisitIndex_ALZ_CSDD <- wVisitIndex_ALZ_CSDD %>%
+   filter(!(SYSIND == 11008433 & EXAM_DATE == as.Date("2019-02-22")))
+
+cat("After removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_ALZ_CSDD,"SYSIND","Visit_Index"),"\n")
+
+info(wVisitIndex_ALZ_CSDD,"SYSIND")
+
+```
+
+<br>
+
+### ALZ_NEURO_CDR
+
+```{r DH-7}
+## list all the duplicates
+tmp <- wVisitIndex_ALZ_NEURO_CDR %>%
+  dplyr::group_by(SYSIND, Visit_Index) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::select(SYSIND,EXAM_DATE,Visit_Index,everything())
+
+DT::datatable(tmp)
+```
+
+```{r DH-8}
+
+table(wVisitIndex_ALZ_NEURO_CDR$METHOD)
+## IP: in-person; TE: Telephone; MR: Medical Records
+
+## There are 5 out of 1102 individuals with duplicate records. Some duplicates occurred because multiple methods were used to retrieve the CDR information. Instead of pivoting the entire dataset to a wider format, I think a better approach is to retain only one observation for those individuals. The priority order should be: IP > TE.
+
+cat("Before removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_ALZ_NEURO_CDR,"SYSIND","Visit_Index"),"\n")
+
+info(wVisitIndex_ALZ_NEURO_CDR,"SYSIND")
+
+## for 11005393: remove the obs obtained on 2019-02-05	
+wVisitIndex_ALZ_NEURO_CDR <- wVisitIndex_ALZ_NEURO_CDR %>%
+   filter(!(SYSIND == 11005393 & EXAM_DATE == as.Date("2019-02-05")))
+
+## for 11008433: remove the obs obtained on 2019-02-22
+wVisitIndex_ALZ_NEURO_CDR <- wVisitIndex_ALZ_NEURO_CDR %>%
+   filter(!(SYSIND == 11008433 & EXAM_DATE == as.Date("2019-02-22")))
+
+## for 11009423: both obs were obtained through TE, I decided to keep the obs with CDR_COMM, so obs obtained on 2019-10-23 should be removed
+wVisitIndex_ALZ_NEURO_CDR <- wVisitIndex_ALZ_NEURO_CDR %>%
+   filter(!(SYSIND == 11009423 & EXAM_DATE == as.Date("2019-10-23")))
+
+## for 11161523: both obs were obtained through IP, no solid reason, but I prefer keep the second obs, so I will remove the one on 2022-03-02
+wVisitIndex_ALZ_NEURO_CDR <- wVisitIndex_ALZ_NEURO_CDR %>%
+   filter(!(SYSIND == 11161523 & EXAM_DATE == as.Date("2022-03-02")))
+
+## for 11221433: remove the TE obs obatined on 2020-01-15
+wVisitIndex_ALZ_NEURO_CDR <- wVisitIndex_ALZ_NEURO_CDR %>%
+   filter(!(SYSIND == 11221433 & EXAM_DATE == as.Date("2020-01-15")))
+
+cat("After removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_ALZ_NEURO_CDR,"SYSIND","Visit_Index"),"\n")
+
+info(wVisitIndex_ALZ_NEURO_CDR,"SYSIND")
+```
+
+<br>
+
+### CONSENSUS_DX_1
+```{r DH-9}
+## list all the duplicates
+tmp <- wVisitIndex_CONSENSUS_DX_1 %>%
+  dplyr::group_by(SYSIND, Visit_Index) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::select(SYSIND,DATE_DX,Visit_Index,everything())
+
+DT::datatable(tmp)
+```
+```{r DH-10}
+## I dont exactly know which obs to choose, for now, I will select the first obs for both individuals, later, if needed to be changed, I can modify then
+
+cat("Before removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_CONSENSUS_DX_1,"SYSIND","Visit_Index"),"\n")
+
+info(wVisitIndex_CONSENSUS_DX_1,"SYSIND")
+
+wVisitIndex_CONSENSUS_DX_1 <- wVisitIndex_CONSENSUS_DX_1 %>%
+  dplyr::group_by(SYSIND, Visit_Index) %>%
+  slice(1)
+
+cat("After removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_CONSENSUS_DX_1,"SYSIND","Visit_Index"),"\n")
+
+info(wVisitIndex_CONSENSUS_DX_1,"SYSIND")
+```
+
+
+<br>
+
+### MEDICAL_HIST
+```{r DH-11}
+## list all the duplicates
+tmp <- wVisitIndex_MEDICAL_HIST %>%
+  dplyr::group_by(SYSIND, Visit_Index) %>%
+  dplyr::filter(n() > 1) %>%
+  dplyr::select(SYSIND,EXAM_DATE,Visit_Index,everything())
+
+DT::datatable(tmp)
+```
+
+
+```{r DH-12}
+## same as above, no preference can be made for those people.
+## I will just randomly pick the first obs
+cat("Before removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_MEDICAL_HIST,"SYSIND","Visit_Index"),"\n")
+
+info(wVisitIndex_MEDICAL_HIST,"SYSIND")
+
+wVisitIndex_MEDICAL_HIST <- wVisitIndex_MEDICAL_HIST %>%
+  dplyr::group_by(SYSIND, Visit_Index) %>%
+  slice(1)
+
+cat("After removing duplucates: SYSIND * Visit_Index is ",dupFixCheck(wVisitIndex_MEDICAL_HIST,"SYSIND","Visit_Index"),"\n")
+
+info(wVisitIndex_MEDICAL_HIST,"SYSIND")
+```
+<br>
+<br>
+
+## Common Columns Detection
+```{r CCD-1}
+## add suffix to some very common columns
+
+cols_to_suffix <- c("EXAM_DATE", "EXAMINER", "AGE_AT_EXAM", "REVIEW_DATE", "REVIEWER","COMMENTS","FILLED_OUT_BY","NOTES","FORM_DATE","MEMORY")
+
+for (df_name in df_names) {
+  df_obj <- get(df_name)
+  
+  # find intersection of existing columns
+  cols_exist <- intersect(cols_to_suffix, names(df_obj))
+  
+  if (length(cols_exist) > 0) {
+    
+    suffix <- sub("^wVisitIndex_", "", df_name)
+    
+    names(df_obj)[names(df_obj) %in% cols_exist] <-
+      paste0(names(df_obj)[names(df_obj) %in% cols_exist],"_",suffix)
+  }
+  
+  assign(df_name, df_obj, envir = .GlobalEnv) 
+}
+
+```
+
+
+```{r CCD-2}
+## add suffix to datasets: wVisitIndex_CONSENSUS_DX_1, wVisitIndex_CONSENSUS_DX_2, wVisitIndex_CONSENSUS_DX_3
+cols_to_suffix <- setdiff(names(wVisitIndex_CONSENSUS_DX_1),c("REVIEW_DATE_wVisitIndex_CONSENSUS_DX_1","REVIEWER_wVisitIndex_CONSENSUS_DX_1","COMMENTS_wVisitIndex_CONSENSUS_DX_1","SYSIND","Visit_Index"))
+
+for (df_name in c("wVisitIndex_CONSENSUS_DX_1","wVisitIndex_CONSENSUS_DX_2","wVisitIndex_CONSENSUS_DX_3")) {
+  df_obj <- get(df_name)
+  
+  # find intersection of existing columns
+  cols_exist <- intersect(cols_to_suffix, names(df_obj))
+  
+  if (length(cols_exist) > 0) {
+    
+    suffix <- paste0(str_split(df_name,"_")[[1]][2],"_",str_split(df_name,"_")[[1]][4])
+    
+    names(df_obj)[names(df_obj) %in% cols_exist] <-
+      paste0(names(df_obj)[names(df_obj) %in% cols_exist],"_",suffix)
+  }
+  
+  assign(df_name, df_obj, envir = .GlobalEnv) 
+}
+
+```
+
+
+```{r CCD-3}
+commonColsDetect(df_names)
+```
+
+<br>
+
+### MEDCON_RC & AAAD_MEDCON
+
+```{r CCD-4}
+## I will just add suffix to both dataset
+common_cols_handle("wVisitIndex_MEDCON_RC","wVisitIndex_AAAD_MEDCON","MEDCON_RC","AAAD_MEDCON")
+```
+
+<br>
+
+### B5_NPIQ_RC & ALZ_NPIQ_CBRS
+
+```{r CCD-5}
+common_cols_handle("wVisitIndex_B5_NPIQ_RC","wVisitIndex_ALZ_NPIQ_CBRS","B5_NPIQ_RC","ALZ_NPIQ_CBRS")
+
+```
+
+<br>
+
+### ALZ_SCREENING_RC & ALZ_SCREENING
+
+```{r CCD-6}
+common_cols_handle("wVisitIndex_ALZ_SCREENING_RC","wVisitIndex_ALZ_SCREENING","ALZ_SCREENING_RC","ALZ_SCREENING")
+```
+
+<br>
+
+### B6_GDS_RC & AAAD_GERIAT
+```{r CCD-7}
+common_cols_handle("wVisitIndex_B6_GDS_RC","wVisitIndex_AAAD_GERIAT","B6_GDS_RC","AAAD_GERIAT")
+```
+
+<br>
+
+### ALZ_EXAM & AAAD_MEDCON
+```{r CCD-8}
+common_cols_handle("wVisitIndex_ALZ_EXAM","wVisitIndex_AAAD_MEDCON","ALZ_EXAM","AAAD_MEDCON")
+```
+
+<br>
+
+### BCFCI_RC & BCFCD_RC
+```{r CCD-9}
+common_cols_handle("wVisitIndex_BCFCI_RC","wVisitIndex_BCFCD_RC","BCFCI_RC","BCFCD_RC")
+```
+
+<br>
+
+### MEDICAL_HIST & ALZ_CSDD
+
+```{r CCD-10}
+common_cols_handle("wVisitIndex_MEDICAL_HIST","wVisitIndex_ALZ_CSDD","MEDICAL_HIST","ALZ_CSDD")
+```
+
+```{r CCD-11}
+## double check common columns before merging
+commonColsDetect(df_names)
+```
+
+<br>
+<br>
+
+# Merge
+
+## Label Columns for All Datasets
+
+```{r final-merge-1}
+for (dfname in df_names) {
+  df <- get(dfname, envir = .GlobalEnv)  # adjust envir if needed
+
+  for (col in names(df)) {
+    Hmisc::label(df[[col]]) <- dfname
+  }
+
+  assign(dfname, df, envir = .GlobalEnv) # write back to the same env
+}
+
+```
+
+
+<br>
+
+## Merge All Dataset
+```{r final-merge-2}
+merged <- get(df_names[1])
+cat("=======================================================================","\n")
+cat("Before merging: Info of ",df_names[1],":","\n")
+info(merged,"SYSIND")
+cat("\n")
+  
+for (dfname in df_names[2:length(df_names)]) {
+  merged <- merge_with_info(
+    df1name = "merged",
+    df2name = dfname,
+    merge_cols = c("SYSIND", "Visit_Index"),
+    info_col = "SYSIND"
+  )
+}
+```
+
+<br>
+
+## Add the Info Cols Back
+```{r}
+merged <- merge(df_common_cols,merged,by="SYSIND",all.y = T)
+info(merged,"SYSIND")
+```
+
+<br>
+
+## Reorder the Columns
+```{r final-merge-3}
+merged <- merged %>% 
+  select(SYSIND, Visit_Index,everything()) %>%
+  arrange(SYSIND,Visit_Index)
+
+```
+
+<br>
+
+Save Finalized Merged Dataset
+```{r}
+## save rds
+saveRDS(merged,paste0(out_directory,"PRADI_June2025_Cleaned.rds"))
+```
+

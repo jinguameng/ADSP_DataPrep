@@ -195,6 +195,75 @@ dupFixCheck <- function(df,id_col,visit_col){
   return(length(unique(interaction(df[[id_col]],  df[[visit_col]], drop = TRUE))))
 }
 
+################################################################################
+## this function check common columns across the datasets
+################################################################################
+commonColsDetect <- function(df_names) {
+  ## Step 1: Get a named list of column names for each data frame
+  df_cols <- lapply(df_names, function(name)
+    colnames(get(name)))
+  names(df_cols) <- df_names
+  
+  ## Step 2: Initialize storage
+  n <- length(df_names)
+  results <- list()
+  
+  ## Step 3: Loop through lower triangle (i > j)
+  for (i in seq_len(n)) {
+    for (j in seq_len(n)) {
+      if (i > j) {
+        df1 <- df_names[i]
+        df2 <- df_names[j]
+        common <- intersect(df_cols[[i]], df_cols[[j]])
+        results[[length(results) + 1]] <- list(
+          df1 = df1,
+          df2 = df2,
+          n_common = length(common),
+          common_cols = paste(common, collapse = ", "),
+          common_list = I(list(common))  # store as list for filtering later
+        )
+      }
+    }
+  }
+  
+  ## Step 4: Convert to data frame
+  common_df <- do.call(rbind, lapply(results, as.data.frame))
+  rownames(common_df) <- NULL
+  
+  ## Step 5: Filter out rows where common_cols is only from a known set
+  key_cols <- c("SYSIND", "Visit_Index")
+  common_df <- common_df[!sapply(common_df$common_list, function(cols) {
+    all(cols %in% key_cols)
+  }), ]
+  
+  ## Step 6: Clean up and sort
+  common_df <- common_df[order(-common_df$n_common), ]
+  common_df$common_list <- NULL  # drop helper column
+  
+  return(DT::datatable(common_df))
+}
+
+################################################################################
+## Common Columns Handling
+################################################################################
+
+common_cols_handle <- function(dfname1,dfname2,suffix1,suffix2){
+  df1 <- get(dfname1)
+  df2 <- get(dfname2)
+  
+  cols_to_suffix <- intersect(setdiff(names(df1),c("SYSIND","Visit_Index")),
+                              setdiff(names(df2),c("SYSIND","Visit_Index")))
+  
+  names(df1)[names(df1) %in% cols_to_suffix] <-
+    paste0(names(df1)[names(df1) %in% cols_to_suffix],"_",suffix1)
+  
+  names(df2)[names(df2) %in% cols_to_suffix] <-
+    paste0(names(df2)[names(df2) %in% cols_to_suffix],"_",suffix2)
+  
+  assign(dfname1, df1, envir = .GlobalEnv)
+  assign(dfname2, df2, envir = .GlobalEnv) 
+  
+}
 
 
 ################################################################################
@@ -217,18 +286,8 @@ merge_with_info <- function(df1name, df2name, merge_cols, info_col) {
   
   cat("\n")
   
-  ## find the common columns from df1 and df2, and rename those common columns except merged_cols
-  commonCols <- intersect(names(df1),names(df2))
-  commonCols_2 <- setdiff(commonCols,merge_cols)
-  
-  cat("Common columns between the two datatsets are: ",commonCols_2,"\n")
-  
-  ## rename those columns
-  idx <- match(commonCols_2, colnames(df2))   # positions of those columns in df2
-  colnames(df2)[idx] <- paste0(commonCols_2, "_", df2name)
-  
   ## merge df1 and df2 by merged_cols
-  merged <- merge(df1, df2, all = TRUE)  # use merge_cols for the merge
+  merged <- merge(df1, df2, by = merge_cols, all = TRUE)  # use merge_cols for the merge
   
   cat("\nInfo for merged dataset:\n")
   info(merged, info_col)
