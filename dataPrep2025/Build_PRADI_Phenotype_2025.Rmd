@@ -19,6 +19,12 @@ Author: Mengna Zhang
 # Set Path
 
 ```{r set-path}
+# Clear the workspace to ensure a clean environment
+rm(list = ls())
+
+# Clear plots and console history
+if (!is.null(dev.list())) dev.off()  # close any open plotting devices
+
 ## directory: can extend to the main CNT folder
 directory <- "/Users/"
 
@@ -133,10 +139,10 @@ Since the raw DD from PRADI is disorganized and difficult to read, I decided to 
 You don’t need to run the code below unless you want to generate another one yourself.</mark>
 
 ```{r,eval=FALSE}
-# ## This code only needs to be run once.
-# ## It will generate an Excel file where each sheet contains the column names for its corresponding dataset.
-# ## Then I will use this excel and fill the infor for each variable to generate the revise DD:
-# # Create a new workbook
+# # ## This code only needs to be run once.
+# # ## It will generate an Excel file where each sheet contains the column names for its corresponding dataset.
+# # ## Then I will use this excel and fill the infor for each variable to generate the revise DD:
+# # # Create a new workbook
 # wb <- createWorkbook()
 # 
 # # For each data frame, add a sheet with its column names

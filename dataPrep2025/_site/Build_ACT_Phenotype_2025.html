@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>ACT Data Prep 2025</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">My Website</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="Build_WRAP_Phenotype_2025.html">WRAP</a>
+</li>
+<li>
+  <a href="Build_WRAP_Phenotype_2025_addImagingMetaData.html">WRAP-sup</a>
+</li>
+<li>
+  <a href="Build_PRADI_Phenotype_2025.html">PRADI</a>
+</li>
+<li>
+  <a href="Build_ACT_Phenotype_2025.html">ACT</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">ACT Data Prep 2025</h1>
+
+</div>
+
+
+<p>Author: Mengna Zhang</p>
+<p><em>Last updated on:</em> 2025-10-16</p>
+<div id="set-path" class="section level1">
+<h1>Set Path</h1>
+<pre class="r"><code># Clear the workspace to ensure a clean environment
+rm(list = ls())
+
+# Clear plots and console history
+if (!is.null(dev.list())) dev.off()  # close any open plotting devices</code></pre>
+<pre><code>## null device 
+##           1</code></pre>
+<pre class="r"><code>## directory: can extend to the main CNT folder
+directory &lt;- &quot;/Users/mengnazhang/Desktop/ADSP_DataPrep_local/&quot;
+
+## set PRADI path (the folder where PRADI raw files located)
+act_directory &lt;- paste0(directory,&quot;ACT/Phenotype/2025/Raw/&quot;)
+
+## output path
+out_directory &lt;- paste0(directory,&quot;ACT/Phenotype/2025/Cleaned/&quot;)
+
+## script path
+script_directory &lt;- paste0(directory,&quot;ACT/Phenotype/2025/Scripts/&quot;)</code></pre>
+<p><br></p>
+</div>
+<div id="load-helper-scripts" class="section level1">
+<h1>Load Helper Scripts</h1>
+<pre class="r"><code>source(paste0(script_directory,&quot;helperScripts_ACT.R&quot;))</code></pre>
+<p><br></p>
+</div>
+<div id="load-packages" class="section level1">
+<h1>Load Packages</h1>
+<pre class="r"><code>require(readxl)
+require(DT)</code></pre>
+<p><br></p>
+</div>
+<div id="explore-data-dictionary" class="section level1">
+<h1>Explore Data Dictionary</h1>
+<p><strong>Purpose</strong>: Import the data dictionary and investigate
+how variables and codes are defined. This exploration will inform the
+creation of validation functions to flag invalid or inconsistent values
+within the datasets.</p>
+<div id="load-dd" class="section level2">
+<h2>Load DD</h2>
+<pre class="r"><code>DD_path &lt;- paste0(act_directory,&quot;Frz2024_DataDictionary_2025_06_06.xlsx&quot;)
+
+DD_sheet_names &lt;- excel_sheets(DD_path)
+
+print(DD_sheet_names) ## 106 sheets in total</code></pre>
+<pre><code>##   [1] &quot;Table of Contents&quot;               &quot;Subjects&quot;                       
+##   [3] &quot;Biennial_Visits&quot;                 &quot;Form72 - Vision&quot;                
+##   [5] &quot;Form72 - Hearing&quot;                &quot;Form72 - Olfaction&quot;             
+##   [7] &quot;Form73_Form23 - CESD&quot;            &quot;Form73_Form68 - ADLs&quot;           
+##   [9] &quot;Form73 - IADLs&quot;                  &quot;Form73 - PhysicalSR&quot;            
+##  [11] &quot;Form73 - SocialSupport&quot;          &quot;Form73 - MemoryChanges&quot;         
+##  [13] &quot;Form75_Form71_Form68 - HomeInfo&quot; &quot;Form75 - SexGender&quot;             
+##  [15] &quot;Form75 - SexualOrientation&quot;      &quot;Form75 - RaceEthnicity&quot;         
+##  [17] &quot;Form75 - PersonalEducation&quot;      &quot;Form75 - ChildhoodHistory&quot;      
+##  [19] &quot;Form75 - ParentalEducation&quot;      &quot;Form75 - MaritalStatus&quot;         
+##  [21] &quot;Form75 - WorkIncome&quot;             &quot;Form77 - PerceivedHealth&quot;       
+##  [23] &quot;Form77 - HealthServices&quot;         &quot;Form77 - Exercise&quot;              
+##  [25] &quot;Form77 - ReproductiveHealth&quot;     &quot;Form77 - Fractures&quot;             
+##  [27] &quot;Form77 - Diabetes&quot;               &quot;Form77 - Coronary&quot;              
+##  [29] &quot;Form77 - OtherCardiovascular&quot;    &quot;Form77 - Respiratory&quot;           
+##  [31] &quot;Form77 - DigestiveProb&quot;          &quot;Form77 - Neurological&quot;          
+##  [33] &quot;Form77 - StopBang&quot;               &quot;Form77 - JointDisease&quot;          
+##  [35] &quot;Form77 - ThyroidDisease&quot;         &quot;Form77 - Viral&quot;                 
+##  [37] &quot;Form77 - Allergies&quot;              &quot;Form77 - OtherDisease&quot;          
+##  [39] &quot;Form77 - SelfReportMeds&quot;         &quot;Form77 - VitaminSupplements&quot;    
+##  [41] &quot;Form78_Form75 - Volunteer&quot;       &quot;Form78 - OccupationHist&quot;        
+##  [43] &quot;Form78 - Caregiver&quot;              &quot;Form78 - ParentAgeBirth&quot;        
+##  [45] &quot;Form78 - Handedness&quot;             &quot;Form78 - InjuryLoc&quot;             
+##  [47] &quot;Form78 - Smoking&quot;                &quot;Form78 - Alcohol&quot;               
+##  [49] &quot;Form78 - MentalHealth&quot;           &quot;Form78 - Autoimmune&quot;            
+##  [51] &quot;Form78 - ImmuneSuppress&quot;         &quot;Form78 - BloodDisease&quot;          
+##  [53] &quot;Form85 - BP&quot;                     &quot;Form85 - Anthropometry&quot;         
+##  [55] &quot;Form85 - Gait&quot;                   &quot;Form85 - Balance&quot;               
+##  [57] &quot;Form85 - Grip&quot;                   &quot;Form85 - Chair&quot;                 
+##  [59] &quot;Form85 - FunctionScores&quot;         &quot;Form86_Form87 - FamHist&quot;        
+##  [61] &quot;Form55 - Short_BISQ&quot;             &quot;Form84 - CASI_MMSE&quot;             
+##  [63] &quot;Form69 - Short_CASI_MMSE&quot;        &quot;Form51 - CogTests&quot;              
+##  [65] &quot;Form51_Form84 - MELV_Scores&quot;     &quot;Form93_Form02 - Dementia&quot;       
+##  [67] &quot;Form81 - CDR&quot;                    &quot;Form66 - Sedentary&quot;             
+##  [69] &quot;Form66 - Activities&quot;             &quot;Form66 - CognitiveEngagement&quot;   
+##  [71] &quot;Form66 - Falls&quot;                  &quot;Form66 - HomeEquip&quot;             
+##  [73] &quot;Form66 - Sleep&quot;                  &quot;Form66 - Neighborhood&quot;          
+##  [75] &quot;Form66 - Diet&quot;                   &quot;Form66 - QualityLife&quot;           
+##  [77] &quot;Form66 - EnergyFatigue&quot;          &quot;Form66 - ActivityPlaces&quot;        
+##  [79] &quot;VDW - Enrollment_Smoothed&quot;       &quot;VDW - Dx&quot;                       
+##  [81] &quot;VDW - Px&quot;                        &quot;VDW - Rx&quot;                       
+##  [83] &quot;VDW - NDC&quot;                       &quot;VDW - Lab&quot;                      
+##  [85] &quot;VDW - HbA1c&quot;                     &quot;VDW - VitalSigns&quot;               
+##  [87] &quot;VDW - Charlson&quot;                  &quot;VDW - Demographics&quot;             
+##  [89] &quot;Genetics - APOE&quot;                 &quot;Genetics - PRS&quot;                 
+##  [91] &quot;Autopsy - Status&quot;                &quot;Neuropathology - Standard&quot;      
+##  [93] &quot;Neuroimaging - CDEs&quot;             &quot;Neuroimaging - AM_Vols&quot;         
+##  [95] &quot;Neuroimaging - PM_Vols&quot;          &quot;ACT_AM - APAG_Wave1_Summary&quot;    
+##  [97] &quot;ACT_AM - AP_Wave1_Daily&quot;         &quot;ACT_AM - AG_Wave1_Daily&quot;        
+##  [99] &quot;ACT_AM - slog_Wave1_Daily&quot;       &quot;AD - Subgroups&quot;                 
+## [101] &quot;Medication Codes&quot;                &quot;Occupation Codes (1970 census)&quot; 
+## [103] &quot;Occupation Codes (2000 census)&quot;  &quot;Relationship Codes&quot;             
+## [105] &quot;Appendix - Form 51 (detail)&quot;     &quot;Data Changes&quot;</code></pre>
+<pre class="r"><code>## remove the &quot;Table of Contents&quot; from sheet_names, we dont need to read it
+DD_sheet_names &lt;- setdiff(DD_sheet_names,&quot;Table of Contents&quot;)
+
+## read each sheet, skipping the first 5 rows, since they are meta info, not relevant
+all_DD_sheets &lt;- lapply(DD_sheet_names, function(sheet) {
+  read_excel(DD_path, sheet = sheet, skip = 5)
+})
+
+
+## load sheet names of datasets and remove the DD sheets not present in the datasets
+df_path &lt;- paste0(act_directory,&quot;ACT_353_Hohman_2025_09_11.xlsx&quot;)
+
+df_sheet_names &lt;- excel_sheets(df_path)
+
+print(df_sheet_names) ## 32 sheets in total</code></pre>
+<pre><code>##  [1] &quot;Subjects&quot;                   &quot;Biennial_Visits&quot;           
+##  [3] &quot;Form73_Form23_CESD&quot;         &quot;Form75_SexGender&quot;          
+##  [5] &quot;Form75_RaceEthnicity&quot;       &quot;Form75_PersonalEducation&quot;  
+##  [7] &quot;Form77_Diabetes&quot;            &quot;Form77_Coronary&quot;           
+##  [9] &quot;Form77_OtherCardiovascular&quot; &quot;Form77_Respiratory&quot;        
+## [11] &quot;Form77_Neurological&quot;        &quot;Form77_OtherDisease&quot;       
+## [13] &quot;Form77_SelfReportMeds&quot;      &quot;Form77_VitaminSupplements&quot; 
+## [15] &quot;Form78_InjuryLOC&quot;           &quot;Form78_Smoking&quot;            
+## [17] &quot;Form78_Alcohol&quot;             &quot;Form85_BP&quot;                 
+## [19] &quot;Form85_Anthropometry&quot;       &quot;Form55_Short_BISQ&quot;         
+## [21] &quot;Form84_CASI_MMSE&quot;           &quot;Form69_Short_CASI_MMSE&quot;    
+## [23] &quot;Form51_CogTests&quot;            &quot;Form51_Form84_MELV_Scores&quot; 
+## [25] &quot;Form93_Form02_Dementia&quot;     &quot;Form81_CDR&quot;                
+## [27] &quot;genetics_apoe&quot;              &quot;autopsy_status&quot;            
+## [29] &quot;np_standard&quot;                &quot;nic_cdes&quot;                  
+## [31] &quot;nic_am_vols&quot;                &quot;nic_pm_vols&quot;</code></pre>
+<pre class="r"><code>## replace &quot; - &quot; with &quot;_&quot; in DD_sheet_names
+DD_sheet_names &lt;- gsub(&quot; - &quot;, &quot;_&quot;, DD_sheet_names)
+
+## check what other names should be modified in the DD_sheet_names:
+setdiff(df_sheet_names,DD_sheet_names)</code></pre>
+<pre><code>## [1] &quot;Form78_InjuryLOC&quot; &quot;genetics_apoe&quot;    &quot;autopsy_status&quot;   &quot;np_standard&quot;     
+## [5] &quot;nic_cdes&quot;         &quot;nic_am_vols&quot;      &quot;nic_pm_vols&quot;</code></pre>
+<pre class="r"><code>## [1] &quot;Form78_InjuryLOC&quot; &quot;genetics_apoe&quot;    &quot;autopsy_status&quot;   &quot;np_standard&quot;      &quot;nic_cdes&quot;         &quot;nic_am_vols&quot;     
+## [7] &quot;nic_pm_vols&quot;   
+
+DD_sheet_names[DD_sheet_names == &quot;Form78_InjuryLoc&quot;] &lt;- &quot;Form78_InjuryLOC&quot;
+DD_sheet_names[DD_sheet_names == &quot;Genetics_APOE&quot;] &lt;- &quot;genetics_apoe&quot;
+DD_sheet_names[DD_sheet_names == &quot;Autopsy_Status&quot;] &lt;- &quot;autopsy_status&quot;
+DD_sheet_names[DD_sheet_names == &quot;Neuropathology_Standard&quot;] &lt;- &quot;np_standard&quot;
+DD_sheet_names[DD_sheet_names == &quot;Neuroimaging_CDEs&quot;] &lt;- &quot;nic_cdes&quot;
+DD_sheet_names[DD_sheet_names == &quot;Neuroimaging_AM_Vols&quot;] &lt;- &quot;nic_am_vols&quot;
+DD_sheet_names[DD_sheet_names == &quot;Neuroimaging_PM_Vols&quot;] &lt;- &quot;nic_pm_vols&quot;
+
+setdiff(df_sheet_names,DD_sheet_names) ## character(0)</code></pre>
+<pre><code>## character(0)</code></pre>
+<pre class="r"><code># name the DD sheet names list
+names(all_DD_sheets) &lt;- DD_sheet_names
+
+## subset DD sheet names to be consistent with datasets
+DD_sheet_names &lt;- intersect(DD_sheet_names,df_sheet_names)
+
+## remove irrelevant elements from the all_DD_sheets list
+all_DD_sheets &lt;- all_DD_sheets[DD_sheet_names] ## length = 32
+
+## extract the Coding variables acorss all the DDs and check unique values
+all_coding_df &lt;- data.frame(
+  Coding = unlist(lapply(all_DD_sheets, function(df) df[[&quot;Coding&quot;]])),
+  Type   = unlist(lapply(all_DD_sheets, function(df) df[[&quot;Type&quot;]])),
+  stringsAsFactors = FALSE
+) 
+
+# remove NAs and duplicates (optional)
+all_coding_df &lt;- unique(na.omit(all_coding_df)) ## 157 obs
+all_coding_df_chr &lt;- all_coding_df[all_coding_df$Type == &quot;Char&quot;,] ## 7 obs
+all_coding_df_num &lt;- all_coding_df[all_coding_df$Type == &quot;Num&quot;,] ## 150 obs</code></pre>
+<p><br></p>
+</div>
+<div id="functions-check-valid-values" class="section level2">
+<h2>Functions: Check Valid Values</h2>
+<p>After observing the patterns of Coding across all the datasets, there
+are some fixed patterns, where xx represents random texts: * “1 = xx =
+xx = xx. = xx” * Valid Values: 1,2,3 * Strategy: remove “”, and retrive
+unique numbers of the left side of “=” sign</p>
+<ul>
+<li>“Integer from 0 through 50 = xx = xx. = xx”
+<ul>
+<li>Valid Values: integer, 0-50,88,99</li>
+</ul></li>
+<li>“Non-negative integers = xx = Txxr. = xx”
+<ul>
+<li>Valid Values: integer, &gt;0, 88, 99</li>
+</ul></li>
+<li>“Non-negative integers”</li>
+<li>“Positive integers, round to integer”
+<ul>
+<li>strategy: if detected from .. through .. then extract the range. If
+detected “Integer” before that, make sure the data type is integer not
+numeric, if “=” presents, then also retrive the number on the left side
+of “=” sign. Finally, merge all the values range and unique values
+together into a vector. If found non-negative keywords, then make sure
+the value &gt; 0 + data type = integer</li>
+</ul></li>
+<li>“Positive real numbers, round to 2 decimals”</li>
+<li>“Positive real numbers (to 1 decimal). = Missing”</li>
+<li>“Positive real numbers, round to 2 decimals. = Missing”</li>
+<li>“Positive real numbers, millimeters (mm). = Missing”</li>
+<li>“Real numbers. = Missing”
+<ul>
+<li>strategy: if detected “real numbers”, then make sure the data type
+is numeric, if detected positive then make sure the value &gt; 0</li>
+</ul></li>
+<li>“Valid years starting in 1994”</li>
+<li>“Valid ages 65+”</li>
+<li>“Valid years.
+<ul>
+<li>strategy: if detected “valid years|ages”, then make sure the value
+is positive, if additional number is provided, then make sure the values
+greated or equal that value</li>
+</ul></li>
+<li>“Number of years. = Missing” ==&gt; valid values: &gt; 0
+<ul>
+<li>strategy: if detected “number of years” than make sure the data
+value &gt; 0</li>
+</ul></li>
+</ul>
+<p><br></p>
+<div id="core-function" class="section level3">
+<h3>Core Function</h3>
+<pre class="r"><code>extract_valid_values &lt;- function(text) {
+  if (is.na(text) || trimws(text) == &quot;&quot;) {
+    return(list(type = NA, valid_values = NA))
+  }
+  
+  txt &lt;- tolower(gsub(&quot;\r\n&quot;, &quot; &quot;, text))
+  
+  result &lt;- list(type = NA, valid_values = NA)
+  values &lt;- numeric()
+  range_vals &lt;- NULL
+  range_str &lt;- NULL
+  min_val &lt;- NULL
+  
+  # ---- Extract explicit equality numbers ----
+  eq_nums &lt;- regmatches(txt, gregexpr(&quot;\\b\\d+\\s*=&quot;, txt))
+  if (length(eq_nums[[1]]) &gt; 0) {
+    nums &lt;- as.numeric(gsub(&quot;\\s*=.*&quot;, &quot;&quot;, eq_nums[[1]]))
+    values &lt;- unique(nums)
+  }
+  
+  # ---- Detect range patterns ----
+  # Handles:
+  #   &quot;from 0 through 6&quot;, &quot;from 0 to 6&quot;, &quot;from 0-6&quot;
+  #   &quot;between 0 and 6&quot;, &quot;integers between 0 and 6&quot;
+  #   &quot;0-6&quot;
+  range_pattern &lt;- &quot;(from|between)?\\s*\\d+(\\s*(through|to|and|-|–)\\s*\\d+)&quot;
+  if (grepl(range_pattern, txt)) {
+    nums &lt;- as.numeric(unlist(regmatches(txt, gregexpr(&quot;\\d+(?:\\.\\d+)?&quot;, txt))))
+    if (length(nums) &gt;= 2) {
+      range_vals &lt;- nums[1]:nums[2]
+      range_str &lt;- paste0(nums[1], &quot;-&quot;, nums[2])
+    }
+  }
+  
+  
+  # ---- Detect keywords for type ----
+  if (grepl(&quot;integer&quot;, txt)) result$type &lt;- &quot;integer&quot;
+  else if (grepl(&quot;real&quot;, txt)) result$type &lt;- &quot;numeric&quot;
+  
+  # ---- Detect positive / non-negative ----
+  if (grepl(&quot;non[- ]negative&quot;, txt)) min_val &lt;- 0
+  if (grepl(&quot;positive&quot;, txt)) min_val &lt;- 0
+  
+  # ---- Detect &quot;valid years/dates starting in X&quot; ----
+  if (grepl(&quot;valid (years|dates) starting in&quot;, txt)) {
+    yr &lt;- as.numeric(gsub(&quot;.*valid (years|dates) starting in\\s*(\\d+).*&quot;, &quot;\\2&quot;, txt))
+    if (!is.na(yr)) min_val &lt;- yr
+  }
+  
+  # ---- Detect &quot;valid ages X+&quot; ----
+  if (grepl(&quot;valid ages&quot;, txt)) {
+    age &lt;- as.numeric(gsub(&quot;.*valid ages\\s*(\\d+)\\+.*&quot;, &quot;\\1&quot;, txt))
+    if (!is.na(age)) min_val &lt;- age
+  }
+  
+  # ---- Detect &quot;number of years&quot; ----
+  if (grepl(&quot;number of years&quot;, txt)) min_val &lt;- 0
+  
+  # ---- Build valid_values string ----
+  valid_str &lt;- NULL
+  
+  # Case 1: min value detected (&gt;=)
+  if (!is.null(min_val)) {
+    valid_str &lt;- paste0(&quot;&gt;=&quot;, min_val)
+  }
+  
+  # Case 2: range detected
+  if (!is.null(range_str)) {
+    if (length(values) &gt; 0) {
+      # only include values outside the range
+      outside_vals &lt;- setdiff(values, range_vals)
+      if (length(outside_vals) &gt; 0) {
+        valid_str &lt;- paste0(range_str, &quot;,&quot;, paste(sort(outside_vals), collapse = &quot;,&quot;))
+      } else {
+        valid_str &lt;- range_str
+      }
+    } else {
+      valid_str &lt;- range_str
+    }
+  } 
+  
+  # Case 3: discrete values only
+  if (is.null(range_str) &amp;&amp; length(values) &gt; 0 &amp;&amp; is.null(valid_str)) {
+    valid_str &lt;- paste(sort(unique(values)), collapse = &quot;,&quot;)
+  }
+  
+  # ---- Infer type if missing ----
+  if (is.na(result$type)) {
+    if (!is.null(valid_str) &amp;&amp; grepl(&quot;^[0-9,\\-]+$&quot;, valid_str)) {
+      result$type &lt;- &quot;integer&quot;
+    } else {
+      result$type &lt;- &quot;numeric&quot;
+    }
+  }
+  
+  result$valid_values &lt;- valid_str
+  return(result)
+}</code></pre>
+<p><br></p>
+</div>
+<div id="core-function-validation" class="section level3">
+<h3>Core Function Validation</h3>
+<pre class="r"><code>## apply the function to the all_coding_df_num dataset to validate the function
+generate_valid_values &lt;- function(df) {
+  # Apply the extraction function to each Coding cell
+  parsed &lt;- lapply(df$Coding, extract_valid_values)
+  
+  # Extract the two elements (type, valid_values) into separate columns
+  df$type &lt;- sapply(parsed, function(x) {
+    ifelse(is.null(x$type) || is.na(x$type), NA, x$type)
+  })
+  
+  df$valid_values &lt;- sapply(parsed, function(x) {
+    ifelse(is.null(x$valid_values) || is.na(x$valid_values), NA, x$valid_values)
+  })
+  
+  return(df)
+}
+
+tmp &lt;- generate_valid_values(all_coding_df_num)</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): NAs introduced by coercion</code></pre>
+<pre class="r"><code>DT::datatable(tmp)</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-01e3c22c2ea69c63ede2" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-01e3c22c2ea69c63ede2">{"x":{"filter":"none","vertical":false,"data":[["Subjects1","Subjects2","Subjects3","Subjects5","Subjects6","Subjects10","Subjects12","Biennial_Visits2","Biennial_Visits4","Biennial_Visits5","Biennial_Visits6","Biennial_Visits7","Biennial_Visits9","Form73_Form23_CESD4","Form73_Form23_CESD7","Form73_Form23_CESD24","Form73_Form23_CESD25","Form73_Form23_CESD26","Form73_Form23_CESD27","Form73_Form23_CESD28","Form73_Form23_CESD29","Form75_SexGender4","Form75_SexGender5","Form75_RaceEthnicity4","Form75_RaceEthnicity5","Form75_RaceEthnicity22","Form75_RaceEthnicity23","Form75_RaceEthnicity24","Form75_RaceEthnicity25","Form75_RaceEthnicity26","Form75_PersonalEducation4","Form75_PersonalEducation5","Form75_PersonalEducation6","Form75_PersonalEducation7","Form77_Diabetes5","Form77_Diabetes6","Form77_SelfReportMeds6","Form77_SelfReportMeds18","Form77_SelfReportMeds19","Form78_InjuryLOC5","Form78_InjuryLOC7","Form78_Smoking4","Form78_Smoking5","Form78_Smoking7","Form78_Alcohol6","Form85_BP4","Form85_Anthropometry4","Form85_Anthropometry5","Form85_Anthropometry7","Form85_Anthropometry8","Form85_Anthropometry9","Form85_Anthropometry10","Form85_Anthropometry11","Form85_Anthropometry15","Form55_Short_BISQ4","Form55_Short_BISQ6","Form55_Short_BISQ9","Form84_CASI_MMSE4","Form84_CASI_MMSE5","Form84_CASI_MMSE6","Form84_CASI_MMSE7","Form84_CASI_MMSE9","Form84_CASI_MMSE14","Form84_CASI_MMSE15","Form84_CASI_MMSE17","Form84_CASI_MMSE18","Form84_CASI_MMSE19","Form84_CASI_MMSE20","Form69_Short_CASI_MMSE4","Form69_Short_CASI_MMSE5","Form69_Short_CASI_MMSE6","Form69_Short_CASI_MMSE8","Form69_Short_CASI_MMSE11","Form69_Short_CASI_MMSE13","Form69_Short_CASI_MMSE14","Form69_Short_CASI_MMSE15","Form51_CogTests5","Form51_CogTests6","Form51_CogTests7","Form51_CogTests10","Form51_CogTests11","Form51_CogTests13","Form51_CogTests18","Form51_CogTests29","Form51_CogTests30","Form51_CogTests32","Form51_CogTests33","Form51_CogTests34","Form51_CogTests35","Form51_CogTests38","Form51_CogTests42","Form51_CogTests44","Form51_CogTests47","Form51_CogTests48","Form51_CogTests59","Form51_CogTests65","Form51_CogTests66","Form51_Form84_MELV_Scores7","Form93_Form02_Dementia5","Form93_Form02_Dementia8","Form93_Form02_Dementia9","Form93_Form02_Dementia11","Form93_Form02_Dementia13","Form93_Form02_Dementia14","Form81_CDR4","genetics_apoe2","np_standard2","np_standard5","np_standard6","np_standard7","np_standard8","np_standard9","np_standard10","np_standard11","np_standard12","np_standard13","np_standard14","np_standard15","np_standard16","np_standard18","np_standard19","np_standard21","np_standard22","nic_cdes4","nic_cdes6","nic_cdes7","nic_cdes9","nic_cdes10","nic_cdes12","nic_cdes19","nic_cdes44","nic_cdes86","nic_cdes87","nic_cdes88","nic_cdes89","nic_cdes93","nic_cdes96","nic_cdes97","nic_cdes102","nic_cdes103","nic_cdes105","nic_cdes140","nic_cdes156","nic_cdes158","nic_cdes160","nic_cdes185","nic_cdes186","nic_cdes189","nic_am_vols9","nic_am_vols236"],["5 digit numerc codes starting with 9\r\nor\r\n6 digit numeric codes starting with 1","Valid dates","Valid dates starting in 1994","Valid date listed as 03/31/2024","Valid dates\r\n. = Missing","0 = No\r\n1 = Yes","0 = Health record data potentially included\r\n1 = No health record data included","Non-negative integers","Valid years starting in 1994","0 = Baseline\r\n2 = Biennial in-person\r\n4 = Biennial telephone\r\n6 = Biennial remote","0 = Telephone\r\n1 = Clinic\r\n2 = Home\r\n3 = Nursing Home\r\n4 = Other\r\n9 = Unknown","Valid ages 65+","1 = Original (Feb 1994-Apr 1996)\r\n2 = Expansion (Nov 2000-Mar 2003)\r\n3 = Replacement (Sep 2004-Mar 2020)\r\n4 = U19 Recruitment (Dec 2022-present)","0 = Rarely or none of the time (&lt; 1 day)\r\n1 = Some or a little of the time (1-2 days)\r\n2 = Occasionally or a moderate amount of the time (3-4 days)\r\n3 = Most of the time (almost every day)\r\n9 = Don’t know / Refused\r\n. = Missing","3 = Rarely or none of the time (&lt; 1 day)\r\n2 = Some or a little of the time (1-2 days)\r\n1 = Occasionally or a moderate amount of the time (3-4 days)\r\n0 = Most of the time (almost every day)\r\n9 = Don’t know / Refused\r\n. = Missing","Integer from 0 through 20","Integer from 0 through 60\r\n. = Missing","0 = No depressive symptoms (20-item score &lt;16)\r\n1 = Yes depressive symptoms (20-item score 16+)\r\n. = Missing","Integer from 0 through 10","Integer from 0 through 30\r\n. = Missing","0 = No depressive symptoms (10-item score &lt;10)\r\n1 = Yes depressive symptoms (10-item score 10+)\r\n. = Missing","1 = Male\r\n2 = Female\r\n. = Missing","1 = Man\r\n2 = Woman\r\n3 = Transgender\r\n4 = Nonbinary\r\n5 = Another gender identity\r\n6 = Prefer not to answer\r\n. = Missing","1 = White, not of Hispanic origin\r\n2 = Black, not of Hispanic origin\r\n3 = Asian or Pacific Islander\r\n4 = American Indian or Alaskan native\r\n5 = Hispanic\r\n6 = Other\r\n. = Missing","0 = No\r\n1 = Yes\r\n9 = Don't know / Refused\r\n. = Missing","1 = American Indian or Alaska native\r\n2 = Asian\r\n3 = Black or African American\r\n5 = Middle Eastern or North African\r\n6 = Native Hawaiian or other Pacific Islander\r\n7 = White\r\n8 = Some other race or More than one race\r\n9 = Unknown or Not Reported","0 = Not Hispanic or Latino\r\n1 = Hispanic of Latino\r\n9 = Unknown or Not Reported","1 = American Indian or Alaska native\r\n2 = Asian\r\n3 = Black or African American\r\n4 = Hispanic or Latino\r\n5 = Middle Eastern or North African\r\n6 = Native Hawaiian or other Pacific Islander\r\n7 = White\r\n8 = Some other category or More than one category\r\n9 = Unknown or Not Reported","1 = American Indian or Alaska native\r\n2 = Asian\r\n3 = Native Hawaiian or other Pacific Islander\r\n4 = Black or African American\r\n5 = White\r\n6 = More than one race\r\n9 = Unknown or Not Reported","0 = Not Hispanic or Latino\r\n1 = Hispanic of Latino\r\n2 = Unknown or Not Reported","Integers between 0 and 21\r\n. = missing, don't know or refused","0 = None\r\n1 = GED\r\n2 = High school diploma\r\n3 = Bachelor’s\r\n4 = Master’s\r\n5 = Doctorate\r\n6 = Other\r\n9 = Don't know / Refused\r\n. = missing","0 = Less than high school\r\n1 = Completed high school\r\n2 = Some college\r\n3 = Completed college\r\n. = Missing","0 = No college education\r\n1 = Some college education\r\n. = Missing","0 = No\r\n1 = Yes\r\n. = Missing","Valid years\r\n. = Missing","Number of years\r\n. = Missing","1 = All - 100%\r\n2 = Almost all - 81 to 99%\r\n3 = Most - 51 to 80%\r\n4 = Some - 21 to 50%\r\n5 = None or very little - 0 to 20%\r\n6 = No care received at GHC/KP\r\n9 = Don't know / Refused\r\n. = Missing","See Medication Codes","1 = Head injury\r\n2 = Near drowning\r\n3 = Electric shock\r\n4 = Trauma (not primarily involving head)\r\n5 = Other injury causing unconsciousness\r\n9 = Don't know / Refused\r\n. = Missing","1 = A few seconds or less\r\n2 = About a minute or less\r\n3 = 1-2 minutes\r\n4 = 3-5 minutes\r\n5 = 6-9 minutes\r\n6 = 10 minutes to one hour\r\n7 = More than one hour\r\n9 = Don't know / Refused\r\n. = Missing","0 = Never smoker\r\n1 = Past smoker\r\n2 = Current smoker\r\n. = Missing","Non-negative integers\r\n. = Missing or non-smoker","Positive real numbers, round to 2 decimals\r\n. = Missing or non-smoker","0 = No\r\n1 = Yes\r\n8 = N/A, non-drinker\r\n9 = Don't know / Refused\r\n. = Missing","Positive integers, round to integer\r\n. = Missing","0 = Measured\r\n1 = Stated\r\n9 = Not specified\r\n. = Missing","Positive integers\r\n. = Missing","Positive real numbers, round to 1 decimal\r\n. = Missing","0 = Underweight, BMI &lt; 18.5\r\n1 = Normal, 18.5&lt;=BMI&lt;25\r\n2 = Overweight, 25&lt;=BMI&lt;30\r\n3 = Obese, BMI&gt;=30\r\n. = Missing","0 = Underweight, BMI &lt; 18.5\r\n1 = Normal, 18.5&lt;=BMI&lt;25\r\n2 = Overweight, 25&lt;=BMI&lt;30\r\n3 = Obese Class 1, 30&lt;=BMI&lt;35\r\n4 = Obese Class 2, 35&lt;=BMI&lt;40\r\n5 = Obese Class 3, BMI&gt;=40\r\n. = Missing","0 = Staff measured\r\n1 = Participant self-measured\r\n9 = Not specified\r\n. = Missing","Positive real numbers (to 1 decimal)\r\n. = Missing","Positive real numbers, round to 2 decimals\r\n. = Missing","1 = Version 1\r\n2 = Version 2","Positive integer count\r\n999 = Don't know / Refused\r\n. = Missing","1 = Less than 1 minute\r\n2 = 1-10 minutes\r\n3 = 11-20 minutes\r\n4 = 21-30 minutes\r\n5 = 31-45 minutes\r\n6 = 46-60 minutes\r\n7 = 1-23 hours\r\n8 = 1 day - 1 week\r\n9 = 1 week - 1 month\r\n10 = More than 1 month\r\n99 = Don't know / Refused\r\n. = Missing","1 = Valid\r\n2 = Probably invalid: poor hearing\r\n3 = Probably invalid: poor eyesight\r\n4 = Probably invalid: impaired motor control\r\n5 = Probably invalid: language barrier\r\n6 = Probably invalid: impaired alertness or attentiveness\r\n7 = Probably invalid: significant physical/mental discomfort\r\n8 = Probably invalid: probably unable to read or write\r\n9 = Probably invalid: other reasons\r\n10 = Listed as valid, but missing some domain scores (and thus missing total score)\r\n. = Missing","Integer from 0 through 8\r\n. = Missing","Integer from 0 through 10\r\n. = Missing","Integer from 0 through 18\r\n. = Missing","Integer from 0 through 12\r\n. = Missing","Integer from 0 through 100\r\n. = Missing","Real number from 0 through 100\r\n666.6 = Incomplete CASI due to sensory impairment\r\n777.7 = Complete but invalid CASI, with a score higher than 86\r\n888.8 = Complete but Invalid CASI, with a score less than 86\r\n999.9 = Score is invalid due to interviewer error or insufficient time\r\n. = Missing","0 = Invalid\r\n1 = Valid\r\n. = Missing","Integer from 1 through 39\r\n. = Missing","Real numbers\r\n. = Missing","Positive real numbers\r\n. = Missing","Integer from 0 through 11\r\n. = Missing","Integer from 0 through 3\r\n. = Missing","Integer from 0 through 9\r\n. = Missing","Integer from 0 through 33\r\n. = Missing","Integer from 0 through 5\r\n. = Missing","Integer from 0 through 2\r\n. = Missing","Integer from 0 through 22\r\n. = Missing","1 = Test completed\r\n2 = Partial: cognitive impairment\r\n3 = Partial: sensory deficits (hearing/vision)\r\n4 = Partial: participant refusal\r\n5 = Partial: other (ran out of time, administration error, or language barrier)\r\n. = Missing","1 = CASI &lt; 86\r\n2 = CASI score dropped 7 points since last visit\r\n3 = Jorms results\r\n4 = Physician diagnosis\r\n5 = Interviewer request\r\n6 = Family request\r\n7 = MCI EPI study\r\n8 = N/A, not referred\r\n9 = Reason missing or not recorded","Positive integers\r\n888 = Unable or refused to perform task\r\n999 = Task not administered by interviewer\r\n. = Task not available","Non-negative integers\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 2\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 3\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 4\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 10\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 20\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 37\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 6\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 39\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 25\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 144\r\n888 = Unable or refused to perform task\r\n999 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 50\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 12\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 24\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 8\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 1\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 15\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 48\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 40\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","0 = SE &gt; 0.6\r\n1 = SE &lt;= 0.6\r\n. = Missing","0 = No dementia (per DSM-IV criteria)\r\n1 = Dementia of Alzheimer's type\r\n2 = Vascular dementia\r\n3 = Dementia due to other general medical conditions\r\n4 = Dementia, substance induced persisting\r\n5 = Dementia due to multiple etiologies\r\n6 = Dementia, cause other or unknown\r\n8 = N/A, not evaluated for dementia","Valid ages\r\n. = Missing","0 = No dementia (per NINCDS-ADRDA criteria)\r\n1 = Dementia, Probable Alzheimer's type\r\n2 = Dementia, Possible Alzheimer's type\r\n3 = Dementia, but not Probable/Possible Alzheimer's type\r\n8 = N/A, not evaluated for dementia","0 = No\r\n1 = Yes\r\n8 = N/A, not evaluated for dementia\r\n9 = Unknown / Missing information","0 = No dementia (per clinical judgment)\r\n1 = Dementia of Alzheimer’s type\r\n2 = Vascular dementia\r\n3 = Dementia due to multiple etiologies\r\n4 = Substance induced dementia (persisting)\r\n5 = Dementia other\r\n6 = Dementia, type unknown\r\n7 = Amnestic syndrome\r\n8 = Uncertain dementia, diagnosis deferred\r\n9 = Unknown / Missing information\r\n10 = N/A, not evaluated for dementia","0 = No dementia (per DSM-V criteria)\r\n1 = Dementia of Alzheimer's type\r\n2 = Vascular dementia\r\n3 = Dementia due to other general medical conditions\r\n4 = Dementia, substance induced persisting\r\n5 = Dementia due to multiple etiologies\r\n6 = Dementia, cause other or unknown\r\n8 = N/A, not evaluated for dementia\r\n9 = Unknown / Missing information","0 = None (per CDR Staging criteria)\r\n0.5 = Questionable\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n4 = Profound\r\n5 = Terminal\r\n8 = N/A, not evaluated for dementia","1 = e22\r\n2 = e23\r\n3 = e24\r\n4 = e33\r\n5 = e34\r\n6 = e44\r\n. = Missing","Positive real numbers,\r\n0 = &lt;24 hours (non-specific)\r\n. = Missing","0 = Phase 0\r\n1 = Phase 1\r\n2 = Phase 2\r\n3 = Phase 3\r\n4 = Phase 4\r\n5 = Phase 5\r\n. = Missing","0 = Stage 0\r\n1 = Stage I\r\n2 = Stage II\r\n3 = Stage III\r\n4 = Stage IV\r\n5 = Stage V\r\n6 = Stage VI\r\n. = Missing","0 = Absent\r\n1 = Sparse\r\n2 = Moderate\r\n3 = Frequent\r\n. = Missing","0 = Thal phase 0\r\n1 = Thal phase 1 or 2\r\n2 = Thal phase 3\r\n3 = Thal phase 4 or 5\r\n. = Missing","0 = Braak stage 0\r\n1 = Braak stage I or II\r\n2 = Braak stage III or IV\r\n3 = Braak stage V or VI\r\n. = Missing","0 = CERAD score absent\r\n1 = CERAD score sparse\r\n2 = CERAD score moderate\r\n3 = CERAD score frequent\r\n. = Missing","0 = Not\r\n1 = Low\r\n2 = Intermediate\r\n3 = High\r\n. = Missing","0 = Not identified\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n. = Missing","0 = Not identified\r\n1 = Stage 1\r\n2 = Stage 2\r\n3 = Stage 3\r\n. = Missing","1 = Not Identified (olfactory bulb not assessed)\r\n1.5 = Not Identified (olfactory bulb assessed)\r\n2 = Amygdala-predominant\r\n3 = Brainstem-predominant\r\n4 = Limbic (Transitional)\r\n5 = Olfactory bulb only\r\n6 = Neocortical (Diffuse)\r\n. = Missing","0 = Not identified\r\n1 = Identified (on at least one laterality)\r\n. = Missing","0 = Not identified\r\n1 = Possible\r\n2 = Definite\r\n. = Missing","0 = None\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n. = Missing","0 = Absent\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n. = Missing","0 = None (0)\r\n1 = Low (1)\r\n2 = Moderate (2)\r\n3 = Severe (3+)\r\n. = Missing","Non-negative integers\r\n. = Missing","Valid date","Positive real numbers (1 decimal place)","1 = Antemortem\r\n2 = Postmortem","1 = Present\r\n2 = Equivocal\r\n3 = Absent\r\n4 = DWI_not_available","1 = Definite AICS\r\n2 = Probable AICS\r\n3 = Possible AICS\r\n. = Missing","0 = No\r\n1 = Yes\r\n2 = Not Applicable\r\n. = Missing","0 = Not present\r\n1 = Left\r\n2 = Right\r\n3 = Bilateral\r\n. = Missing","1 = 1 lesion\r\n2 = 2 lesions\r\n3 = 3 lesions\r\n4 = 4 lesions\r\n5 = &gt;4 shower emboli\r\n. = Missing","0 = Absence \r\n1 = \"Caps\" or pencil lining \r\n2 = Smooth \"halo\" \r\n3 = Irregular periventricular hyperintensities extending into the deep white matter\r\n. = Missing","0 = Absence \r\n1 = Punctate foci\r\n2 = Beginning confluence of foci\r\n3 = Large confluent areas\r\n. = Missing","Integer from 0-6\r\n. = Missing","0 = no abnormalities \r\n1 = &lt;= 3mm and number of lesions &lt;=  5 \r\n2 = &lt;= 3mm and number of lesions &gt;= 6 \r\n3 = 4 to 10 mm and the number of lesions &lt;= 5 \r\n4 = 4 to 10 mm and the number of lesions &gt;= 6 \r\n5 = &gt;= 11 mm and the number of lesions &gt;=  1\r\n6 = Confluent\r\n. = Missing","0 = no abnormalities \r\n1 = Periventricular hyperintensities  &lt;=  5mm\r\n2 = Periventricular hyperintensities &gt; 5mm and &lt;= 10mm\r\n. = Missing","Integer from 0-30\r\n. = Missing","0 = No Lesion \r\n1 = Focal lesions \r\n2 = Beginning confluence of lesions \r\n3 = Diffuse involvement\r\n. = Missing","Integer from 0-15\r\n. = Missing","0 = No\r\n1 = Yes\r\n2 = GRE/SQI not available","1 = 1 lesion\r\n2 = 2 lesions\r\n3 = 3 lesions\r\n4 = 4 lesions\r\n5 = &gt;4 lesions\r\n. = Missing","0 = Not present\r\n1 = Present\r\n. = Missing","0 = No blood\r\n1 = Trace amount of blood or mild bleeding\r\n2 = &lt; half of ventricle filled with blood \r\n3 = &gt; half of ventricle filled with blood \r\n4 = Ventricle expanded and filled with blood\r\n. = Missing","0 = No blood\r\n1 = Blood present without dilation\r\n2 = Ventricle expanded and filled with blood\r\n. = Missing","Integer from 0-12\r\n. = Missing","1 = Subacute\r\n2 = Acute\r\n3 = Chronic\r\n. = Missing","1 = Left\r\n2 = Right\r\n3 = Bilateral\r\n. = Missing","0 = No\r\n1 = Yes\r\n2 = Unsure\r\n. = Missing","Positive real numbers, cubic centimeters (cm3)\r\n. = Missing","Positive real numbers, millimeters (mm)\r\n. = Missing"],["Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num"],["numeric","numeric","numeric","numeric","numeric","integer","integer","integer","numeric","integer","integer","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","numeric","integer","numeric","integer","integer","integer","integer","numeric","integer","integer","integer","integer","numeric","integer","integer","integer","numeric","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","integer","integer","numeric","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","integer","integer","integer","integer","integer","integer","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","numeric"],[null,null,"&gt;=1994",null,null,"0,1","0,1","&gt;=0","&gt;=1994","0,2,4,6","0,1,2,3,4,9","&gt;=65","1,2,3,4","0-1,2,3,9","3-1,0,9","0-20","0-60","0,1","0-10","0-30","0,1","1,2","1,2,3,4,5,6","1,2,3,4,5,6","0,1,9","1,2,3,5,6,7,8,9","0,1,9","1,2,3,4,5,6,7,8,9","1,2,3,4,5,6,9","0,1,2","0-21","0,1,2,3,4,5,6,9","0,1,2,3","0,1","0,1",null,"&gt;=0","1-100",null,"1,2,3,4,5,9","1-2,3,4,5,6,7,9","0,1,2","&gt;=0","&gt;=0","0,1,8,9","&gt;=0","0,1,9","&gt;=0","&gt;=0","0,1,2,3","0,1,2,3,4,5","0,1,9","&gt;=0","&gt;=0","1,2","&gt;=0","1-1,2,3,4,5,6,7,8,9,10,99","1,2,3,4,5,6,7,8,9,10","0-8","0-10","0-18","0-12","0-100","0-100","0,1","1-39",null,"&gt;=0","0-11","0-3","0-9","0-33","0-5","0-2","0-22","1,2,3,4,5","1,2,3,4,5,6,7,8,9","&gt;=0","&gt;=0","0-2,8,9","0-3,8,9","0-4,8,9","0-10,88,99","0-20,88,99","0-37,88,99","0-6,8,9","0-39,88,99","0-25,88,99","0-144,888,999","0-50,88,99","0-12,88,99","0-24,88,99","0-8,88,99","0-1,8,9","0-15,88,99","0-48,88,99","0-40,88,99","0,1","0,1,2,3,4,5,6,8",null,"0,1,2,3,8","0,1,8,9","0,1,2,3,4,5,6,7,8,9,10","0,1,2,3,4,5,6,8,9","0,1,2,3,4,5,8","1,2,3,4,5,6","&gt;=0","0,1,2,3,4,5","0,1,2,3,4,5,6","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","1,2,3,4,5,6","0,1","0,1,2","0,1,2,3","0,1,2,3","0,1,2,3","&gt;=0",null,"&gt;=0","1,2","1,2,3,4","1,2,3","0,1,2","0,1,2,3","1,2,3,4,5","0,1,2,3","0,1,2,3","0-6","0-1,2,3,4,5,6","0,1,2","0-30","0,1,2,3","0-15","0,1,2","1,2,3,4,5","0,1","0,1,2,3,4","0,1,2","0-12","1,2,3","1,2,3","0,1,2","&gt;=0","&gt;=0"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Coding<\/th>\n      <th>Type<\/th>\n      <th>type<\/th>\n      <th>valid_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Coding","targets":1},{"name":"Type","targets":2},{"name":"type","targets":3},{"name":"valid_values","targets":4}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

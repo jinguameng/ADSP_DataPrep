@@ -331,6 +331,9 @@ div.tocify {
 <li>
   <a href="Build_PRADI_Phenotype_2025.html">PRADI</a>
 </li>
+<li>
+  <a href="Build_ACT_Phenotype_2025.html">ACT</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         
@@ -350,9 +353,16 @@ Data</h1>
 
 
 <p>Author: Mengna Zhang</p>
-<p><em>Last updated on:</em> 2025-09-23</p>
+<p><em>Last updated on:</em> 2025-10-16</p>
 <div id="set-path" class="section level1">
 <h1>Set Path</h1>
+<pre class="r"><code># Clear the workspace to ensure a clean environment
+rm(list = ls())
+
+# Clear plots and console history
+if (!is.null(dev.list())) dev.off()  # close any open plotting devices</code></pre>
+<pre><code>## null device 
+##           1</code></pre>
 <pre class="r"><code>## directory: can extend to the main CNT folder
 directory &lt;- &quot;/Users/&quot;
 
@@ -442,38 +452,38 @@ cat(&quot;After duplicates handling - WRAPNo*Days_Since_Baseline_Imaging is: &qu
 table(img$imaging_visit,img$Modality)</code></pre>
 <pre><code>##                   
 ##                     MR  PT
-##   Imaging Visit 1  313 128
-##   Imaging Visit 10  33  71
-##   Imaging Visit 11  23  49
+##   Imaging Visit 1  331 128
+##   Imaging Visit 10  30  71
+##   Imaging Visit 11  17  49
 ##   Imaging Visit 12  12  37
-##   Imaging Visit 13  11  32
-##   Imaging Visit 14   9  20
-##   Imaging Visit 15   8  15
-##   Imaging Visit 16   3  10
-##   Imaging Visit 2  190 231
-##   Imaging Visit 3  139 197
-##   Imaging Visit 4  123 199
-##   Imaging Visit 5  107 159
-##   Imaging Visit 6   77 123
+##   Imaging Visit 13  12  32
+##   Imaging Visit 14  10  20
+##   Imaging Visit 15   5  15
+##   Imaging Visit 16   2  10
+##   Imaging Visit 2  196 231
+##   Imaging Visit 3  149 197
+##   Imaging Visit 4  117 199
+##   Imaging Visit 5  100 159
+##   Imaging Visit 6   72 123
 ##   Imaging Visit 7   62 104
-##   Imaging Visit 8   40  90
-##   Imaging Visit 9   31  83
-##   IV01             256   0
-##   IV02             207   0
-##   IV03             143   0
-##   IV04              90   0
-##   IV05              64   0
-##   IV06              53   0
+##   Imaging Visit 8   45  90
+##   Imaging Visit 9   40  83
+##   IV01             238   0
+##   IV02             201   0
+##   IV03             133   0
+##   IV04              96   0
+##   IV05              71   0
+##   IV06              58   0
 ##   IV07              45   0
-##   IV08              37   0
-##   IV09              31   0
-##   IV10              15   0
-##   IV11              16   0
+##   IV08              32   0
+##   IV09              22   0
+##   IV10              18   0
+##   IV11              22   0
 ##   IV12              17   0
-##   IV13              11   0
-##   IV14               8   0
-##   IV15               4   0
-##   IV16               1   0
+##   IV13              10   0
+##   IV14               7   0
+##   IV15               7   0
+##   IV16               2   0
 ##   IV17               2   0</code></pre>
 <pre class="r"><code>## split dataset by modality
 

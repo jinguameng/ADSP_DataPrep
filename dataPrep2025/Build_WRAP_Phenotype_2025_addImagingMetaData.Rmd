@@ -18,6 +18,13 @@ Author: Mengna Zhang
 # Set Path
 
 ```{r}
+# Clear the workspace to ensure a clean environment
+rm(list = ls())
+
+# Clear plots and console history
+if (!is.null(dev.list())) dev.off()  # close any open plotting devices
+
+
 ## directory: can extend to the main CNT folder
 directory <- "/Users/"
 

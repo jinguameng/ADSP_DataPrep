@@ -1,0 +1,290 @@
+---
+title: "ACT Data Prep 2025"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+---
+
+Author: Mengna Zhang
+
+
+*Last updated on:* `r Sys.Date()`
+
+# Set Path
+
+```{r set-path}
+# Clear the workspace to ensure a clean environment
+rm(list = ls())
+
+# Clear plots and console history
+if (!is.null(dev.list())) dev.off()  # close any open plotting devices
+
+## directory: can extend to the main CNT folder
+directory <- "/Users/mengnazhang/Desktop/ADSP_DataPrep_local/"
+
+## set PRADI path (the folder where PRADI raw files located)
+act_directory <- paste0(directory,"ACT/Phenotype/2025/Raw/")
+
+## output path
+out_directory <- paste0(directory,"ACT/Phenotype/2025/Cleaned/")
+
+## script path
+script_directory <- paste0(directory,"ACT/Phenotype/2025/Scripts/")
+
+```
+
+<br>
+
+# Load Helper Scripts
+```{r load-helper-scripts}
+source(paste0(script_directory,"helperScripts_ACT.R"))
+```
+
+<br>
+
+# Load Packages
+```{r laod-packages,message=FALSE,warning=FALSE}
+require(readxl)
+require(DT)
+```
+
+<br>
+
+# Explore Data Dictionary
+
+**Purpose**: Import the data dictionary and investigate how variables and codes are defined. This exploration will inform the creation of validation functions to flag invalid or inconsistent values within the datasets.
+
+## Load DD
+```{r exploreDD-1}
+DD_path <- paste0(act_directory,"Frz2024_DataDictionary_2025_06_06.xlsx")
+
+DD_sheet_names <- excel_sheets(DD_path)
+
+print(DD_sheet_names) ## 106 sheets in total
+
+## remove the "Table of Contents" from sheet_names, we dont need to read it
+DD_sheet_names <- setdiff(DD_sheet_names,"Table of Contents")
+
+## read each sheet, skipping the first 5 rows, since they are meta info, not relevant
+all_DD_sheets <- lapply(DD_sheet_names, function(sheet) {
+  read_excel(DD_path, sheet = sheet, skip = 5)
+})
+
+
+## load sheet names of datasets and remove the DD sheets not present in the datasets
+df_path <- paste0(act_directory,"ACT_353_Hohman_2025_09_11.xlsx")
+
+df_sheet_names <- excel_sheets(df_path)
+
+print(df_sheet_names) ## 32 sheets in total
+
+## replace " - " with "_" in DD_sheet_names
+DD_sheet_names <- gsub(" - ", "_", DD_sheet_names)
+
+## check what other names should be modified in the DD_sheet_names:
+setdiff(df_sheet_names,DD_sheet_names)
+## [1] "Form78_InjuryLOC" "genetics_apoe"    "autopsy_status"   "np_standard"      "nic_cdes"         "nic_am_vols"     
+## [7] "nic_pm_vols"   
+
+DD_sheet_names[DD_sheet_names == "Form78_InjuryLoc"] <- "Form78_InjuryLOC"
+DD_sheet_names[DD_sheet_names == "Genetics_APOE"] <- "genetics_apoe"
+DD_sheet_names[DD_sheet_names == "Autopsy_Status"] <- "autopsy_status"
+DD_sheet_names[DD_sheet_names == "Neuropathology_Standard"] <- "np_standard"
+DD_sheet_names[DD_sheet_names == "Neuroimaging_CDEs"] <- "nic_cdes"
+DD_sheet_names[DD_sheet_names == "Neuroimaging_AM_Vols"] <- "nic_am_vols"
+DD_sheet_names[DD_sheet_names == "Neuroimaging_PM_Vols"] <- "nic_pm_vols"
+
+setdiff(df_sheet_names,DD_sheet_names) ## character(0)
+
+# name the DD sheet names list
+names(all_DD_sheets) <- DD_sheet_names
+
+## subset DD sheet names to be consistent with datasets
+DD_sheet_names <- intersect(DD_sheet_names,df_sheet_names)
+
+## remove irrelevant elements from the all_DD_sheets list
+all_DD_sheets <- all_DD_sheets[DD_sheet_names] ## length = 32
+
+## extract the Coding variables acorss all the DDs and check unique values
+all_coding_df <- data.frame(
+  Coding = unlist(lapply(all_DD_sheets, function(df) df[["Coding"]])),
+  Type   = unlist(lapply(all_DD_sheets, function(df) df[["Type"]])),
+  stringsAsFactors = FALSE
+) 
+
+# remove NAs and duplicates (optional)
+all_coding_df <- unique(na.omit(all_coding_df)) ## 157 obs
+all_coding_df_chr <- all_coding_df[all_coding_df$Type == "Char",] ## 7 obs
+all_coding_df_num <- all_coding_df[all_coding_df$Type == "Num",] ## 150 obs
+```
+
+
+<br>
+
+## Functions: Check Valid Values
+
+After observing the patterns of Coding across all the datasets, there are some fixed patterns, where xx represents random texts:
+* "1 = xx\r\n2 = xx\r\n3 = xx\r\n. = xx"
+  * Valid Values: 1,2,3
+  * Strategy: remove "\r\n", and retrive unique numbers of the left side of "=" sign
+
+* "Integer from 0 through 50\r\n88 = xx\r\n99 = xx\r\n. = xx"
+  * Valid Values: integer, 0-50,88,99
+* "Non-negative integers\r\n88 = xx\r\n99 = Txxr\r\n. = xx" 
+  * Valid Values: integer, >0, 88, 99
+* "Non-negative integers"
+* "Positive integers, round to integer\r\n"
+  * strategy: if detected from .. through .. then extract the range. If detected "Integer" before that, make sure the data type is integer not numeric, if "=" presents, then also retrive the number on the left side of "=" sign. Finally, merge all the values range and unique values together into a vector. If found non-negative keywords, then make sure the value > 0 + data type = integer
+
+* "Positive real numbers, round to 2 decimals\r\n"
+* "Positive real numbers (to 1 decimal)\r\n. = Missing"
+* "Positive real numbers, round to 2 decimals\r\n. = Missing"
+* "Positive real numbers, millimeters (mm)\r\n. = Missing"
+* "Real numbers\r\n. = Missing"
+  * strategy: if detected "real numbers", then make sure the data type is numeric, if detected positive then make sure the value > 0
+
+* "Valid years starting in 1994"
+* "Valid ages 65+"
+* "Valid years\r\n. 
+  * strategy: if detected "valid years|ages", then make sure the value is positive, if additional number is provided, then make sure the values greated or equal that value
+
+
+* "Number of years\r\n. = Missing" ==> valid values: > 0
+  * strategy: if detected "number of years" than make sure the data value > 0
+
+<br>
+
+### Core Function
+```{r exploreDD-2}
+extract_valid_values <- function(text) {
+  if (is.na(text) || trimws(text) == "") {
+    return(list(type = NA, valid_values = NA))
+  }
+  
+  txt <- tolower(gsub("\r\n", " ", text))
+  
+  result <- list(type = NA, valid_values = NA)
+  values <- numeric()
+  range_vals <- NULL
+  range_str <- NULL
+  min_val <- NULL
+  
+  # ---- Extract explicit equality numbers ----
+  eq_nums <- regmatches(txt, gregexpr("\\b\\d+\\s*=", txt))
+  if (length(eq_nums[[1]]) > 0) {
+    nums <- as.numeric(gsub("\\s*=.*", "", eq_nums[[1]]))
+    values <- unique(nums)
+  }
+  
+  # ---- Detect range patterns ----
+  # Handles:
+  #   "from 0 through 6", "from 0 to 6", "from 0-6"
+  #   "between 0 and 6", "integers between 0 and 6"
+  #   "0-6"
+  range_pattern <- "(from|between)?\\s*\\d+(\\s*(through|to|and|-|–)\\s*\\d+)"
+  if (grepl(range_pattern, txt)) {
+    nums <- as.numeric(unlist(regmatches(txt, gregexpr("\\d+(?:\\.\\d+)?", txt))))
+    if (length(nums) >= 2) {
+      range_vals <- nums[1]:nums[2]
+      range_str <- paste0(nums[1], "-", nums[2])
+    }
+  }
+  
+  
+  # ---- Detect keywords for type ----
+  if (grepl("integer", txt)) result$type <- "integer"
+  else if (grepl("real", txt)) result$type <- "numeric"
+  
+  # ---- Detect positive / non-negative ----
+  if (grepl("non[- ]negative", txt)) min_val <- 0
+  if (grepl("positive", txt)) min_val <- 0
+  
+  # ---- Detect "valid years/dates starting in X" ----
+  if (grepl("valid (years|dates) starting in", txt)) {
+    yr <- as.numeric(gsub(".*valid (years|dates) starting in\\s*(\\d+).*", "\\2", txt))
+    if (!is.na(yr)) min_val <- yr
+  }
+  
+  # ---- Detect "valid ages X+" ----
+  if (grepl("valid ages", txt)) {
+    age <- as.numeric(gsub(".*valid ages\\s*(\\d+)\\+.*", "\\1", txt))
+    if (!is.na(age)) min_val <- age
+  }
+  
+  # ---- Detect "number of years" ----
+  if (grepl("number of years", txt)) min_val <- 0
+  
+  # ---- Build valid_values string ----
+  valid_str <- NULL
+  
+  # Case 1: min value detected (>=)
+  if (!is.null(min_val)) {
+    valid_str <- paste0(">=", min_val)
+  }
+  
+  # Case 2: range detected
+  if (!is.null(range_str)) {
+    if (length(values) > 0) {
+      # only include values outside the range
+      outside_vals <- setdiff(values, range_vals)
+      if (length(outside_vals) > 0) {
+        valid_str <- paste0(range_str, ",", paste(sort(outside_vals), collapse = ","))
+      } else {
+        valid_str <- range_str
+      }
+    } else {
+      valid_str <- range_str
+    }
+  } 
+  
+  # Case 3: discrete values only
+  if (is.null(range_str) && length(values) > 0 && is.null(valid_str)) {
+    valid_str <- paste(sort(unique(values)), collapse = ",")
+  }
+  
+  # ---- Infer type if missing ----
+  if (is.na(result$type)) {
+    if (!is.null(valid_str) && grepl("^[0-9,\\-]+$", valid_str)) {
+      result$type <- "integer"
+    } else {
+      result$type <- "numeric"
+    }
+  }
+  
+  result$valid_values <- valid_str
+  return(result)
+}
+
+```
+
+<br>
+
+### Core Function Validation
+```{r exploreDD-3}
+## apply the function to the all_coding_df_num dataset to validate the function
+generate_valid_values <- function(df) {
+  # Apply the extraction function to each Coding cell
+  parsed <- lapply(df$Coding, extract_valid_values)
+  
+  # Extract the two elements (type, valid_values) into separate columns
+  df$type <- sapply(parsed, function(x) {
+    ifelse(is.null(x$type) || is.na(x$type), NA, x$type)
+  })
+  
+  df$valid_values <- sapply(parsed, function(x) {
+    ifelse(is.null(x$valid_values) || is.na(x$valid_values), NA, x$valid_values)
+  })
+  
+  return(df)
+}
+
+tmp <- generate_valid_values(all_coding_df_num)
+
+DT::datatable(tmp)
+```
+

@@ -10,3 +10,5 @@ navbar:
       href: Build_WRAP_Phenotype_2025_addImagingMetaData.html
     - text: "PRADI"
       href: Build_PRADI_Phenotype_2025.html
+    - text: "ACT"
+      href: Build_ACT_Phenotype_2025.html
