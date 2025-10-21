@@ -360,7 +360,7 @@ div.tocify {
 
 
 <p>Author: Mengna Zhang</p>
-<p><em>Last updated on:</em> 2025-10-16</p>
+<p><em>Last updated on:</em> 2025-10-21</p>
 <div id="set-path" class="section level1">
 <h1>Set Path</h1>
 <pre class="r"><code># Clear the workspace to ensure a clean environment
@@ -391,7 +391,8 @@ script_directory &lt;- paste0(directory,&quot;ACT/Phenotype/2025/Scripts/&quot;)
 <div id="load-packages" class="section level1">
 <h1>Load Packages</h1>
 <pre class="r"><code>require(readxl)
-require(DT)</code></pre>
+require(DT)
+require(dplyr)</code></pre>
 <p><br></p>
 </div>
 <div id="explore-data-dictionary" class="section level1">
@@ -521,65 +522,65 @@ DD_sheet_names &lt;- intersect(DD_sheet_names,df_sheet_names)
 all_DD_sheets &lt;- all_DD_sheets[DD_sheet_names] ## length = 32
 
 ## extract the Coding variables acorss all the DDs and check unique values
-all_coding_df &lt;- data.frame(
-  Coding = unlist(lapply(all_DD_sheets, function(df) df[[&quot;Coding&quot;]])),
-  Type   = unlist(lapply(all_DD_sheets, function(df) df[[&quot;Type&quot;]])),
-  stringsAsFactors = FALSE
-) 
+all_coding_df &lt;- do.call(rbind, lapply(names(all_DD_sheets), function(sheet_name) {
+  df &lt;- all_DD_sheets[[sheet_name]]
+  
+  # Ensure we only extract existing columns
+  var &lt;- if (&quot;Variable&quot; %in% names(df)) df$Variable else NA
+  coding &lt;- if (&quot;Coding&quot; %in% names(df)) df$Coding else NA
+  type &lt;- if (&quot;Type&quot; %in% names(df)) df$Type else NA
+  
+  # Repeat Df_name for each row of this tibble
+  data.frame(
+    Df_name = rep(sheet_name, length(var)),
+    Variable = var,
+    Coding = coding,
+    Type = type,
+    stringsAsFactors = FALSE
+  )
+}))
 
-# remove NAs and duplicates (optional)
-all_coding_df &lt;- unique(na.omit(all_coding_df)) ## 157 obs
-all_coding_df_chr &lt;- all_coding_df[all_coding_df$Type == &quot;Char&quot;,] ## 7 obs
-all_coding_df_num &lt;- all_coding_df[all_coding_df$Type == &quot;Num&quot;,] ## 150 obs</code></pre>
+dim(all_coding_df) ## [1] 1374    4</code></pre>
+<pre><code>## [1] 1374    4</code></pre>
+<pre class="r"><code>## split by type
+unique(all_coding_df$Type)</code></pre>
+<pre><code>## [1] &quot;Num&quot;  NA     &quot;Char&quot;</code></pre>
+<pre class="r"><code>## explore NA and fill the missingness
+print(all_coding_df[is.na(all_coding_df$Type),])</code></pre>
+<pre><code>##    Df_name     Variable                    Coding Type
+## 4 Subjects baseline_age            Valid ages 65+ &lt;NA&gt;
+## 7 Subjects    death_age Valid ages\r\n. = Missing &lt;NA&gt;
+## 9 Subjects withdraw_age Valid ages\r\n. = Missing &lt;NA&gt;</code></pre>
+<pre class="r"><code>## Type = Num for those 3 NA
+all_coding_df$Type[is.na(all_coding_df$Type)] &lt;- &quot;Num&quot;
+
+all_coding_df_chr &lt;- all_coding_df[all_coding_df$Type == &quot;Char&quot;,] ## 18 obs
+length(unique(all_coding_df_chr$Coding)) ## 7 unique patterns in the DD</code></pre>
+<pre><code>## [1] 7</code></pre>
+<pre class="r"><code>all_coding_df_num &lt;- all_coding_df[all_coding_df$Type == &quot;Num&quot;,] ## 1359 obs
+length(unique(all_coding_df_num$Coding)) ## 150 unique patterns in the DD</code></pre>
+<pre><code>## [1] 150</code></pre>
 <p><br></p>
 </div>
-<div id="functions-check-valid-values" class="section level2">
-<h2>Functions: Check Valid Values</h2>
-<p>After observing the patterns of Coding across all the datasets, there
-are some fixed patterns, where xx represents random texts: * “1 = xx =
-xx = xx. = xx” * Valid Values: 1,2,3 * Strategy: remove “”, and retrive
-unique numbers of the left side of “=” sign</p>
+<div id="functions-extract-valid-values-for-numeric-variables"
+class="section level2">
+<h2>Functions: Extract Valid Values for Numeric Variables</h2>
+<p>Patterns observed from DD</p>
 <ul>
-<li>“Integer from 0 through 50 = xx = xx. = xx”
-<ul>
-<li>Valid Values: integer, 0-50,88,99</li>
-</ul></li>
-<li>“Non-negative integers = xx = Txxr. = xx”
-<ul>
-<li>Valid Values: integer, &gt;0, 88, 99</li>
-</ul></li>
-<li>“Non-negative integers”</li>
-<li>“Positive integers, round to integer”
-<ul>
-<li>strategy: if detected from .. through .. then extract the range. If
-detected “Integer” before that, make sure the data type is integer not
-numeric, if “=” presents, then also retrive the number on the left side
-of “=” sign. Finally, merge all the values range and unique values
-together into a vector. If found non-negative keywords, then make sure
-the value &gt; 0 + data type = integer</li>
-</ul></li>
-<li>“Positive real numbers, round to 2 decimals”</li>
-<li>“Positive real numbers (to 1 decimal). = Missing”</li>
-<li>“Positive real numbers, round to 2 decimals. = Missing”</li>
-<li>“Positive real numbers, millimeters (mm). = Missing”</li>
-<li>“Real numbers. = Missing”
-<ul>
-<li>strategy: if detected “real numbers”, then make sure the data type
-is numeric, if detected positive then make sure the value &gt; 0</li>
-</ul></li>
-<li>“Valid years starting in 1994”</li>
-<li>“Valid ages 65+”</li>
-<li>“Valid years.
-<ul>
-<li>strategy: if detected “valid years|ages”, then make sure the value
-is positive, if additional number is provided, then make sure the values
-greated or equal that value</li>
-</ul></li>
-<li>“Number of years. = Missing” ==&gt; valid values: &gt; 0
-<ul>
-<li>strategy: if detected “number of years” than make sure the data
-value &gt; 0</li>
-</ul></li>
+<li><p>“1 = xx = xx = xx. = xx”</p></li>
+<li><p>“Integer from 0 through 50 = xx = xx. = xx”</p></li>
+<li><p>“Non-negative integers = xx = Txxr. = xx”</p></li>
+<li><p>“Non-negative integers”</p></li>
+<li><p>“Positive integers, round to integer”</p></li>
+<li><p>“Positive real numbers, round to 2 decimals”</p></li>
+<li><p>“Positive real numbers (to 1 decimal). = Missing”</p></li>
+<li><p>“Positive real numbers, round to 2 decimals. = Missing”</p></li>
+<li><p>“Positive real numbers, millimeters (mm). = Missing”</p></li>
+<li><p>“Real numbers. = Missing”</p></li>
+<li><p>“Valid years starting in 1994”</p></li>
+<li><p>“Valid ages 65+”</p></li>
+<li><p>“Valid years.</p></li>
+<li><p>“Number of years. = Missing” ==&gt; valid values: &gt; 0</p></li>
 </ul>
 <p><br></p>
 <div id="core-function" class="section level3">
@@ -598,26 +599,25 @@ value &gt; 0</li>
   min_val &lt;- NULL
   
   # ---- Extract explicit equality numbers ----
+  # Capture things like &quot;1 = &quot;, &quot;10=&quot;, etc.
   eq_nums &lt;- regmatches(txt, gregexpr(&quot;\\b\\d+\\s*=&quot;, txt))
   if (length(eq_nums[[1]]) &gt; 0) {
     nums &lt;- as.numeric(gsub(&quot;\\s*=.*&quot;, &quot;&quot;, eq_nums[[1]]))
     values &lt;- unique(nums)
   }
   
-  # ---- Detect range patterns ----
-  # Handles:
-  #   &quot;from 0 through 6&quot;, &quot;from 0 to 6&quot;, &quot;from 0-6&quot;
-  #   &quot;between 0 and 6&quot;, &quot;integers between 0 and 6&quot;
-  #   &quot;0-6&quot;
+  # ---- Detect range patterns (outside code definitions) ----
+  # Remove code definitions first so we don&#39;t confuse description ranges
+  txt_no_eq &lt;- gsub(&quot;\\b\\d+\\s*=.*?(?=\\b\\d+\\s*=|$)&quot;, &quot;&quot;, txt, perl = TRUE)
+  
   range_pattern &lt;- &quot;(from|between)?\\s*\\d+(\\s*(through|to|and|-|–)\\s*\\d+)&quot;
-  if (grepl(range_pattern, txt)) {
-    nums &lt;- as.numeric(unlist(regmatches(txt, gregexpr(&quot;\\d+(?:\\.\\d+)?&quot;, txt))))
+  if (grepl(range_pattern, txt_no_eq)) {
+    nums &lt;- as.numeric(unlist(regmatches(txt_no_eq, gregexpr(&quot;\\d+(?:\\.\\d+)?&quot;, txt_no_eq))))
     if (length(nums) &gt;= 2) {
       range_vals &lt;- nums[1]:nums[2]
       range_str &lt;- paste0(nums[1], &quot;-&quot;, nums[2])
     }
   }
-  
   
   # ---- Detect keywords for type ----
   if (grepl(&quot;integer&quot;, txt)) result$type &lt;- &quot;integer&quot;
@@ -650,10 +650,9 @@ value &gt; 0</li>
     valid_str &lt;- paste0(&quot;&gt;=&quot;, min_val)
   }
   
-  # Case 2: range detected
+  # Case 2: range detected (outside of code defs)
   if (!is.null(range_str)) {
     if (length(values) &gt; 0) {
-      # only include values outside the range
       outside_vals &lt;- setdiff(values, range_vals)
       if (length(outside_vals) &gt; 0) {
         valid_str &lt;- paste0(range_str, &quot;,&quot;, paste(sort(outside_vals), collapse = &quot;,&quot;))
@@ -703,12 +702,404 @@ generate_valid_values &lt;- function(df) {
   return(df)
 }
 
-tmp &lt;- generate_valid_values(all_coding_df_num)</code></pre>
-<pre><code>## Warning in FUN(X[[i]], ...): NAs introduced by coercion</code></pre>
-<pre class="r"><code>DT::datatable(tmp)</code></pre>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-ff81c4bcce457539d484" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-ff81c4bcce457539d484">{"x":{"filter":"none","vertical":false,"data":[["Subjects1","Subjects2","Subjects3","Subjects5","Subjects6","Subjects10","Subjects12","Biennial_Visits2","Biennial_Visits4","Biennial_Visits5","Biennial_Visits6","Biennial_Visits7","Biennial_Visits9","Form73_Form23_CESD4","Form73_Form23_CESD7","Form73_Form23_CESD24","Form73_Form23_CESD25","Form73_Form23_CESD26","Form73_Form23_CESD27","Form73_Form23_CESD28","Form73_Form23_CESD29","Form75_SexGender4","Form75_SexGender5","Form75_RaceEthnicity4","Form75_RaceEthnicity5","Form75_RaceEthnicity22","Form75_RaceEthnicity23","Form75_RaceEthnicity24","Form75_RaceEthnicity25","Form75_RaceEthnicity26","Form75_PersonalEducation4","Form75_PersonalEducation5","Form75_PersonalEducation6","Form75_PersonalEducation7","Form77_Diabetes5","Form77_Diabetes6","Form77_SelfReportMeds6","Form77_SelfReportMeds18","Form77_SelfReportMeds19","Form78_InjuryLOC5","Form78_InjuryLOC7","Form78_Smoking4","Form78_Smoking5","Form78_Smoking7","Form78_Alcohol6","Form85_BP4","Form85_Anthropometry4","Form85_Anthropometry5","Form85_Anthropometry7","Form85_Anthropometry8","Form85_Anthropometry9","Form85_Anthropometry10","Form85_Anthropometry11","Form85_Anthropometry15","Form55_Short_BISQ4","Form55_Short_BISQ6","Form55_Short_BISQ9","Form84_CASI_MMSE4","Form84_CASI_MMSE5","Form84_CASI_MMSE6","Form84_CASI_MMSE7","Form84_CASI_MMSE9","Form84_CASI_MMSE14","Form84_CASI_MMSE15","Form84_CASI_MMSE17","Form84_CASI_MMSE18","Form84_CASI_MMSE19","Form84_CASI_MMSE20","Form69_Short_CASI_MMSE4","Form69_Short_CASI_MMSE5","Form69_Short_CASI_MMSE6","Form69_Short_CASI_MMSE8","Form69_Short_CASI_MMSE11","Form69_Short_CASI_MMSE13","Form69_Short_CASI_MMSE14","Form69_Short_CASI_MMSE15","Form51_CogTests5","Form51_CogTests6","Form51_CogTests7","Form51_CogTests10","Form51_CogTests11","Form51_CogTests13","Form51_CogTests18","Form51_CogTests29","Form51_CogTests30","Form51_CogTests32","Form51_CogTests33","Form51_CogTests34","Form51_CogTests35","Form51_CogTests38","Form51_CogTests42","Form51_CogTests44","Form51_CogTests47","Form51_CogTests48","Form51_CogTests59","Form51_CogTests65","Form51_CogTests66","Form51_Form84_MELV_Scores7","Form93_Form02_Dementia5","Form93_Form02_Dementia8","Form93_Form02_Dementia9","Form93_Form02_Dementia11","Form93_Form02_Dementia13","Form93_Form02_Dementia14","Form81_CDR4","genetics_apoe2","np_standard2","np_standard5","np_standard6","np_standard7","np_standard8","np_standard9","np_standard10","np_standard11","np_standard12","np_standard13","np_standard14","np_standard15","np_standard16","np_standard18","np_standard19","np_standard21","np_standard22","nic_cdes4","nic_cdes6","nic_cdes7","nic_cdes9","nic_cdes10","nic_cdes12","nic_cdes19","nic_cdes44","nic_cdes86","nic_cdes87","nic_cdes88","nic_cdes89","nic_cdes93","nic_cdes96","nic_cdes97","nic_cdes102","nic_cdes103","nic_cdes105","nic_cdes140","nic_cdes156","nic_cdes158","nic_cdes160","nic_cdes185","nic_cdes186","nic_cdes189","nic_am_vols9","nic_am_vols236"],["5 digit numerc codes starting with 9\r\nor\r\n6 digit numeric codes starting with 1","Valid dates","Valid dates starting in 1994","Valid date listed as 03/31/2024","Valid dates\r\n. = Missing","0 = No\r\n1 = Yes","0 = Health record data potentially included\r\n1 = No health record data included","Non-negative integers","Valid years starting in 1994","0 = Baseline\r\n2 = Biennial in-person\r\n4 = Biennial telephone\r\n6 = Biennial remote","0 = Telephone\r\n1 = Clinic\r\n2 = Home\r\n3 = Nursing Home\r\n4 = Other\r\n9 = Unknown","Valid ages 65+","1 = Original (Feb 1994-Apr 1996)\r\n2 = Expansion (Nov 2000-Mar 2003)\r\n3 = Replacement (Sep 2004-Mar 2020)\r\n4 = U19 Recruitment (Dec 2022-present)","0 = Rarely or none of the time (&lt; 1 day)\r\n1 = Some or a little of the time (1-2 days)\r\n2 = Occasionally or a moderate amount of the time (3-4 days)\r\n3 = Most of the time (almost every day)\r\n9 = Don’t know / Refused\r\n. = Missing","3 = Rarely or none of the time (&lt; 1 day)\r\n2 = Some or a little of the time (1-2 days)\r\n1 = Occasionally or a moderate amount of the time (3-4 days)\r\n0 = Most of the time (almost every day)\r\n9 = Don’t know / Refused\r\n. = Missing","Integer from 0 through 20","Integer from 0 through 60\r\n. = Missing","0 = No depressive symptoms (20-item score &lt;16)\r\n1 = Yes depressive symptoms (20-item score 16+)\r\n. = Missing","Integer from 0 through 10","Integer from 0 through 30\r\n. = Missing","0 = No depressive symptoms (10-item score &lt;10)\r\n1 = Yes depressive symptoms (10-item score 10+)\r\n. = Missing","1 = Male\r\n2 = Female\r\n. = Missing","1 = Man\r\n2 = Woman\r\n3 = Transgender\r\n4 = Nonbinary\r\n5 = Another gender identity\r\n6 = Prefer not to answer\r\n. = Missing","1 = White, not of Hispanic origin\r\n2 = Black, not of Hispanic origin\r\n3 = Asian or Pacific Islander\r\n4 = American Indian or Alaskan native\r\n5 = Hispanic\r\n6 = Other\r\n. = Missing","0 = No\r\n1 = Yes\r\n9 = Don't know / Refused\r\n. = Missing","1 = American Indian or Alaska native\r\n2 = Asian\r\n3 = Black or African American\r\n5 = Middle Eastern or North African\r\n6 = Native Hawaiian or other Pacific Islander\r\n7 = White\r\n8 = Some other race or More than one race\r\n9 = Unknown or Not Reported","0 = Not Hispanic or Latino\r\n1 = Hispanic of Latino\r\n9 = Unknown or Not Reported","1 = American Indian or Alaska native\r\n2 = Asian\r\n3 = Black or African American\r\n4 = Hispanic or Latino\r\n5 = Middle Eastern or North African\r\n6 = Native Hawaiian or other Pacific Islander\r\n7 = White\r\n8 = Some other category or More than one category\r\n9 = Unknown or Not Reported","1 = American Indian or Alaska native\r\n2 = Asian\r\n3 = Native Hawaiian or other Pacific Islander\r\n4 = Black or African American\r\n5 = White\r\n6 = More than one race\r\n9 = Unknown or Not Reported","0 = Not Hispanic or Latino\r\n1 = Hispanic of Latino\r\n2 = Unknown or Not Reported","Integers between 0 and 21\r\n. = missing, don't know or refused","0 = None\r\n1 = GED\r\n2 = High school diploma\r\n3 = Bachelor’s\r\n4 = Master’s\r\n5 = Doctorate\r\n6 = Other\r\n9 = Don't know / Refused\r\n. = missing","0 = Less than high school\r\n1 = Completed high school\r\n2 = Some college\r\n3 = Completed college\r\n. = Missing","0 = No college education\r\n1 = Some college education\r\n. = Missing","0 = No\r\n1 = Yes\r\n. = Missing","Valid years\r\n. = Missing","Number of years\r\n. = Missing","1 = All - 100%\r\n2 = Almost all - 81 to 99%\r\n3 = Most - 51 to 80%\r\n4 = Some - 21 to 50%\r\n5 = None or very little - 0 to 20%\r\n6 = No care received at GHC/KP\r\n9 = Don't know / Refused\r\n. = Missing","See Medication Codes","1 = Head injury\r\n2 = Near drowning\r\n3 = Electric shock\r\n4 = Trauma (not primarily involving head)\r\n5 = Other injury causing unconsciousness\r\n9 = Don't know / Refused\r\n. = Missing","1 = A few seconds or less\r\n2 = About a minute or less\r\n3 = 1-2 minutes\r\n4 = 3-5 minutes\r\n5 = 6-9 minutes\r\n6 = 10 minutes to one hour\r\n7 = More than one hour\r\n9 = Don't know / Refused\r\n. = Missing","0 = Never smoker\r\n1 = Past smoker\r\n2 = Current smoker\r\n. = Missing","Non-negative integers\r\n. = Missing or non-smoker","Positive real numbers, round to 2 decimals\r\n. = Missing or non-smoker","0 = No\r\n1 = Yes\r\n8 = N/A, non-drinker\r\n9 = Don't know / Refused\r\n. = Missing","Positive integers, round to integer\r\n. = Missing","0 = Measured\r\n1 = Stated\r\n9 = Not specified\r\n. = Missing","Positive integers\r\n. = Missing","Positive real numbers, round to 1 decimal\r\n. = Missing","0 = Underweight, BMI &lt; 18.5\r\n1 = Normal, 18.5&lt;=BMI&lt;25\r\n2 = Overweight, 25&lt;=BMI&lt;30\r\n3 = Obese, BMI&gt;=30\r\n. = Missing","0 = Underweight, BMI &lt; 18.5\r\n1 = Normal, 18.5&lt;=BMI&lt;25\r\n2 = Overweight, 25&lt;=BMI&lt;30\r\n3 = Obese Class 1, 30&lt;=BMI&lt;35\r\n4 = Obese Class 2, 35&lt;=BMI&lt;40\r\n5 = Obese Class 3, BMI&gt;=40\r\n. = Missing","0 = Staff measured\r\n1 = Participant self-measured\r\n9 = Not specified\r\n. = Missing","Positive real numbers (to 1 decimal)\r\n. = Missing","Positive real numbers, round to 2 decimals\r\n. = Missing","1 = Version 1\r\n2 = Version 2","Positive integer count\r\n999 = Don't know / Refused\r\n. = Missing","1 = Less than 1 minute\r\n2 = 1-10 minutes\r\n3 = 11-20 minutes\r\n4 = 21-30 minutes\r\n5 = 31-45 minutes\r\n6 = 46-60 minutes\r\n7 = 1-23 hours\r\n8 = 1 day - 1 week\r\n9 = 1 week - 1 month\r\n10 = More than 1 month\r\n99 = Don't know / Refused\r\n. = Missing","1 = Valid\r\n2 = Probably invalid: poor hearing\r\n3 = Probably invalid: poor eyesight\r\n4 = Probably invalid: impaired motor control\r\n5 = Probably invalid: language barrier\r\n6 = Probably invalid: impaired alertness or attentiveness\r\n7 = Probably invalid: significant physical/mental discomfort\r\n8 = Probably invalid: probably unable to read or write\r\n9 = Probably invalid: other reasons\r\n10 = Listed as valid, but missing some domain scores (and thus missing total score)\r\n. = Missing","Integer from 0 through 8\r\n. = Missing","Integer from 0 through 10\r\n. = Missing","Integer from 0 through 18\r\n. = Missing","Integer from 0 through 12\r\n. = Missing","Integer from 0 through 100\r\n. = Missing","Real number from 0 through 100\r\n666.6 = Incomplete CASI due to sensory impairment\r\n777.7 = Complete but invalid CASI, with a score higher than 86\r\n888.8 = Complete but Invalid CASI, with a score less than 86\r\n999.9 = Score is invalid due to interviewer error or insufficient time\r\n. = Missing","0 = Invalid\r\n1 = Valid\r\n. = Missing","Integer from 1 through 39\r\n. = Missing","Real numbers\r\n. = Missing","Positive real numbers\r\n. = Missing","Integer from 0 through 11\r\n. = Missing","Integer from 0 through 3\r\n. = Missing","Integer from 0 through 9\r\n. = Missing","Integer from 0 through 33\r\n. = Missing","Integer from 0 through 5\r\n. = Missing","Integer from 0 through 2\r\n. = Missing","Integer from 0 through 22\r\n. = Missing","1 = Test completed\r\n2 = Partial: cognitive impairment\r\n3 = Partial: sensory deficits (hearing/vision)\r\n4 = Partial: participant refusal\r\n5 = Partial: other (ran out of time, administration error, or language barrier)\r\n. = Missing","1 = CASI &lt; 86\r\n2 = CASI score dropped 7 points since last visit\r\n3 = Jorms results\r\n4 = Physician diagnosis\r\n5 = Interviewer request\r\n6 = Family request\r\n7 = MCI EPI study\r\n8 = N/A, not referred\r\n9 = Reason missing or not recorded","Positive integers\r\n888 = Unable or refused to perform task\r\n999 = Task not administered by interviewer\r\n. = Task not available","Non-negative integers\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 2\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 3\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 4\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 10\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 20\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 37\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 6\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 39\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 25\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 144\r\n888 = Unable or refused to perform task\r\n999 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 50\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 12\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 24\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 8\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 1\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 15\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 48\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 40\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","0 = SE &gt; 0.6\r\n1 = SE &lt;= 0.6\r\n. = Missing","0 = No dementia (per DSM-IV criteria)\r\n1 = Dementia of Alzheimer's type\r\n2 = Vascular dementia\r\n3 = Dementia due to other general medical conditions\r\n4 = Dementia, substance induced persisting\r\n5 = Dementia due to multiple etiologies\r\n6 = Dementia, cause other or unknown\r\n8 = N/A, not evaluated for dementia","Valid ages\r\n. = Missing","0 = No dementia (per NINCDS-ADRDA criteria)\r\n1 = Dementia, Probable Alzheimer's type\r\n2 = Dementia, Possible Alzheimer's type\r\n3 = Dementia, but not Probable/Possible Alzheimer's type\r\n8 = N/A, not evaluated for dementia","0 = No\r\n1 = Yes\r\n8 = N/A, not evaluated for dementia\r\n9 = Unknown / Missing information","0 = No dementia (per clinical judgment)\r\n1 = Dementia of Alzheimer’s type\r\n2 = Vascular dementia\r\n3 = Dementia due to multiple etiologies\r\n4 = Substance induced dementia (persisting)\r\n5 = Dementia other\r\n6 = Dementia, type unknown\r\n7 = Amnestic syndrome\r\n8 = Uncertain dementia, diagnosis deferred\r\n9 = Unknown / Missing information\r\n10 = N/A, not evaluated for dementia","0 = No dementia (per DSM-V criteria)\r\n1 = Dementia of Alzheimer's type\r\n2 = Vascular dementia\r\n3 = Dementia due to other general medical conditions\r\n4 = Dementia, substance induced persisting\r\n5 = Dementia due to multiple etiologies\r\n6 = Dementia, cause other or unknown\r\n8 = N/A, not evaluated for dementia\r\n9 = Unknown / Missing information","0 = None (per CDR Staging criteria)\r\n0.5 = Questionable\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n4 = Profound\r\n5 = Terminal\r\n8 = N/A, not evaluated for dementia","1 = e22\r\n2 = e23\r\n3 = e24\r\n4 = e33\r\n5 = e34\r\n6 = e44\r\n. = Missing","Positive real numbers,\r\n0 = &lt;24 hours (non-specific)\r\n. = Missing","0 = Phase 0\r\n1 = Phase 1\r\n2 = Phase 2\r\n3 = Phase 3\r\n4 = Phase 4\r\n5 = Phase 5\r\n. = Missing","0 = Stage 0\r\n1 = Stage I\r\n2 = Stage II\r\n3 = Stage III\r\n4 = Stage IV\r\n5 = Stage V\r\n6 = Stage VI\r\n. = Missing","0 = Absent\r\n1 = Sparse\r\n2 = Moderate\r\n3 = Frequent\r\n. = Missing","0 = Thal phase 0\r\n1 = Thal phase 1 or 2\r\n2 = Thal phase 3\r\n3 = Thal phase 4 or 5\r\n. = Missing","0 = Braak stage 0\r\n1 = Braak stage I or II\r\n2 = Braak stage III or IV\r\n3 = Braak stage V or VI\r\n. = Missing","0 = CERAD score absent\r\n1 = CERAD score sparse\r\n2 = CERAD score moderate\r\n3 = CERAD score frequent\r\n. = Missing","0 = Not\r\n1 = Low\r\n2 = Intermediate\r\n3 = High\r\n. = Missing","0 = Not identified\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n. = Missing","0 = Not identified\r\n1 = Stage 1\r\n2 = Stage 2\r\n3 = Stage 3\r\n. = Missing","1 = Not Identified (olfactory bulb not assessed)\r\n1.5 = Not Identified (olfactory bulb assessed)\r\n2 = Amygdala-predominant\r\n3 = Brainstem-predominant\r\n4 = Limbic (Transitional)\r\n5 = Olfactory bulb only\r\n6 = Neocortical (Diffuse)\r\n. = Missing","0 = Not identified\r\n1 = Identified (on at least one laterality)\r\n. = Missing","0 = Not identified\r\n1 = Possible\r\n2 = Definite\r\n. = Missing","0 = None\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n. = Missing","0 = Absent\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n. = Missing","0 = None (0)\r\n1 = Low (1)\r\n2 = Moderate (2)\r\n3 = Severe (3+)\r\n. = Missing","Non-negative integers\r\n. = Missing","Valid date","Positive real numbers (1 decimal place)","1 = Antemortem\r\n2 = Postmortem","1 = Present\r\n2 = Equivocal\r\n3 = Absent\r\n4 = DWI_not_available","1 = Definite AICS\r\n2 = Probable AICS\r\n3 = Possible AICS\r\n. = Missing","0 = No\r\n1 = Yes\r\n2 = Not Applicable\r\n. = Missing","0 = Not present\r\n1 = Left\r\n2 = Right\r\n3 = Bilateral\r\n. = Missing","1 = 1 lesion\r\n2 = 2 lesions\r\n3 = 3 lesions\r\n4 = 4 lesions\r\n5 = &gt;4 shower emboli\r\n. = Missing","0 = Absence \r\n1 = \"Caps\" or pencil lining \r\n2 = Smooth \"halo\" \r\n3 = Irregular periventricular hyperintensities extending into the deep white matter\r\n. = Missing","0 = Absence \r\n1 = Punctate foci\r\n2 = Beginning confluence of foci\r\n3 = Large confluent areas\r\n. = Missing","Integer from 0-6\r\n. = Missing","0 = no abnormalities \r\n1 = &lt;= 3mm and number of lesions &lt;=  5 \r\n2 = &lt;= 3mm and number of lesions &gt;= 6 \r\n3 = 4 to 10 mm and the number of lesions &lt;= 5 \r\n4 = 4 to 10 mm and the number of lesions &gt;= 6 \r\n5 = &gt;= 11 mm and the number of lesions &gt;=  1\r\n6 = Confluent\r\n. = Missing","0 = no abnormalities \r\n1 = Periventricular hyperintensities  &lt;=  5mm\r\n2 = Periventricular hyperintensities &gt; 5mm and &lt;= 10mm\r\n. = Missing","Integer from 0-30\r\n. = Missing","0 = No Lesion \r\n1 = Focal lesions \r\n2 = Beginning confluence of lesions \r\n3 = Diffuse involvement\r\n. = Missing","Integer from 0-15\r\n. = Missing","0 = No\r\n1 = Yes\r\n2 = GRE/SQI not available","1 = 1 lesion\r\n2 = 2 lesions\r\n3 = 3 lesions\r\n4 = 4 lesions\r\n5 = &gt;4 lesions\r\n. = Missing","0 = Not present\r\n1 = Present\r\n. = Missing","0 = No blood\r\n1 = Trace amount of blood or mild bleeding\r\n2 = &lt; half of ventricle filled with blood \r\n3 = &gt; half of ventricle filled with blood \r\n4 = Ventricle expanded and filled with blood\r\n. = Missing","0 = No blood\r\n1 = Blood present without dilation\r\n2 = Ventricle expanded and filled with blood\r\n. = Missing","Integer from 0-12\r\n. = Missing","1 = Subacute\r\n2 = Acute\r\n3 = Chronic\r\n. = Missing","1 = Left\r\n2 = Right\r\n3 = Bilateral\r\n. = Missing","0 = No\r\n1 = Yes\r\n2 = Unsure\r\n. = Missing","Positive real numbers, cubic centimeters (cm3)\r\n. = Missing","Positive real numbers, millimeters (mm)\r\n. = Missing"],["Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num"],["numeric","numeric","numeric","numeric","numeric","integer","integer","integer","numeric","integer","integer","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","numeric","integer","numeric","integer","integer","integer","integer","numeric","integer","integer","integer","integer","numeric","integer","integer","integer","numeric","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","integer","integer","numeric","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","integer","integer","integer","integer","integer","integer","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","numeric"],[null,null,"&gt;=1994",null,null,"0,1","0,1","&gt;=0","&gt;=1994","0,2,4,6","0,1,2,3,4,9","&gt;=65","1,2,3,4","0-1,2,3,9","3-1,0,9","0-20","0-60","0,1","0-10","0-30","0,1","1,2","1,2,3,4,5,6","1,2,3,4,5,6","0,1,9","1,2,3,5,6,7,8,9","0,1,9","1,2,3,4,5,6,7,8,9","1,2,3,4,5,6,9","0,1,2","0-21","0,1,2,3,4,5,6,9","0,1,2,3","0,1","0,1",null,"&gt;=0","1-100",null,"1,2,3,4,5,9","1-2,3,4,5,6,7,9","0,1,2","&gt;=0","&gt;=0","0,1,8,9","&gt;=0","0,1,9","&gt;=0","&gt;=0","0,1,2,3","0,1,2,3,4,5","0,1,9","&gt;=0","&gt;=0","1,2","&gt;=0","1-1,2,3,4,5,6,7,8,9,10,99","1,2,3,4,5,6,7,8,9,10","0-8","0-10","0-18","0-12","0-100","0-100","0,1","1-39",null,"&gt;=0","0-11","0-3","0-9","0-33","0-5","0-2","0-22","1,2,3,4,5","1,2,3,4,5,6,7,8,9","&gt;=0","&gt;=0","0-2,8,9","0-3,8,9","0-4,8,9","0-10,88,99","0-20,88,99","0-37,88,99","0-6,8,9","0-39,88,99","0-25,88,99","0-144,888,999","0-50,88,99","0-12,88,99","0-24,88,99","0-8,88,99","0-1,8,9","0-15,88,99","0-48,88,99","0-40,88,99","0,1","0,1,2,3,4,5,6,8",null,"0,1,2,3,8","0,1,8,9","0,1,2,3,4,5,6,7,8,9,10","0,1,2,3,4,5,6,8,9","0,1,2,3,4,5,8","1,2,3,4,5,6","&gt;=0","0,1,2,3,4,5","0,1,2,3,4,5,6","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","1,2,3,4,5,6","0,1","0,1,2","0,1,2,3","0,1,2,3","0,1,2,3","&gt;=0",null,"&gt;=0","1,2","1,2,3,4","1,2,3","0,1,2","0,1,2,3","1,2,3,4,5","0,1,2,3","0,1,2,3","0-6","0-1,2,3,4,5,6","0,1,2","0-30","0,1,2,3","0-15","0,1,2","1,2,3,4,5","0,1","0,1,2,3,4","0,1,2","0-12","1,2,3","1,2,3","0,1,2","&gt;=0","&gt;=0"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Coding<\/th>\n      <th>Type<\/th>\n      <th>type<\/th>\n      <th>valid_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Coding","targets":1},{"name":"Type","targets":2},{"name":"type","targets":3},{"name":"valid_values","targets":4}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+numValidVals &lt;- generate_valid_values(all_coding_df_num)</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+## Warning in FUN(X[[i]], ...): NAs introduced by coercion
+## Warning in FUN(X[[i]], ...): NAs introduced by coercion</code></pre>
+<pre class="r"><code>DT::datatable(unique(numValidVals[,c(&quot;Coding&quot;,&quot;Type&quot;,&quot;type&quot;,&quot;valid_values&quot;)]))</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-8c3513c4ad9dc5dbae06" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-8c3513c4ad9dc5dbae06">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","10","12","14","16","17","18","21","25","28","45","46","47","48","49","50","54","55","62","63","80","81","82","83","84","88","89","90","91","96","97","212","224","225","286","288","307","308","310","318","330","335","336","338","339","340","341","342","346","350","352","355","473","474","475","476","478","483","484","486","487","488","489","493","494","495","497","500","502","503","504","514","515","516","519","520","522","527","538","539","541","542","543","544","547","551","553","556","557","568","574","575","588","602","606","608","610","611","616","624","630","633","634","635","636","637","638","639","640","641","642","643","644","646","647","649","650","662","664","665","667","668","670","677","702","744","745","746","747","751","754","755","760","761","763","798","814","816","818","843","844","847","874","1101"],["5 digit numerc codes starting with 9\r\nor\r\n6 digit numeric codes starting with 1","Valid dates","Valid dates starting in 1994","Valid ages 65+","Valid date listed as 03/31/2024","Valid dates\r\n. = Missing","Valid ages\r\n. = Missing","0 = No\r\n1 = Yes","0 = Health record data potentially included\r\n1 = No health record data included","Non-negative integers","Valid years starting in 1994","0 = Baseline\r\n2 = Biennial in-person\r\n4 = Biennial telephone\r\n6 = Biennial remote","0 = Telephone\r\n1 = Clinic\r\n2 = Home\r\n3 = Nursing Home\r\n4 = Other\r\n9 = Unknown","1 = Original (Feb 1994-Apr 1996)\r\n2 = Expansion (Nov 2000-Mar 2003)\r\n3 = Replacement (Sep 2004-Mar 2020)\r\n4 = U19 Recruitment (Dec 2022-present)","0 = Rarely or none of the time (&lt; 1 day)\r\n1 = Some or a little of the time (1-2 days)\r\n2 = Occasionally or a moderate amount of the time (3-4 days)\r\n3 = Most of the time (almost every day)\r\n9 = Don’t know / Refused\r\n. = Missing","3 = Rarely or none of the time (&lt; 1 day)\r\n2 = Some or a little of the time (1-2 days)\r\n1 = Occasionally or a moderate amount of the time (3-4 days)\r\n0 = Most of the time (almost every day)\r\n9 = Don’t know / Refused\r\n. = Missing","Integer from 0 through 20","Integer from 0 through 60\r\n. = Missing","0 = No depressive symptoms (20-item score &lt;16)\r\n1 = Yes depressive symptoms (20-item score 16+)\r\n. = Missing","Integer from 0 through 10","Integer from 0 through 30\r\n. = Missing","0 = No depressive symptoms (10-item score &lt;10)\r\n1 = Yes depressive symptoms (10-item score 10+)\r\n. = Missing","1 = Male\r\n2 = Female\r\n. = Missing","1 = Man\r\n2 = Woman\r\n3 = Transgender\r\n4 = Nonbinary\r\n5 = Another gender identity\r\n6 = Prefer not to answer\r\n. = Missing","1 = White, not of Hispanic origin\r\n2 = Black, not of Hispanic origin\r\n3 = Asian or Pacific Islander\r\n4 = American Indian or Alaskan native\r\n5 = Hispanic\r\n6 = Other\r\n. = Missing","0 = No\r\n1 = Yes\r\n9 = Don't know / Refused\r\n. = Missing","1 = American Indian or Alaska native\r\n2 = Asian\r\n3 = Black or African American\r\n5 = Middle Eastern or North African\r\n6 = Native Hawaiian or other Pacific Islander\r\n7 = White\r\n8 = Some other race or More than one race\r\n9 = Unknown or Not Reported","0 = Not Hispanic or Latino\r\n1 = Hispanic of Latino\r\n9 = Unknown or Not Reported","1 = American Indian or Alaska native\r\n2 = Asian\r\n3 = Black or African American\r\n4 = Hispanic or Latino\r\n5 = Middle Eastern or North African\r\n6 = Native Hawaiian or other Pacific Islander\r\n7 = White\r\n8 = Some other category or More than one category\r\n9 = Unknown or Not Reported","1 = American Indian or Alaska native\r\n2 = Asian\r\n3 = Native Hawaiian or other Pacific Islander\r\n4 = Black or African American\r\n5 = White\r\n6 = More than one race\r\n9 = Unknown or Not Reported","0 = Not Hispanic or Latino\r\n1 = Hispanic of Latino\r\n2 = Unknown or Not Reported","Integers between 0 and 21\r\n. = missing, don't know or refused","0 = None\r\n1 = GED\r\n2 = High school diploma\r\n3 = Bachelor’s\r\n4 = Master’s\r\n5 = Doctorate\r\n6 = Other\r\n9 = Don't know / Refused\r\n. = missing","0 = Less than high school\r\n1 = Completed high school\r\n2 = Some college\r\n3 = Completed college\r\n. = Missing","0 = No college education\r\n1 = Some college education\r\n. = Missing","0 = No\r\n1 = Yes\r\n. = Missing","Valid years\r\n. = Missing","Number of years\r\n. = Missing","1 = All - 100%\r\n2 = Almost all - 81 to 99%\r\n3 = Most - 51 to 80%\r\n4 = Some - 21 to 50%\r\n5 = None or very little - 0 to 20%\r\n6 = No care received at GHC/KP\r\n9 = Don't know / Refused\r\n. = Missing","See Medication Codes","1 = Head injury\r\n2 = Near drowning\r\n3 = Electric shock\r\n4 = Trauma (not primarily involving head)\r\n5 = Other injury causing unconsciousness\r\n9 = Don't know / Refused\r\n. = Missing","1 = A few seconds or less\r\n2 = About a minute or less\r\n3 = 1-2 minutes\r\n4 = 3-5 minutes\r\n5 = 6-9 minutes\r\n6 = 10 minutes to one hour\r\n7 = More than one hour\r\n9 = Don't know / Refused\r\n. = Missing","0 = Never smoker\r\n1 = Past smoker\r\n2 = Current smoker\r\n. = Missing","Non-negative integers\r\n. = Missing or non-smoker","Positive real numbers, round to 2 decimals\r\n. = Missing or non-smoker","0 = No\r\n1 = Yes\r\n8 = N/A, non-drinker\r\n9 = Don't know / Refused\r\n. = Missing","Positive integers, round to integer\r\n. = Missing","0 = Measured\r\n1 = Stated\r\n9 = Not specified\r\n. = Missing","Positive integers\r\n. = Missing","Positive real numbers, round to 1 decimal\r\n. = Missing","0 = Underweight, BMI &lt; 18.5\r\n1 = Normal, 18.5&lt;=BMI&lt;25\r\n2 = Overweight, 25&lt;=BMI&lt;30\r\n3 = Obese, BMI&gt;=30\r\n. = Missing","0 = Underweight, BMI &lt; 18.5\r\n1 = Normal, 18.5&lt;=BMI&lt;25\r\n2 = Overweight, 25&lt;=BMI&lt;30\r\n3 = Obese Class 1, 30&lt;=BMI&lt;35\r\n4 = Obese Class 2, 35&lt;=BMI&lt;40\r\n5 = Obese Class 3, BMI&gt;=40\r\n. = Missing","0 = Staff measured\r\n1 = Participant self-measured\r\n9 = Not specified\r\n. = Missing","Positive real numbers (to 1 decimal)\r\n. = Missing","Positive real numbers, round to 2 decimals\r\n. = Missing","1 = Version 1\r\n2 = Version 2","Positive integer count\r\n999 = Don't know / Refused\r\n. = Missing","1 = Less than 1 minute\r\n2 = 1-10 minutes\r\n3 = 11-20 minutes\r\n4 = 21-30 minutes\r\n5 = 31-45 minutes\r\n6 = 46-60 minutes\r\n7 = 1-23 hours\r\n8 = 1 day - 1 week\r\n9 = 1 week - 1 month\r\n10 = More than 1 month\r\n99 = Don't know / Refused\r\n. = Missing","1 = Valid\r\n2 = Probably invalid: poor hearing\r\n3 = Probably invalid: poor eyesight\r\n4 = Probably invalid: impaired motor control\r\n5 = Probably invalid: language barrier\r\n6 = Probably invalid: impaired alertness or attentiveness\r\n7 = Probably invalid: significant physical/mental discomfort\r\n8 = Probably invalid: probably unable to read or write\r\n9 = Probably invalid: other reasons\r\n10 = Listed as valid, but missing some domain scores (and thus missing total score)\r\n. = Missing","Integer from 0 through 8\r\n. = Missing","Integer from 0 through 10\r\n. = Missing","Integer from 0 through 18\r\n. = Missing","Integer from 0 through 12\r\n. = Missing","Integer from 0 through 100\r\n. = Missing","Real number from 0 through 100\r\n666.6 = Incomplete CASI due to sensory impairment\r\n777.7 = Complete but invalid CASI, with a score higher than 86\r\n888.8 = Complete but Invalid CASI, with a score less than 86\r\n999.9 = Score is invalid due to interviewer error or insufficient time\r\n. = Missing","0 = Invalid\r\n1 = Valid\r\n. = Missing","Integer from 1 through 39\r\n. = Missing","Real numbers\r\n. = Missing","Positive real numbers\r\n. = Missing","Integer from 0 through 11\r\n. = Missing","Integer from 0 through 3\r\n. = Missing","Integer from 0 through 9\r\n. = Missing","Integer from 0 through 33\r\n. = Missing","Integer from 0 through 5\r\n. = Missing","Integer from 0 through 2\r\n. = Missing","Integer from 0 through 22\r\n. = Missing","1 = Test completed\r\n2 = Partial: cognitive impairment\r\n3 = Partial: sensory deficits (hearing/vision)\r\n4 = Partial: participant refusal\r\n5 = Partial: other (ran out of time, administration error, or language barrier)\r\n. = Missing","1 = CASI &lt; 86\r\n2 = CASI score dropped 7 points since last visit\r\n3 = Jorms results\r\n4 = Physician diagnosis\r\n5 = Interviewer request\r\n6 = Family request\r\n7 = MCI EPI study\r\n8 = N/A, not referred\r\n9 = Reason missing or not recorded","Positive integers\r\n888 = Unable or refused to perform task\r\n999 = Task not administered by interviewer\r\n. = Task not available","Non-negative integers\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 2\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 3\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 4\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 10\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 20\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 37\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 6\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 39\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 25\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 144\r\n888 = Unable or refused to perform task\r\n999 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 50\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 12\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 24\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 8\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 1\r\n8 = Unable or refused to perform task\r\n9 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 15\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 48\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","Integer from 0 through 40\r\n88 = Unable or refused to perform task\r\n99 = Task not administered by interviewer\r\n. = Task not available","0 = SE &gt; 0.6\r\n1 = SE &lt;= 0.6\r\n. = Missing","0 = No dementia (per DSM-IV criteria)\r\n1 = Dementia of Alzheimer's type\r\n2 = Vascular dementia\r\n3 = Dementia due to other general medical conditions\r\n4 = Dementia, substance induced persisting\r\n5 = Dementia due to multiple etiologies\r\n6 = Dementia, cause other or unknown\r\n8 = N/A, not evaluated for dementia","0 = No dementia (per NINCDS-ADRDA criteria)\r\n1 = Dementia, Probable Alzheimer's type\r\n2 = Dementia, Possible Alzheimer's type\r\n3 = Dementia, but not Probable/Possible Alzheimer's type\r\n8 = N/A, not evaluated for dementia","0 = No\r\n1 = Yes\r\n8 = N/A, not evaluated for dementia\r\n9 = Unknown / Missing information","0 = No dementia (per clinical judgment)\r\n1 = Dementia of Alzheimer’s type\r\n2 = Vascular dementia\r\n3 = Dementia due to multiple etiologies\r\n4 = Substance induced dementia (persisting)\r\n5 = Dementia other\r\n6 = Dementia, type unknown\r\n7 = Amnestic syndrome\r\n8 = Uncertain dementia, diagnosis deferred\r\n9 = Unknown / Missing information\r\n10 = N/A, not evaluated for dementia","0 = No dementia (per DSM-V criteria)\r\n1 = Dementia of Alzheimer's type\r\n2 = Vascular dementia\r\n3 = Dementia due to other general medical conditions\r\n4 = Dementia, substance induced persisting\r\n5 = Dementia due to multiple etiologies\r\n6 = Dementia, cause other or unknown\r\n8 = N/A, not evaluated for dementia\r\n9 = Unknown / Missing information","0 = None (per CDR Staging criteria)\r\n0.5 = Questionable\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n4 = Profound\r\n5 = Terminal\r\n8 = N/A, not evaluated for dementia","1 = e22\r\n2 = e23\r\n3 = e24\r\n4 = e33\r\n5 = e34\r\n6 = e44\r\n. = Missing","Positive real numbers,\r\n0 = &lt;24 hours (non-specific)\r\n. = Missing","0 = Phase 0\r\n1 = Phase 1\r\n2 = Phase 2\r\n3 = Phase 3\r\n4 = Phase 4\r\n5 = Phase 5\r\n. = Missing","0 = Stage 0\r\n1 = Stage I\r\n2 = Stage II\r\n3 = Stage III\r\n4 = Stage IV\r\n5 = Stage V\r\n6 = Stage VI\r\n. = Missing","0 = Absent\r\n1 = Sparse\r\n2 = Moderate\r\n3 = Frequent\r\n. = Missing","0 = Thal phase 0\r\n1 = Thal phase 1 or 2\r\n2 = Thal phase 3\r\n3 = Thal phase 4 or 5\r\n. = Missing","0 = Braak stage 0\r\n1 = Braak stage I or II\r\n2 = Braak stage III or IV\r\n3 = Braak stage V or VI\r\n. = Missing","0 = CERAD score absent\r\n1 = CERAD score sparse\r\n2 = CERAD score moderate\r\n3 = CERAD score frequent\r\n. = Missing","0 = Not\r\n1 = Low\r\n2 = Intermediate\r\n3 = High\r\n. = Missing","0 = Not identified\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n. = Missing","0 = Not identified\r\n1 = Stage 1\r\n2 = Stage 2\r\n3 = Stage 3\r\n. = Missing","1 = Not Identified (olfactory bulb not assessed)\r\n1.5 = Not Identified (olfactory bulb assessed)\r\n2 = Amygdala-predominant\r\n3 = Brainstem-predominant\r\n4 = Limbic (Transitional)\r\n5 = Olfactory bulb only\r\n6 = Neocortical (Diffuse)\r\n. = Missing","0 = Not identified\r\n1 = Identified (on at least one laterality)\r\n. = Missing","0 = Not identified\r\n1 = Possible\r\n2 = Definite\r\n. = Missing","0 = None\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n. = Missing","0 = Absent\r\n1 = Mild\r\n2 = Moderate\r\n3 = Severe\r\n. = Missing","0 = None (0)\r\n1 = Low (1)\r\n2 = Moderate (2)\r\n3 = Severe (3+)\r\n. = Missing","Non-negative integers\r\n. = Missing","Valid date","Positive real numbers (1 decimal place)","1 = Antemortem\r\n2 = Postmortem","1 = Present\r\n2 = Equivocal\r\n3 = Absent\r\n4 = DWI_not_available","1 = Definite AICS\r\n2 = Probable AICS\r\n3 = Possible AICS\r\n. = Missing","0 = No\r\n1 = Yes\r\n2 = Not Applicable\r\n. = Missing","0 = Not present\r\n1 = Left\r\n2 = Right\r\n3 = Bilateral\r\n. = Missing","1 = 1 lesion\r\n2 = 2 lesions\r\n3 = 3 lesions\r\n4 = 4 lesions\r\n5 = &gt;4 shower emboli\r\n. = Missing","0 = Absence \r\n1 = \"Caps\" or pencil lining \r\n2 = Smooth \"halo\" \r\n3 = Irregular periventricular hyperintensities extending into the deep white matter\r\n. = Missing","0 = Absence \r\n1 = Punctate foci\r\n2 = Beginning confluence of foci\r\n3 = Large confluent areas\r\n. = Missing","Integer from 0-6\r\n. = Missing","0 = no abnormalities \r\n1 = &lt;= 3mm and number of lesions &lt;=  5 \r\n2 = &lt;= 3mm and number of lesions &gt;= 6 \r\n3 = 4 to 10 mm and the number of lesions &lt;= 5 \r\n4 = 4 to 10 mm and the number of lesions &gt;= 6 \r\n5 = &gt;= 11 mm and the number of lesions &gt;=  1\r\n6 = Confluent\r\n. = Missing","0 = no abnormalities \r\n1 = Periventricular hyperintensities  &lt;=  5mm\r\n2 = Periventricular hyperintensities &gt; 5mm and &lt;= 10mm\r\n. = Missing","Integer from 0-30\r\n. = Missing","0 = No Lesion \r\n1 = Focal lesions \r\n2 = Beginning confluence of lesions \r\n3 = Diffuse involvement\r\n. = Missing","Integer from 0-15\r\n. = Missing","0 = No\r\n1 = Yes\r\n2 = GRE/SQI not available","1 = 1 lesion\r\n2 = 2 lesions\r\n3 = 3 lesions\r\n4 = 4 lesions\r\n5 = &gt;4 lesions\r\n. = Missing","0 = Not present\r\n1 = Present\r\n. = Missing","0 = No blood\r\n1 = Trace amount of blood or mild bleeding\r\n2 = &lt; half of ventricle filled with blood \r\n3 = &gt; half of ventricle filled with blood \r\n4 = Ventricle expanded and filled with blood\r\n. = Missing","0 = No blood\r\n1 = Blood present without dilation\r\n2 = Ventricle expanded and filled with blood\r\n. = Missing","Integer from 0-12\r\n. = Missing","1 = Subacute\r\n2 = Acute\r\n3 = Chronic\r\n. = Missing","1 = Left\r\n2 = Right\r\n3 = Bilateral\r\n. = Missing","0 = No\r\n1 = Yes\r\n2 = Unsure\r\n. = Missing","Positive real numbers, cubic centimeters (cm3)\r\n. = Missing","Positive real numbers, millimeters (mm)\r\n. = Missing"],["Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num","Num"],["numeric","numeric","numeric","numeric","numeric","numeric","numeric","integer","integer","integer","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","numeric","integer","numeric","integer","integer","integer","integer","numeric","integer","integer","integer","integer","numeric","integer","integer","integer","numeric","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","integer","integer","numeric","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","numeric","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","integer","numeric","numeric"],[null,null,"&gt;=1994","&gt;=65",null,null,null,"0,1","0,1","&gt;=0","&gt;=1994","0,2,4,6","0,1,2,3,4,9","1,2,3,4","0,1,2,3,9","0,1,2,3,9","0-20","0-60","0,1","0-10","0-30","0,1","1,2","1,2,3,4,5,6","1,2,3,4,5,6","0,1,9","1,2,3,5,6,7,8,9","0,1,9","1,2,3,4,5,6,7,8,9","1,2,3,4,5,6,9","0,1,2","0-21","0,1,2,3,4,5,6,9","0,1,2,3","0,1","0,1",null,"&gt;=0","1,2,3,4,5,6,9",null,"1,2,3,4,5,9","1,2,3,4,5,6,7,9","0,1,2","&gt;=0","&gt;=0","0,1,8,9","&gt;=0","0,1,9","&gt;=0","&gt;=0","0,1,2,3","0,1,2,3,4,5","0,1,9","&gt;=0","&gt;=0","1,2","&gt;=0","1,2,3,4,5,6,7,8,9,10,99","1,2,3,4,5,6,7,8,9,10","0-8","0-10","0-18","0-12","0-100","0-100","0,1","1-39",null,"&gt;=0","0-11","0-3","0-9","0-33","0-5","0-2","0-22","1,2,3,4,5","1,2,3,4,5,6,7,8,9","&gt;=0","&gt;=0","0-2,8,9","0-3,8,9","0-4,8,9","0-10,88,99","0-20,88,99","0-37,88,99","0-6,8,9","0-39,88,99","0-25,88,99","0-144,888,999","0-50,88,99","0-12,88,99","0-24,88,99","0-8,88,99","0-1,8,9","0-15,88,99","0-48,88,99","0-40,88,99","0,1","0,1,2,3,4,5,6,8","0,1,2,3,8","0,1,8,9","0,1,2,3,4,5,6,7,8,9,10","0,1,2,3,4,5,6,8,9","0,1,2,3,4,5,8","1,2,3,4,5,6","&gt;=0","0,1,2,3,4,5","0,1,2,3,4,5,6","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","0,1,2,3","1,2,3,4,5,6","0,1","0,1,2","0,1,2,3","0,1,2,3","0,1,2,3","&gt;=0",null,"&gt;=0","1,2","1,2,3,4","1,2,3","0,1,2","0,1,2,3","1,2,3,4,5","0,1,2,3","0,1,2,3","0-6","0,1,2,3,4,5,6","0,1,2","0-30","0,1,2,3","0-15","0,1,2","1,2,3,4,5","0,1","0,1,2,3,4","0,1,2","0-12","1,2,3","1,2,3","0,1,2","&gt;=0","&gt;=0"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Coding<\/th>\n      <th>Type<\/th>\n      <th>type<\/th>\n      <th>valid_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Coding","targets":1},{"name":"Type","targets":2},{"name":"type","targets":3},{"name":"valid_values","targets":4}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p><br></p>
 </div>
+</div>
+<div id="functions-extract-valid-values-for-char-variables"
+class="section level2">
+<h2>Functions: Extract Valid Values for Char Variables</h2>
+<p>Since there are only 7 character variables based on the DD. I will
+manually extract the valid values as above.</p>
+<pre class="r"><code>chrValidVals &lt;- all_coding_df_chr %&gt;%
+  mutate(type = &quot;character&quot;,
+         valid_values = case_when(
+    Coding == &quot;C = Clinical\r\nR = Research\r\nE = ExVivo&quot; ~ &quot;C,R,E&quot;,
+    Coding == &quot;Text string of either &#39;Complete&#39; or &#39;Unusable&#39;&quot; ~ &quot;Complete,Unusable&quot;,
+    Coding == &quot;Text string of either &#39;Complete&#39;, &#39;Pending&#39;, or &#39;Unusable&#39;&quot; ~ &quot;Complete,Pending,Unusable&quot;,
+    Coding == &quot;L = Left Hemisphere\r\nR = Right Hemisphere\r\nW = Whole Brain&quot; ~ &quot;L,R,W&quot;
+  ))</code></pre>
+<pre class="r"><code>## combine
+validVals &lt;- rbind(numValidVals,chrValidVals)</code></pre>
+<p><br></p>
+</div>
+</div>
+<div id="load-data" class="section level1">
+<h1>Load Data</h1>
+<pre class="r"><code>for (sheet in df_sheet_names) {
+  assign(sheet, read_excel(df_path, sheet = sheet), envir = .GlobalEnv)
+}</code></pre>
+<p><br></p>
+</div>
+<div id="variable-check-per-file" class="section level1">
+<h1>Variable Check Per File</h1>
+<div id="functions-check-valid-values" class="section level2">
+<h2>Functions: Check Valid Values</h2>
+<pre class="r"><code>validate_dataset &lt;- function(dataset_name, IDcol = &quot;ID&quot;) {
+
+  df &lt;- get(dataset_name)
+  
+  # ---- Variable coverage check ----
+  df_vars &lt;- setdiff(names(df), IDcol)
+  dd_vars &lt;- validVals$Variable[validVals$Df_name == dataset_name]
+  missed &lt;- setdiff(df_vars, dd_vars)
+  common_vars &lt;- intersect(df_vars, dd_vars)
+  
+  # cat(&quot;\n df_vars are: &quot;,df_vars,&quot;\n&quot;)
+  # cat(&quot;\n dd_vars are: &quot;,dd_vars,&quot;\n&quot;)
+  # cat(&quot;\n commonDf are: &quot;,commonDf,&quot;\n&quot;)
+  
+  cat(&quot;\n---------------- Variable Coverage Check ----------------\n&quot;)
+  if (length(missed) == 0) {
+    cat(&quot;All variables in&quot;, dataset_name, &quot;were found in the data dictionary.\n&quot;)
+  } else {
+    cat(&quot;Variables missing from data dictionary for&quot;, dataset_name, &quot;:\n  &quot;,
+        paste(missed, collapse = &quot;, &quot;), &quot;\n&quot;)
+  }
+  cat(&quot;----------------------------------------------------------\n\n&quot;)
+
+  # ---- 3. Extract relevant rules from validVals ----
+  rules &lt;- validVals[validVals$Df_name %in% dataset_name,]
+
+  results &lt;- list()
+  
+  # print(rules)
+  
+  # ================================================================
+  # 4. Loop through each variable defined in both dataset and dictionary
+  # ================================================================
+  for (varname in common_vars) {
+
+    vals &lt;- df[[varname]]
+    obs_type &lt;- class(df[[varname]])
+
+    # ---- Extract expected information from dictionary ----
+    exp_type &lt;- rules[rules$Variable == varname,&quot;type&quot;]
+    exp_values &lt;- rules[rules$Variable == varname,&quot;valid_values&quot;]
+    coding_pattern &lt;- rules[rules$Variable == varname,&quot;Coding&quot;]
+
+    # Initialize placeholders
+    invalid_vals &lt;- NA
+    expected_vals &lt;- NA
+    observed_vals_str &lt;- NA
+
+    # ================================================================
+    # 5. Convert variable to expected type (based on exp_type)
+    # ================================================================
+    if (!is.na(exp_type)) {
+      if (exp_type == &quot;character&quot;) {
+        suppressWarnings( df[[varname]] &lt;- as.character(df[[varname]]))
+      } else if (exp_type == &quot;numeric&quot; &amp;&amp; !is.numeric(vals)) {
+        suppressWarnings( df[[varname]] &lt;- as.numeric(df[[varname]]))
+      } else if (exp_type == &quot;integer&quot; &amp;&amp; !is.character(vals)) {
+        suppressWarnings( df[[varname]] &lt;- as.integer(df[[varname]]))
+      }
+    }
+
+    # ================================================================
+    # 6. Validation logic
+    # ================================================================
+    has_valid_values &lt;- !is.na(exp_values) &amp;&amp; trimws(exp_values) != &quot;&quot;
+
+    if (has_valid_values) {
+      uv &lt;- unique(na.omit(vals))
+
+      # ---- Numeric/integer checks ----
+      if (tolower(exp_type) %in% c(&quot;numeric&quot;, &quot;integer&quot;)) {
+        if (grepl(&quot;^&gt;=&quot;, exp_values)) {
+          minval &lt;- as.numeric(gsub(&quot;[^0-9.-]&quot;, &quot;&quot;, exp_values))
+          invalid_vals &lt;- uv[uv &lt; minval]
+          expected_vals &lt;- paste0(&quot;&gt;= &quot;, minval)
+
+        } else if (grepl(&quot;^\\d+-\\d+$&quot;, exp_values)) {
+          nums &lt;- as.numeric(unlist(strsplit(exp_values, &quot;-&quot;)))
+          allowed &lt;- nums[1]:nums[2]
+          invalid_vals &lt;- setdiff(uv, allowed)
+          expected_vals &lt;- paste0(nums[1], &quot;-&quot;, nums[2])
+
+        } else if (grepl(&quot;^[0-9,\\-]+$&quot;, exp_values)) {
+          parts &lt;- unlist(strsplit(exp_values, &quot;,&quot;))
+          allowed &lt;- c()
+          for (p in parts) {
+            if (grepl(&quot;-&quot;, p)) {
+              rng &lt;- as.numeric(unlist(strsplit(p, &quot;-&quot;)))
+              allowed &lt;- c(allowed, seq(rng[1], rng[2]))
+            } else {
+              allowed &lt;- c(allowed, as.numeric(p))
+            }
+          }
+          allowed &lt;- unique(allowed)
+          invalid_vals &lt;- setdiff(uv, allowed)
+          expected_vals &lt;- paste(sort(allowed), collapse = &quot;,&quot;)
+        } else {
+          expected_vals &lt;- exp_values
+        }
+
+        # ---- Character checks ----
+      } else if (tolower(exp_type) == &quot;character&quot;) {
+        allowed &lt;- trimws(unlist(strsplit(exp_values, &quot;,&quot;)))
+        invalid_vals &lt;- setdiff(unique(na.omit(vals)), allowed)
+        expected_vals &lt;- paste(allowed, collapse = &quot;,&quot;)
+      }
+
+      # Limit observed values display to first 8
+      observed_vals_str &lt;- if (length(uv) &gt; 8)
+        paste(c(head(sort(uv), 8), &quot;...&quot;), collapse = &quot;,&quot;)
+      else paste(sort(uv), collapse = &quot;,&quot;)
+
+    } else {
+      # ---- Missing valid_values → manual check needed ----
+      expected_vals &lt;- coding_pattern
+      invalid_vals &lt;- &quot;Need manual check&quot;
+
+      if (is.numeric(vals)) {
+        rng &lt;- range(vals, na.rm = TRUE)
+        observed_vals_str &lt;- paste0(rng[1], &quot;-&quot;, rng[2])
+      } else if (is.character(vals)) {
+        uv &lt;- unique(na.omit(vals))
+        observed_vals_str &lt;- if (length(uv) &gt; 8)
+          paste(c(head(uv, 8), &quot;...&quot;), collapse = &quot;,&quot;)
+        else paste(uv, collapse = &quot;,&quot;)
+      }
+    }
+
+    # ---- Format invalid message ----
+    invalid_vals_str &lt;- if (has_valid_values) {
+      if (all(is.na(invalid_vals)) || length(invalid_vals) == 0)
+        &quot;Observed values all valid!&quot;
+      else paste(sort(invalid_vals), collapse = &quot;,&quot;)
+    } else {
+      &quot;Need manual check&quot;
+    }
+
+    # ================================================================
+    # 7. Collect results
+    # ================================================================
+    results[[varname]] &lt;- data.frame(
+      Variable = varname,
+      Observed_type = obs_type,
+      Expected_type = exp_type,
+      Observed_values = observed_vals_str,
+      Expected_values = expected_vals,
+      Invalid_values = invalid_vals_str,
+      stringsAsFactors = FALSE
+    )
+  }
+  
+  # ================================================================
+  # 8. Combine and return outputs
+  # ================================================================
+  validation_df &lt;- as.data.frame(do.call(rbind, results))
+  corrected_df &lt;- as.data.frame(df)
+
+  cat(&quot;Validation complete for dataset:&quot;, dataset_name, &quot;\n&quot;)
+
+  return(list(
+    validation_report = validation_df,
+    corrected_df = df
+  ))
+}</code></pre>
+<p><br></p>
+</div>
+<div id="subjects" class="section level2">
+<h2>1: Subjects</h2>
+<pre class="r"><code>df &lt;- as.data.frame(Subjects)
+
+info(df,&quot;e165_ID&quot;)</code></pre>
+<pre><code>## #obs:5763, cols:4, inds:5763</code></pre>
+<pre class="r"><code>str(df)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    5763 obs. of  4 variables:
+##  $ e165_ID     : chr  &quot;80000099&quot; &quot;80001744&quot; &quot;80001861&quot; &quot;80004443&quot; ...
+##  $ baseline_age: num  71.9 71.4 84.4 66.7 69.5 ...
+##  $ death_age   : num  83.1 78.7 98.7 73.5 NA ...
+##  $ withdraw_age: num  NA NA NA NA NA ...</code></pre>
+<pre class="r"><code>result_df &lt;- validate_dataset(&quot;Subjects&quot;, IDcol = &quot;e165_ID&quot;)</code></pre>
+<pre><code>## 
+## ---------------- Variable Coverage Check ----------------
+## All variables in Subjects were found in the data dictionary.
+## ----------------------------------------------------------
+## 
+## Validation complete for dataset: Subjects</code></pre>
+<pre class="r"><code># Validation report
+DT::datatable(result_df$validation_report)</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-1f6a618de9643cc2d534" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-1f6a618de9643cc2d534">{"x":{"filter":"none","vertical":false,"data":[["baseline_age","death_age","withdraw_age"],["baseline_age","death_age","withdraw_age"],["numeric","numeric","numeric"],["numeric","numeric","numeric"],["65.16,65.22,65.27,65.33,65.35,65.36,65.38,65.39,...","66.37-108.2","66.43-105.9"],["&gt;= 65","Valid ages\r\n. = Missing","Valid ages\r\n. = Missing"],["Observed values all valid!","Need manual check","Need manual check"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Variable<\/th>\n      <th>Observed_type<\/th>\n      <th>Expected_type<\/th>\n      <th>Observed_values<\/th>\n      <th>Expected_values<\/th>\n      <th>Invalid_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Variable","targets":1},{"name":"Observed_type","targets":2},{"name":"Expected_type","targets":3},{"name":"Observed_values","targets":4},{"name":"Expected_values","targets":5},{"name":"Invalid_values","targets":6}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code># Corrected dataset (with types converted)
+Subjects &lt;- as.data.frame(result_df$corrected_df)
+str(Subjects)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    5763 obs. of  4 variables:
+##  $ e165_ID     : chr  &quot;80000099&quot; &quot;80001744&quot; &quot;80001861&quot; &quot;80004443&quot; ...
+##  $ baseline_age: num  71.9 71.4 84.4 66.7 69.5 ...
+##  $ death_age   : num  83.1 78.7 98.7 73.5 NA ...
+##  $ withdraw_age: num  NA NA NA NA NA ...</code></pre>
+<p><br></p>
+</div>
+<div id="biennial_visits" class="section level2">
+<h2>2: Biennial_Visits</h2>
+<pre class="r"><code>df &lt;- as.data.frame(Biennial_Visits)
+
+info(df,&quot;e165_ID&quot;)</code></pre>
+<pre><code>## #obs:30521, cols:8, inds:5763</code></pre>
+<pre class="r"><code>str(df)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    30521 obs. of  8 variables:
+##  $ e165_ID            : chr  &quot;80000099&quot; &quot;80000099&quot; &quot;80000099&quot; &quot;80000099&quot; ...
+##  $ VISIT              : num  0 2 4 6 8 11 0 2 6 0 ...
+##  $ visit_year         : num  2010 2012 2014 2016 2018 ...
+##  $ visit_type         : num  0 2 2 2 2 6 0 2 2 0 ...
+##  $ visit_place        : num  1 1 1 1 1 0 1 1 1 2 ...
+##  $ visit_age          : num  71.9 73.8 75.9 78 79.8 ...
+##  $ days_since_baseline: num  0 701 1445 2207 2894 ...
+##  $ cohort             : num  3 3 3 3 3 3 3 3 3 3 ...</code></pre>
+<pre class="r"><code>result_df &lt;- validate_dataset(&quot;Biennial_Visits&quot;, IDcol = &quot;e165_ID&quot;)</code></pre>
+<pre><code>## 
+## ---------------- Variable Coverage Check ----------------
+## All variables in Biennial_Visits were found in the data dictionary.
+## ----------------------------------------------------------
+## 
+## Validation complete for dataset: Biennial_Visits</code></pre>
+<pre class="r"><code># Validation report
+DT::datatable(result_df$validation_report)</code></pre>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-a2d567e9578b702581ad" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-a2d567e9578b702581ad">{"x":{"filter":"none","vertical":false,"data":[["VISIT","visit_year","visit_type","visit_place","visit_age","days_since_baseline","cohort"],["VISIT","visit_year","visit_type","visit_place","visit_age","days_since_baseline","cohort"],["numeric","numeric","numeric","numeric","numeric","numeric","numeric"],["integer","numeric","integer","integer","numeric","integer","integer"],["0,1,2,3,4,5,6,7,...","1994,1995,1996,1997,1998,1999,2000,2001,...","0,2,4,6","0,1,2,3,4,9","65.16,65.22,65.27,65.33,65.35,65.36,65.38,65.39,...","0,313,315,319,320,354,385,386,...","1,2,3"],["&gt;= 0","&gt;= 1994","0,2,4,6","0,1,2,3,4,9","&gt;= 65","&gt;= 0","1,2,3,4"],["Observed values all valid!","Observed values all valid!","Observed values all valid!","Observed values all valid!","Observed values all valid!","Observed values all valid!","Observed values all valid!"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Variable<\/th>\n      <th>Observed_type<\/th>\n      <th>Expected_type<\/th>\n      <th>Observed_values<\/th>\n      <th>Expected_values<\/th>\n      <th>Invalid_values<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"Variable","targets":1},{"name":"Observed_type","targets":2},{"name":"Expected_type","targets":3},{"name":"Observed_values","targets":4},{"name":"Expected_values","targets":5},{"name":"Invalid_values","targets":6}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code># Corrected dataset (with types converted)
+Biennial_Visits &lt;- as.data.frame(result_df$corrected_df)
+str(Biennial_Visits)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    30521 obs. of  8 variables:
+##  $ e165_ID            : chr  &quot;80000099&quot; &quot;80000099&quot; &quot;80000099&quot; &quot;80000099&quot; ...
+##  $ VISIT              : int  0 2 4 6 8 11 0 2 6 0 ...
+##  $ visit_year         : num  2010 2012 2014 2016 2018 ...
+##  $ visit_type         : int  0 2 2 2 2 6 0 2 2 0 ...
+##  $ visit_place        : int  1 1 1 1 1 0 1 1 1 2 ...
+##  $ visit_age          : num  71.9 73.8 75.9 78 79.8 ...
+##  $ days_since_baseline: int  0 701 1445 2207 2894 3894 0 891 2277 0 ...
+##  $ cohort             : int  3 3 3 3 3 3 3 3 3 3 ...</code></pre>
+<p><br></p>
+</div>
+<div id="form73_form23_cesd" class="section level2">
+<h2>3: Form73_Form23_CESD</h2>
+<p><br></p>
+</div>
+<div id="form75_sexgender" class="section level2">
+<h2>4: Form75_SexGender</h2>
+<p><br></p>
+</div>
+<div id="form75_raceethnicity" class="section level2">
+<h2>5: Form75_RaceEthnicity</h2>
+<p><br></p>
+</div>
+<div id="form75_personaleducation" class="section level2">
+<h2>6: Form75_PersonalEducation</h2>
+<p><br></p>
+</div>
+<div id="form77_diabetes" class="section level2">
+<h2>7: Form77_Diabetes</h2>
+<p><br></p>
+</div>
+<div id="form77_coronary" class="section level2">
+<h2>8: Form77_Coronary</h2>
+<p><br></p>
+</div>
+<div id="form77_othercardiovascular" class="section level2">
+<h2>9: Form77_OtherCardiovascular</h2>
+<p><br></p>
+</div>
+<div id="form77_respiratory" class="section level2">
+<h2>10: Form77_Respiratory</h2>
+<p><br></p>
+</div>
+<div id="form77_neurological" class="section level2">
+<h2>11: Form77_Neurological</h2>
+<p><br></p>
+</div>
+<div id="form77_otherdisease" class="section level2">
+<h2>12: Form77_OtherDisease</h2>
+<p><br></p>
+</div>
+<div id="form77_selfreportmeds" class="section level2">
+<h2>13: Form77_SelfReportMeds</h2>
+<p><br></p>
+</div>
+<div id="form77_vitaminsupplements" class="section level2">
+<h2>14: Form77_VitaminSupplements</h2>
+<p><br></p>
+</div>
+<div id="form78_injuryloc" class="section level2">
+<h2>15: Form78_InjuryLOC</h2>
+<p><br></p>
+</div>
+<div id="form78_smoking" class="section level2">
+<h2>16: Form78_Smoking</h2>
+<p><br></p>
+</div>
+<div id="form78_alcohol" class="section level2">
+<h2>17: Form78_Alcohol</h2>
+<p><br></p>
+</div>
+<div id="form85_bp" class="section level2">
+<h2>18: Form85_BP</h2>
+<p><br></p>
+</div>
+<div id="form85_anthropometry" class="section level2">
+<h2>19: Form85_Anthropometry</h2>
+<p><br></p>
+</div>
+<div id="form55_short_bisq" class="section level2">
+<h2>20:Form55_Short_BISQ</h2>
+<p><br></p>
+</div>
+<div id="form84_casi_mmse" class="section level2">
+<h2>21: Form84_CASI_MMSE</h2>
+<p><br></p>
+</div>
+<div id="form69_short_casi_mmse" class="section level2">
+<h2>22: Form69_Short_CASI_MMSE</h2>
+<p><br></p>
+</div>
+<div id="form51_cogtests" class="section level2">
+<h2>23: Form51_CogTests</h2>
+<p><br></p>
+</div>
+<div id="form51_form84_melv_scores" class="section level2">
+<h2>24: Form51_Form84_MELV_Scores</h2>
+<p><br></p>
+</div>
+<div id="form93_form02_dementia" class="section level2">
+<h2>25: Form93_Form02_Dementia</h2>
+<p><br></p>
+</div>
+<div id="form81_cdr" class="section level2">
+<h2>26: Form81_CDR</h2>
+<p><br></p>
+</div>
+<div id="genetics_apoe" class="section level2">
+<h2>27: genetics_apoe</h2>
+<p><br></p>
+</div>
+<div id="autopsy_status" class="section level2">
+<h2>28: autopsy_status</h2>
+<p><br></p>
+</div>
+<div id="np_standard" class="section level2">
+<h2>29: np_standard</h2>
+<p><br></p>
+</div>
+<div id="nic_cdes" class="section level2">
+<h2>30: nic_cdes</h2>
+<p><br></p>
+</div>
+<div id="nic_am_vols" class="section level2">
+<h2>31: nic_am_vols</h2>
+<p><br></p>
+</div>
+<div id="nic_pm_vols" class="section level2">
+<h2>32: nic_pm_vols</h2>
+<p><br></p>
 </div>
 </div>
 

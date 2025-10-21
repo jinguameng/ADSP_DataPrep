@@ -51,6 +51,7 @@ source(paste0(script_directory,"helperScripts_ACT.R"))
 ```{r laod-packages,message=FALSE,warning=FALSE}
 require(readxl)
 require(DT)
+require(dplyr)
 ```
 
 <br>
@@ -111,51 +112,78 @@ DD_sheet_names <- intersect(DD_sheet_names,df_sheet_names)
 all_DD_sheets <- all_DD_sheets[DD_sheet_names] ## length = 32
 
 ## extract the Coding variables acorss all the DDs and check unique values
-all_coding_df <- data.frame(
-  Coding = unlist(lapply(all_DD_sheets, function(df) df[["Coding"]])),
-  Type   = unlist(lapply(all_DD_sheets, function(df) df[["Type"]])),
-  stringsAsFactors = FALSE
-) 
+all_coding_df <- do.call(rbind, lapply(names(all_DD_sheets), function(sheet_name) {
+  df <- all_DD_sheets[[sheet_name]]
+  
+  # Ensure we only extract existing columns
+  var <- if ("Variable" %in% names(df)) df$Variable else NA
+  coding <- if ("Coding" %in% names(df)) df$Coding else NA
+  type <- if ("Type" %in% names(df)) df$Type else NA
+  
+  # Repeat Df_name for each row of this tibble
+  data.frame(
+    Df_name = rep(sheet_name, length(var)),
+    Variable = var,
+    Coding = coding,
+    Type = type,
+    stringsAsFactors = FALSE
+  )
+}))
 
-# remove NAs and duplicates (optional)
-all_coding_df <- unique(na.omit(all_coding_df)) ## 157 obs
-all_coding_df_chr <- all_coding_df[all_coding_df$Type == "Char",] ## 7 obs
-all_coding_df_num <- all_coding_df[all_coding_df$Type == "Num",] ## 150 obs
+dim(all_coding_df) ## [1] 1374    4
+
+## split by type
+unique(all_coding_df$Type)
+
+## explore NA and fill the missingness
+print(all_coding_df[is.na(all_coding_df$Type),])
+## Type = Num for those 3 NA
+all_coding_df$Type[is.na(all_coding_df$Type)] <- "Num"
+
+all_coding_df_chr <- all_coding_df[all_coding_df$Type == "Char",] ## 18 obs
+length(unique(all_coding_df_chr$Coding)) ## 7 unique patterns in the DD
+
+all_coding_df_num <- all_coding_df[all_coding_df$Type == "Num",] ## 1359 obs
+length(unique(all_coding_df_num$Coding)) ## 150 unique patterns in the DD
+
 ```
+
+
 
 
 <br>
 
-## Functions: Check Valid Values
+## Functions: Extract Valid Values for Numeric Variables
 
-After observing the patterns of Coding across all the datasets, there are some fixed patterns, where xx represents random texts:
+Patterns observed from DD
+
 * "1 = xx\r\n2 = xx\r\n3 = xx\r\n. = xx"
-  * Valid Values: 1,2,3
-  * Strategy: remove "\r\n", and retrive unique numbers of the left side of "=" sign
 
 * "Integer from 0 through 50\r\n88 = xx\r\n99 = xx\r\n. = xx"
-  * Valid Values: integer, 0-50,88,99
-* "Non-negative integers\r\n88 = xx\r\n99 = Txxr\r\n. = xx" 
-  * Valid Values: integer, >0, 88, 99
-* "Non-negative integers"
-* "Positive integers, round to integer\r\n"
-  * strategy: if detected from .. through .. then extract the range. If detected "Integer" before that, make sure the data type is integer not numeric, if "=" presents, then also retrive the number on the left side of "=" sign. Finally, merge all the values range and unique values together into a vector. If found non-negative keywords, then make sure the value > 0 + data type = integer
 
+* "Non-negative integers\r\n88 = xx\r\n99 = Txxr\r\n. = xx" 
+
+* "Non-negative integers"
+
+* "Positive integers, round to integer\r\n"
+ 
 * "Positive real numbers, round to 2 decimals\r\n"
+
 * "Positive real numbers (to 1 decimal)\r\n. = Missing"
+
 * "Positive real numbers, round to 2 decimals\r\n. = Missing"
+
 * "Positive real numbers, millimeters (mm)\r\n. = Missing"
+
 * "Real numbers\r\n. = Missing"
-  * strategy: if detected "real numbers", then make sure the data type is numeric, if detected positive then make sure the value > 0
 
 * "Valid years starting in 1994"
-* "Valid ages 65+"
-* "Valid years\r\n. 
-  * strategy: if detected "valid years|ages", then make sure the value is positive, if additional number is provided, then make sure the values greated or equal that value
 
+* "Valid ages 65+"
+
+* "Valid years\r\n.
 
 * "Number of years\r\n. = Missing" ==> valid values: > 0
-  * strategy: if detected "number of years" than make sure the data value > 0
 
 <br>
 
@@ -175,26 +203,25 @@ extract_valid_values <- function(text) {
   min_val <- NULL
   
   # ---- Extract explicit equality numbers ----
+  # Capture things like "1 = ", "10=", etc.
   eq_nums <- regmatches(txt, gregexpr("\\b\\d+\\s*=", txt))
   if (length(eq_nums[[1]]) > 0) {
     nums <- as.numeric(gsub("\\s*=.*", "", eq_nums[[1]]))
     values <- unique(nums)
   }
   
-  # ---- Detect range patterns ----
-  # Handles:
-  #   "from 0 through 6", "from 0 to 6", "from 0-6"
-  #   "between 0 and 6", "integers between 0 and 6"
-  #   "0-6"
+  # ---- Detect range patterns (outside code definitions) ----
+  # Remove code definitions first so we don't confuse description ranges
+  txt_no_eq <- gsub("\\b\\d+\\s*=.*?(?=\\b\\d+\\s*=|$)", "", txt, perl = TRUE)
+  
   range_pattern <- "(from|between)?\\s*\\d+(\\s*(through|to|and|-|–)\\s*\\d+)"
-  if (grepl(range_pattern, txt)) {
-    nums <- as.numeric(unlist(regmatches(txt, gregexpr("\\d+(?:\\.\\d+)?", txt))))
+  if (grepl(range_pattern, txt_no_eq)) {
+    nums <- as.numeric(unlist(regmatches(txt_no_eq, gregexpr("\\d+(?:\\.\\d+)?", txt_no_eq))))
     if (length(nums) >= 2) {
       range_vals <- nums[1]:nums[2]
       range_str <- paste0(nums[1], "-", nums[2])
     }
   }
-  
   
   # ---- Detect keywords for type ----
   if (grepl("integer", txt)) result$type <- "integer"
@@ -227,10 +254,9 @@ extract_valid_values <- function(text) {
     valid_str <- paste0(">=", min_val)
   }
   
-  # Case 2: range detected
+  # Case 2: range detected (outside of code defs)
   if (!is.null(range_str)) {
     if (length(values) > 0) {
-      # only include values outside the range
       outside_vals <- setdiff(values, range_vals)
       if (length(outside_vals) > 0) {
         valid_str <- paste0(range_str, ",", paste(sort(outside_vals), collapse = ","))
@@ -283,8 +309,397 @@ generate_valid_values <- function(df) {
   return(df)
 }
 
-tmp <- generate_valid_values(all_coding_df_num)
+numValidVals <- generate_valid_values(all_coding_df_num)
 
-DT::datatable(tmp)
+DT::datatable(unique(numValidVals[,c("Coding","Type","type","valid_values")]))
 ```
+
+<br>
+
+## Functions: Extract Valid Values for Char Variables
+
+Since there are only 7 character variables based on the DD. I will manually extract the valid values as above.
+
+```{r exploreDD-4}
+chrValidVals <- all_coding_df_chr %>%
+  mutate(type = "character",
+         valid_values = case_when(
+    Coding == "C = Clinical\r\nR = Research\r\nE = ExVivo" ~ "C,R,E",
+    Coding == "Text string of either 'Complete' or 'Unusable'" ~ "Complete,Unusable",
+    Coding == "Text string of either 'Complete', 'Pending', or 'Unusable'" ~ "Complete,Pending,Unusable",
+    Coding == "L = Left Hemisphere\r\nR = Right Hemisphere\r\nW = Whole Brain" ~ "L,R,W"
+  ))
+```
+
+
+```{r exploreDD-5}
+## combine
+validVals <- rbind(numValidVals,chrValidVals)
+
+```
+
+
+<br>
+
+
+# Load Data
+
+```{r loadDD-1}
+for (sheet in df_sheet_names) {
+  assign(sheet, read_excel(df_path, sheet = sheet), envir = .GlobalEnv)
+}
+```
+
+
+
+<br>
+
+# Variable Check Per File
+
+## Functions: Check Valid Values
+
+```{r varCheck-1}
+validate_dataset <- function(dataset_name, IDcol = "ID") {
+
+  df <- get(dataset_name)
+  
+  # ---- Variable coverage check ----
+  df_vars <- setdiff(names(df), IDcol)
+  dd_vars <- validVals$Variable[validVals$Df_name == dataset_name]
+  missed <- setdiff(df_vars, dd_vars)
+  common_vars <- intersect(df_vars, dd_vars)
+  
+  # cat("\n df_vars are: ",df_vars,"\n")
+  # cat("\n dd_vars are: ",dd_vars,"\n")
+  # cat("\n commonDf are: ",commonDf,"\n")
+  
+  cat("\n---------------- Variable Coverage Check ----------------\n")
+  if (length(missed) == 0) {
+    cat("All variables in", dataset_name, "were found in the data dictionary.\n")
+  } else {
+    cat("Variables missing from data dictionary for", dataset_name, ":\n  ",
+        paste(missed, collapse = ", "), "\n")
+  }
+  cat("----------------------------------------------------------\n\n")
+
+  # ---- 3. Extract relevant rules from validVals ----
+  rules <- validVals[validVals$Df_name %in% dataset_name,]
+
+  results <- list()
+  
+  # print(rules)
+  
+  # ================================================================
+  # 4. Loop through each variable defined in both dataset and dictionary
+  # ================================================================
+  for (varname in common_vars) {
+
+    vals <- df[[varname]]
+    obs_type <- class(df[[varname]])
+
+    # ---- Extract expected information from dictionary ----
+    exp_type <- rules[rules$Variable == varname,"type"]
+    exp_values <- rules[rules$Variable == varname,"valid_values"]
+    coding_pattern <- rules[rules$Variable == varname,"Coding"]
+
+    # Initialize placeholders
+    invalid_vals <- NA
+    expected_vals <- NA
+    observed_vals_str <- NA
+
+    # ================================================================
+    # 5. Convert variable to expected type (based on exp_type)
+    # ================================================================
+    if (!is.na(exp_type)) {
+      if (exp_type == "character") {
+        suppressWarnings( df[[varname]] <- as.character(df[[varname]]))
+      } else if (exp_type == "numeric" && !is.numeric(vals)) {
+        suppressWarnings( df[[varname]] <- as.numeric(df[[varname]]))
+      } else if (exp_type == "integer" && !is.character(vals)) {
+        suppressWarnings( df[[varname]] <- as.integer(df[[varname]]))
+      }
+    }
+
+
+    # ================================================================
+    # 6. Validation logic
+    # ================================================================
+    has_valid_values <- !is.na(exp_values) && trimws(exp_values) != ""
+
+    if (has_valid_values) {
+      uv <- unique(na.omit(vals))
+
+      # ---- Numeric/integer checks ----
+      if (tolower(exp_type) %in% c("numeric", "integer")) {
+        if (grepl("^>=", exp_values)) {
+          minval <- as.numeric(gsub("[^0-9.-]", "", exp_values))
+          invalid_vals <- uv[uv < minval]
+          expected_vals <- paste0(">= ", minval)
+
+        } else if (grepl("^\\d+-\\d+$", exp_values)) {
+          nums <- as.numeric(unlist(strsplit(exp_values, "-")))
+          allowed <- nums[1]:nums[2]
+          invalid_vals <- setdiff(uv, allowed)
+          expected_vals <- paste0(nums[1], "-", nums[2])
+
+        } else if (grepl("^[0-9,\\-]+$", exp_values)) {
+          parts <- unlist(strsplit(exp_values, ","))
+          allowed <- c()
+          for (p in parts) {
+            if (grepl("-", p)) {
+              rng <- as.numeric(unlist(strsplit(p, "-")))
+              allowed <- c(allowed, seq(rng[1], rng[2]))
+            } else {
+              allowed <- c(allowed, as.numeric(p))
+            }
+          }
+          allowed <- unique(allowed)
+          invalid_vals <- setdiff(uv, allowed)
+          expected_vals <- paste(sort(allowed), collapse = ",")
+        } else {
+          expected_vals <- exp_values
+        }
+
+        # ---- Character checks ----
+      } else if (tolower(exp_type) == "character") {
+        allowed <- trimws(unlist(strsplit(exp_values, ",")))
+        invalid_vals <- setdiff(unique(na.omit(vals)), allowed)
+        expected_vals <- paste(allowed, collapse = ",")
+      }
+
+      # Limit observed values display to first 8
+      observed_vals_str <- if (length(uv) > 8)
+        paste(c(head(sort(uv), 8), "..."), collapse = ",")
+      else paste(sort(uv), collapse = ",")
+
+    } else {
+      # ---- Missing valid_values → manual check needed ----
+      expected_vals <- coding_pattern
+      invalid_vals <- "Need manual check"
+
+      if (is.numeric(vals)) {
+        rng <- range(vals, na.rm = TRUE)
+        observed_vals_str <- paste0(rng[1], "-", rng[2])
+      } else if (is.character(vals)) {
+        uv <- unique(na.omit(vals))
+        observed_vals_str <- if (length(uv) > 8)
+          paste(c(head(uv, 8), "..."), collapse = ",")
+        else paste(uv, collapse = ",")
+      }
+    }
+
+    # ---- Format invalid message ----
+    invalid_vals_str <- if (has_valid_values) {
+      if (all(is.na(invalid_vals)) || length(invalid_vals) == 0)
+        "Observed values all valid!"
+      else paste(sort(invalid_vals), collapse = ",")
+    } else {
+      "Need manual check"
+    }
+
+    # ================================================================
+    # 7. Collect results
+    # ================================================================
+    results[[varname]] <- data.frame(
+      Variable = varname,
+      Observed_type = obs_type,
+      Expected_type = exp_type,
+      Observed_values = observed_vals_str,
+      Expected_values = expected_vals,
+      Invalid_values = invalid_vals_str,
+      stringsAsFactors = FALSE
+    )
+  }
+  
+  # ================================================================
+  # 8. Combine and return outputs
+  # ================================================================
+  validation_df <- as.data.frame(do.call(rbind, results))
+  corrected_df <- as.data.frame(df)
+
+  cat("Validation complete for dataset:", dataset_name, "\n")
+
+  return(list(
+    validation_report = validation_df,
+    corrected_df = df
+  ))
+}
+
+```
+
+
+<br>
+
+## 1: Subjects
+
+```{r Subjects-1}
+df <- as.data.frame(Subjects)
+
+info(df,"e165_ID")
+
+str(df)
+```
+
+
+```{r Subjects-2}
+result_df <- validate_dataset("Subjects", IDcol = "e165_ID")
+
+# Validation report
+DT::datatable(result_df$validation_report)
+
+# Corrected dataset (with types converted)
+Subjects <- as.data.frame(result_df$corrected_df)
+str(Subjects)
+
+```
+
+
+<br>
+
+## 2: Biennial_Visits
+
+```{r Biennial_Visits-1}
+df <- as.data.frame(Biennial_Visits)
+
+info(df,"e165_ID")
+
+str(df)
+```
+
+```{r Biennial_Visits-2}
+result_df <- validate_dataset("Biennial_Visits", IDcol = "e165_ID")
+
+# Validation report
+DT::datatable(result_df$validation_report)
+
+# Corrected dataset (with types converted)
+Biennial_Visits <- as.data.frame(result_df$corrected_df)
+str(Biennial_Visits)
+
+```
+
+
+<br>
+
+## 3: Form73_Form23_CESD
+
+<br>
+
+## 4: Form75_SexGender
+
+<br>
+
+## 5: Form75_RaceEthnicity
+
+<br>
+
+## 6: Form75_PersonalEducation
+
+<br>
+
+## 7: Form77_Diabetes
+
+<br>
+
+## 8: Form77_Coronary
+
+<br>
+
+## 9: Form77_OtherCardiovascular
+
+<br>
+
+## 10: Form77_Respiratory
+
+<br>
+
+## 11: Form77_Neurological
+
+<br>
+
+## 12: Form77_OtherDisease
+
+<br>
+
+## 13: Form77_SelfReportMeds
+
+<br>
+
+## 14: Form77_VitaminSupplements
+
+<br>
+
+## 15: Form78_InjuryLOC
+
+<br>
+
+## 16: Form78_Smoking
+
+<br>
+
+## 17: Form78_Alcohol
+
+<br>
+
+## 18: Form85_BP
+
+<br>
+
+## 19: Form85_Anthropometry
+
+<br>
+
+## 20:Form55_Short_BISQ
+
+<br>
+
+## 21: Form84_CASI_MMSE
+
+<br>
+
+## 22: Form69_Short_CASI_MMSE
+
+<br>
+
+## 23: Form51_CogTests
+
+<br>
+
+## 24: Form51_Form84_MELV_Scores
+
+<br>
+
+
+## 25: Form93_Form02_Dementia
+
+<br>
+
+
+## 26: Form81_CDR
+
+<br>
+
+## 27: genetics_apoe
+
+<br>
+
+## 28: autopsy_status
+
+<br>
+
+## 29: np_standard
+
+<br>
+
+## 30: nic_cdes
+
+<br>
+
+## 31: nic_am_vols
+
+<br>
+
+## 32: nic_pm_vols
+
+<br>
 
