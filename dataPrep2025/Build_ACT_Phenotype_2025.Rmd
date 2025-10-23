@@ -2068,4 +2068,123 @@ str(nic_pm_vols)
 
 
 <br>
+<br>
+
+# Duplications
+
+## Detection
+
+```{r dup-detec-1}
+## 1. find number of datasets with & without VISIT
+
+df_w_VISIT <- c()
+df_wo_VISIT <- c()
+
+for (df_name in df_sheet_names) {
+  df <- get(df_name)
+  if(tolower("VISIT") %in% tolower(names(df))){
+    df_w_VISIT <- c(df_w_VISIT,df_name)
+  }else(
+    df_wo_VISIT <- c(df_wo_VISIT,df_name)
+  )
+}
+
+print(df_w_VISIT) ## 25
+print(df_wo_VISIT) ## 7
+
+
+## 2. duplications detection for datasets without VISIT
+print("==================================================================")
+print("Duplicates Detection for datasets without VISIT")
+print("==================================================================")
+
+
+for (df_name in df_wo_VISIT) {
+  df <- get(df_name)
+  
+  dup <- df %>%
+    group_by(e165_ID) %>%
+    filter(n() > 1) %>%
+    ungroup()
+  
+  if(nrow(dup) > 1){
+    cat("\n","Duplicates detected in dataset: ",df_name,"\n")
+  }
+  
+}
+
+## 3. duplications detection for datasets with VISIT
+print("==================================================================")
+print("Duplicates Detection for datasets with VISIT")
+print("==================================================================")
+
+for (df_name in df_w_VISIT) {
+  df <- get(df_name)
+  
+  dup <- df %>%
+    group_by(e165_ID,VISIT) %>%
+    filter(n() > 1) %>%
+    ungroup()
+  
+  if(nrow(dup) > 1){
+    cat("\n","Duplicates detected in dataset: ",df_name,"\n")
+  }
+  
+} 
+## no duplicates found
+```
+
+
+```{r dup-detec-2}
+## duplicates review for nic_cdes and nic_am_vols
+info(nic_cdes,"e165_ID")
+
+dup_nic_cdes  <- nic_cdes %>%
+    group_by(e165_ID) %>%
+    filter(n() > 1) %>%
+    ungroup()
+
+info(dup_nic_cdes,"e165_ID")
+
+
+info(nic_am_vols,"e165_ID")
+
+dup_nic_am_vols <- nic_am_vols %>%
+    group_by(e165_ID) %>%
+    filter(n() > 1) %>%
+    ungroup()
+
+info(dup_nic_am_vols,"e165_ID")
+
+
+## Put the three neuroimaging datasets aside and deal with them in the last after discussion
+```
+
+
+<br>
+
+## Fixing
+
+There are three neuroimaging datasets in total: nic_cdes, nic_am_vols, and nic_pm_vols. Two of these datasets contain duplicate entries. Upon inspection, some duplicates occur several years apart, while others are much closer in time. 
+
+**TBD**
+
+<br>
+<br>
+
+
+# Common Columns
+
+## Detection
+
+```{r ccd-1}
+## exclude neuroimaging datasets first then check common columns
+cols2check <- setdiff(DD_sheet_names,c("nic_cdes","nic_am_vols","nic_pm_vols")) ## 29 datasets
+
+commonColsDetect(cols2check)
+
+```
+
+
+
 
