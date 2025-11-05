@@ -1,6 +1,6 @@
 name: "my-website"
 navbar:
-  title: "My Website"
+  title: "ADSP-2025"
   left:
     - text: "Home"
       href: index.html
