@@ -27,7 +27,7 @@ if (!is.null(dev.list())) dev.off()  # close any open plotting devices
 ## directory: can extend to the main CNT folder
 directory <- "/Users/mengnazhang/Desktop/ADSP_DataPrep_local/"
 
-## set PRADI path (the folder where PRADI raw files located)
+## set ACT path (the folder where PRADI raw files located)
 act_directory <- paste0(directory,"ACT/Phenotype/2025/Raw/")
 
 ## output path
@@ -52,6 +52,7 @@ source(paste0(script_directory,"helperScripts_ACT.R"))
 require(readxl)
 require(DT)
 require(dplyr)
+require(VennDiagram)
 ```
 
 <br>
@@ -576,6 +577,8 @@ DT::datatable(result_df$validation_report)
 Subjects <- as.data.frame(result_df$corrected_df)
 ```
 
+**All variables need manual checks passed. ✅**
+
 
 ```{r,eval=FALSE}
 str(Subjects)
@@ -870,6 +873,8 @@ Form77_Diabetes$Diaboth_Yr_BL[Form77_Diabetes$Diaboth_Yr_BL==1] <- NA
 
 ```
 
+**All variables need manual checks passed. ✅**
+
 ```{r,eval=FALSE}
 str(Form77_Diabetes)
 ```
@@ -913,6 +918,7 @@ DT::datatable(result_df$validation_report)
 Form77_Coronary <- as.data.frame(result_df$corrected_df)
 ```
 
+**All variables need manual checks passed. ✅**
 
 ```{r,eval=FALSE}
 str(Form77_Coronary)
@@ -1005,6 +1011,7 @@ DT::datatable(result_df$validation_report)
 Form77_Respiratory <- as.data.frame(result_df$corrected_df)
 ```
 
+**All variables need manual checks passed. ✅**
 
 ```{r,eval=FALSE}
 str(Form77_Respiratory)
@@ -1053,6 +1060,8 @@ Form77_Neurological <- as.data.frame(result_df$corrected_df)
 ```
 
 
+**All variables need manual checks passed. ✅**
+
 ```{r,eval=FALSE}
 str(Form77_Neurological)
 ```
@@ -1097,6 +1106,8 @@ DT::datatable(result_df$validation_report)
 Form77_OtherDisease <- as.data.frame(result_df$corrected_df)
 ```
 
+
+**All variables need manual checks passed. ✅**
 
 ```{r,eval=FALSE}
 str(Form77_OtherDisease)
@@ -1163,9 +1174,10 @@ length(observed_vals) ## 1219 unique values
 invalid_vals <- setdiff(observed_vals, medcode$Code)
 print(invalid_vals)
 
-################ How to handle those values?? ################ 
+################ We’ve decided to keep these variables unchanged for now until further information is available. ################ 
 ```
 
+**All variables need manual checks passed. ✅**
 
 ```{r,eval=FALSE}
 str(Form77_SelfReportMeds)
@@ -1279,6 +1291,7 @@ print(cols2checkUniqueVals)
 
 ```
 
+**All variables need manual checks passed. ✅**
 
 ```{r,eval=FALSE}
 str(Form78_InjuryLOC)
@@ -1505,6 +1518,12 @@ Form55_Short_BISQ <- as.data.frame(result_df$corrected_df)
 ```
 
 
+```{r Form55_Short_BISQ-3}
+unique(df$sBISQ_hit_dac_durat3)
+```
+
+**All variables need manual checks passed. ✅**
+
 ```{r,eval=FALSE}
 str(Form55_Short_BISQ)
 ```
@@ -1549,6 +1568,7 @@ DT::datatable(result_df$validation_report)
 Form84_CASI_MMSE <- as.data.frame(result_df$corrected_df)
 ```
 
+**All variables need manual checks passed. ✅**
 
 ```{r,eval=FALSE}
 str(Form84_CASI_MMSE)
@@ -1594,6 +1614,9 @@ DT::datatable(result_df$validation_report)
 # Corrected dataset (with types converted)
 Form69_Short_CASI_MMSE <- as.data.frame(result_df$corrected_df)
 ```
+
+
+**All variables need manual checks passed. ✅**
 
 
 ```{r,eval=FALSE}
@@ -1642,6 +1665,8 @@ Form51_CogTests <- as.data.frame(result_df$corrected_df)
 ```
 
 
+**All variables need manual checks passed. ✅**
+
 ```{r,eval=FALSE}
 str(Form51_CogTests)
 ```
@@ -1685,6 +1710,9 @@ DT::datatable(result_df$validation_report)
 # Corrected dataset (with types converted)
 Form51_Form84_MELV_Scores <- as.data.frame(result_df$corrected_df)
 ```
+
+
+**All variables need manual checks passed. ✅**
 
 
 ```{r,eval=FALSE}
@@ -1732,6 +1760,7 @@ DT::datatable(result_df$validation_report)
 Form93_Form02_Dementia <- as.data.frame(result_df$corrected_df)
 ```
 
+**All variables need manual checks passed. ✅**
 
 ```{r,eval=FALSE}
 str(Form93_Form02_Dementia)
@@ -1966,6 +1995,7 @@ unique(nic_cdes$acute_infarct_count)
 ## since the observed values are a mix of number and math signs, I will leave it as it is
 ```
 
+**All variables need manual checks passed. ✅**
 
 ```{r,eval=FALSE}
 str(nic_cdes)
@@ -2011,6 +2041,8 @@ DT::datatable(result_df$validation_report)
 nic_am_vols <- as.data.frame(result_df$corrected_df)
 ```
 
+**All variables need manual checks passed. ✅**
+
 ```{r,eval=FALSE}
 str(nic_am_vols)
 ```
@@ -2055,6 +2087,7 @@ DT::datatable(result_df$validation_report)
 nic_pm_vols <- as.data.frame(result_df$corrected_df)
 ```
 
+**All variables need manual checks passed. ✅**
 
 ```{r,eval=FALSE}
 str(nic_pm_vols)
@@ -2167,7 +2200,6 @@ info(dup_nic_am_vols,"e165_ID")
 
 There are three neuroimaging datasets in total: nic_cdes, nic_am_vols, and nic_pm_vols. Two of these datasets contain duplicate entries. Upon inspection, some duplicates occur several years apart, while others are much closer in time. 
 
-**TBD**
 
 <br>
 <br>
@@ -2197,13 +2229,16 @@ target_cols <- c("frm51", "frm75", "frm77", "frm78", "frm84", "frm85")
 # Loop through datasets
 for (ds_name in cols2check ) {
   df <- get(ds_name)
+  
+  # Extract the second element of ds_name (split by "_")
+  ds_suffix <- strsplit(ds_name, "_")[[1]][2]
 
   # Find columns present in both target list and dataset
   common_cols <- intersect(names(df), target_cols)
   
   if (length(common_cols) > 0) {
     # Create new names with dataset suffix
-    new_names <- paste0(common_cols, "_", ds_name)
+    new_names <- paste0(common_cols, "_", ds_suffix)
     
     # Rename those columns
     names(df)[match(common_cols, names(df))] <- new_names
@@ -2221,6 +2256,35 @@ for (ds_name in cols2check ) {
 commonColsDetect(cols2check)
 ```
 
+
+<br>
+<br>
+
+
+# Clean Imaging Datasets
+
+```{r eval=FALSE}
+png("plots/venn_plot.png", width = 2000, height = 2000, res = 300)
+venn.diagram(
+  x = list(
+    `CDEs` = unique(nic_cdes$e165_ID),
+    `AM Volumes` = unique(nic_am_vols$e165_ID),
+    `PM Volumes` = unique(nic_pm_vols$e165_ID)
+  ),
+  filename = NULL,   # draw to the current PNG device
+  fill = c("#E69F00", "#56B4E9", "#009E73"),
+  alpha = 0.6,
+  cex = 1.5,
+  cat.cex = 1.2,
+  main = "Overlap of Unique Individuals Across Imaging Datasets"
+)
+dev.off()
+
+```
+
+![image-Venn-Diagram](plots/venn_plot.png)\
+
+Based on the diagram above, I don't think it is necessary trying to merge the three imaging datasets, I will just save the original file separately. 
 
 <br>
 <br>
@@ -2296,156 +2360,16 @@ cat("Info of merged datasets with VISIT: ")
 info(merged_wVISIT,"e165_ID")
 cat("\n\n")
 
-all <- merge_with_info(
+final <- merge_with_info(
     df1name = "merged_woVISIT",
     df2name = "merged_wVISIT",
     merge_cols = c("e165_ID"),
     info_col = "e165_ID"
   )
-
-
 ```
+
 
 <br>
-
-## Clean Imaging Datasets
-
-```{r merge-6}
-## In each imaging datasets:
-## for every individual, if two observations, the interval of Scan_Age less than 6 months, then only keep the observations with less missingness
-
-nic_cdes <- cleanImages_rmCloseScanes(nic_cdes)
-
-nic_am_vols <- cleanImages_rmCloseScanes(nic_am_vols)
-
-nic_pm_vols <- cleanImages_rmCloseScanes(nic_pm_vols)
-```
-
-
-```{r merge-7}
-#################################################################################
-## check common columns among the three datasets
-intersect(names(nic_cdes),names(nic_am_vols))
-intersect(names(nic_cdes),names(nic_pm_vols))
-intersect(names(nic_am_vols),names(nic_pm_vols))
-
-## for variables: Scan_Type Scan_Age Manufacturer Field_Strength AnteMortem_PostMortem, add suffix using the datasets name
-cols_to_rename <- c("Scan_Type", "Scan_Year", "Scan_Age", "Manufacturer", "Field_Strength", "AnteMortem_PostMortem")
-
-names(nic_cdes)[names(nic_cdes) %in% cols_to_rename] <-
-  paste0(names(nic_cdes)[names(nic_cdes) %in% cols_to_rename], "_nic_cdes")
-
-names(nic_am_vols)[names(nic_am_vols) %in% cols_to_rename] <-
-  paste0(names(nic_am_vols)[names(nic_am_vols) %in% cols_to_rename], "_nic_am_vols")
-
-names(nic_pm_vols)[names(nic_pm_vols) %in% cols_to_rename] <-
-  paste0(names(nic_pm_vols)[names(nic_pm_vols) %in% cols_to_rename], "_nic_pm_vols")
-
-## double check common columns
-intersect(names(nic_cdes),names(nic_am_vols))
-intersect(names(nic_cdes),names(nic_pm_vols))
-intersect(names(nic_am_vols),names(nic_pm_vols))
-
-#################################################################################
-## for each dataset, get the visit index
-visitInfo <- all %>%
-  select(e165_ID,VISIT,visit_age) %>%
-  unique()
-
-info(visitInfo,"e165_ID")
-
-tmp <-merge(nic_cdes,visitInfo,by="e165_ID",all.x = T) ## 14147 obs
-
-nic_cdes <- tmp %>%
-  mutate(agediff = abs(Scan_Age_nic_cdes - visit_age)) %>%
-  group_by(e165_ID, Scan_Age_nic_cdes) %>%
-  arrange(Scan_Age_nic_cdes) %>%
-  slice_min(agediff, n = 1, with_ties = FALSE) %>% 
-  ungroup() %>%
-  group_by(e165_ID,VISIT) %>%
-  slice_min(agediff, n = 1, with_ties = FALSE) %>% 
-  ungroup() %>%
-  select(-visit_age,-agediff)
-  
-  
-
-tmp <-merge(nic_am_vols,visitInfo,by="e165_ID",all.x = T) 
-
-nic_am_vols <- tmp %>%
-  mutate(agediff = abs(Scan_Age_nic_am_vols - visit_age)) %>%
-  group_by(e165_ID, Scan_Age_nic_am_vols) %>%
-  arrange(Scan_Age_nic_am_vols) %>%
-  slice_min(agediff, n = 1, with_ties = FALSE) %>% 
-  ungroup() %>%
-  group_by(e165_ID,VISIT) %>%
-  slice_min(agediff, n = 1, with_ties = FALSE) %>% 
-  ungroup() %>%
-  select(-visit_age,-agediff)
-
-
-tmp <-merge(nic_pm_vols,visitInfo,by="e165_ID",all.x = T)
-
-nic_pm_vols <- tmp %>%
-  mutate(agediff = abs(Scan_Age_nic_pm_vols - visit_age)) %>%
-  group_by(e165_ID, Scan_Age_nic_pm_vols) %>%
-  arrange(Scan_Age_nic_pm_vols) %>%
-  slice_min(agediff, n = 1, with_ties = FALSE) %>% 
-  ungroup() %>%
-  group_by(e165_ID,VISIT) %>%
-  slice_min(agediff, n = 1, with_ties = FALSE) %>% 
-  ungroup() %>%
-  select(-visit_age,-agediff)
-
-
-```
-
-
-```{r merge-8}
-## now merge all the image datasets
-df_names <- imagingDFs
-merged <- get(df_names[1])
-cat("=======================================================================","\n")
-cat("Before merging: Info of ",df_names[1],":","\n")
-info(merged,"e165_ID")
-cat("\n")
-
-
-for (dfname in df_names[2:length(df_names)]) {
-  merged <- merge_with_info(
-    df1name = "merged",
-    df2name = dfname,
-    merge_cols = c("e165_ID","VISIT"),
-    info_col = "e165_ID"
-  )
-}
-```
-
-
-```{r merge-9}
-merged_images <- merged
-## check duplicates
-merged_images %>% group_by(e165_ID,VISIT) %>% filter(n()>=2)
-```
-
-<br>
-
-## Final Merge
-
-```{r merge-10}
-## add the merged_images
-cat("Info of previously merged dataset: ")
-info(all,"e165_ID")
-cat("\n")
-
-final <- merge_with_info(
-    df1name = "all",
-    df2name = "merged_images",
-    merge_cols = c("e165_ID","VISIT"),
-    info_col = "e165_ID"
-  )
-
-```
-
 <br>
 
 ## Check Diagnosis Variables
@@ -2469,9 +2393,12 @@ final <- final %>%
   select(e165_ID, VISIT, visit_age,everything()) %>%
   arrange(e165_ID,VISIT)
 
-
 ## save the dataset
 saveRDS(final,paste0(out_directory,"ACT_Oct2025_Cleaned.rds"))
 
+## save the imaging files seperately 
+saveRDS(nic_cdes,paste0(out_directory,"ACT_Oct2025_Cleaned_Imaging_nic_cdes.rds"))
+saveRDS(nic_am_vols,paste0(out_directory,"ACT_Oct2025_Cleaned_Imaging_nic_am_vols.rds"))
+saveRDS(nic_pm_vols,paste0(out_directory,"ACT_Oct2025_Cleaned_Imaging_nic_pm_vols.rds"))
 ```
 

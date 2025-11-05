@@ -1,0 +1,149 @@
+
+```{r merge-6}
+## In each imaging datasets:
+## for every individual, with multiple imaging visits, make sure only one observation left within three month by keeping the one with minimum missingness
+
+nic_cdes <- cleanImages_rmCloseScanes(nic_cdes)
+
+nic_am_vols <- cleanImages_rmCloseScanes(nic_am_vols)
+
+nic_pm_vols <- cleanImages_rmCloseScanes(nic_pm_vols)
+```
+
+```{r merge-7}
+# #################################################################################
+# ## check common columns among the three datasets
+# #################################################################################
+# intersect(names(nic_cdes),names(nic_am_vols))
+# intersect(names(nic_cdes),names(nic_pm_vols))
+# intersect(names(nic_am_vols),names(nic_pm_vols))
+#
+# ## for variables: Scan_Type Scan_Age Manufacturer Field_Strength AnteMortem_PostMortem, add suffix using the datasets name
+# cols_to_rename <- c("Scan_Type", "Scan_Year", "Manufacturer", "Field_Strength", "AnteMortem_PostMortem")
+#
+# names(nic_cdes)[names(nic_cdes) %in% cols_to_rename] <-
+#   paste0(names(nic_cdes)[names(nic_cdes) %in% cols_to_rename], "_nic_cdes")
+#
+# names(nic_am_vols)[names(nic_am_vols) %in% cols_to_rename] <-
+#   paste0(names(nic_am_vols)[names(nic_am_vols) %in% cols_to_rename], "_nic_am_vols")
+#
+# names(nic_pm_vols)[names(nic_pm_vols) %in% cols_to_rename] <-
+#   paste0(names(nic_pm_vols)[names(nic_pm_vols) %in% cols_to_rename], "_nic_pm_vols")
+#
+# ## double check common columns
+# intersect(names(nic_cdes),names(nic_am_vols))
+# intersect(names(nic_cdes),names(nic_pm_vols))
+# intersect(names(nic_am_vols),names(nic_pm_vols))
+
+
+# #################################################################################
+# ## for each dataset, get the visit index
+# #################################################################################
+# visitInfo <- all %>%
+#   select(e165_ID,VISIT,visit_age) %>%
+#   unique()
+#
+# info(visitInfo,"e165_ID")
+#
+# tmp <-merge(nic_cdes,visitInfo,by="e165_ID",all.x = T) ## 14147 obs
+#
+# nic_cdes <- tmp %>%
+#   mutate(agediff = abs(Scan_Age_nic_cdes - visit_age)) %>%
+#   group_by(e165_ID, Scan_Age_nic_cdes) %>%
+#   arrange(Scan_Age_nic_cdes) %>%
+#   slice_min(agediff, n = 1, with_ties = FALSE) %>%
+#   ungroup() %>%
+#   group_by(e165_ID,VISIT) %>%
+#   slice_min(agediff, n = 1, with_ties = FALSE) %>%
+#   ungroup() %>%
+#   mutate(VISIT = ifelse(agediff > 0.25, NA, VISIT)) %>%
+#   select(-visit_age,-agediff)
+#
+#
+# tmp <-merge(nic_am_vols,visitInfo,by="e165_ID",all.x = T)
+#
+#
+# nic_am_vols <- tmp %>%
+#   mutate(agediff = abs(Scan_Age_nic_am_vols - visit_age)) %>%
+#   group_by(e165_ID, Scan_Age_nic_am_vols) %>%
+#   arrange(Scan_Age_nic_am_vols) %>%
+#   slice_min(agediff, n = 1, with_ties = FALSE) %>%
+#   ungroup() %>%
+#   group_by(e165_ID,VISIT) %>%
+#   slice_min(agediff, n = 1, with_ties = FALSE) %>%
+#   ungroup() %>%
+#   mutate(VISIT = ifelse(agediff > 0.25, NA, VISIT)) %>%
+#   select(-visit_age,-agediff)
+#
+#
+# tmp <-merge(nic_pm_vols,visitInfo,by="e165_ID",all.x = T)
+#
+#
+# nic_pm_vols <- tmp %>%
+#   mutate(agediff = abs(Scan_Age_nic_pm_vols - visit_age)) %>%
+#   group_by(e165_ID, Scan_Age_nic_pm_vols) %>%
+#   arrange(Scan_Age_nic_pm_vols) %>%
+#   slice_min(agediff, n = 1, with_ties = FALSE) %>%
+#   ungroup() %>%
+#   group_by(e165_ID,VISIT) %>%
+#   slice_min(agediff, n = 1, with_ties = FALSE) %>%
+#   ungroup() %>%
+#   mutate(VISIT = ifelse(agediff > 0.25, NA, VISIT)) %>%
+#   select(-visit_age,-agediff)
+#
+
+```
+
+
+```{r merge-8}
+
+# ## check missingnes of VISIT in each imaging dataset
+# sum(is.na(nic_cdes$VISIT)) ## 1616/2062
+# sum(is.na(nic_am_vols$VISIT)) ## 1248/1601
+# sum(is.na(nic_pm_vols$VISIT)) ## 237/244
+
+# ## for each imaging dataset. if
+#
+# ## now merge all the image datasets
+# df_names <- imagingDFs
+# merged <- get(df_names[1])
+# cat("=======================================================================","\n")
+# cat("Before merging: Info of ",df_names[1],":","\n")
+# info(merged,"e165_ID")
+# cat("\n")
+#
+#
+# for (dfname in df_names[2:length(df_names)]) {
+#   merged <- merge_with_info(
+#     df1name = "merged",
+#     df2name = dfname,
+#     merge_cols = c("e165_ID","VISIT"),
+#     info_col = "e165_ID"
+#   )
+# }
+```
+
+
+```{r merge-9}
+merged_images <- merged
+## check duplicates
+merged_images %>% group_by(e165_ID,VISIT) %>% filter(n()>=2)
+```
+
+
+## Final Merge
+
+```{r merge-10}
+## add the merged_images
+cat("Info of previously merged dataset: ")
+info(all,"e165_ID")
+cat("\n")
+
+final <- merge_with_info(
+    df1name = "all",
+    df2name = "merged_images",
+    merge_cols = c("e165_ID","VISIT"),
+    info_col = "e165_ID"
+  )
+
+```
