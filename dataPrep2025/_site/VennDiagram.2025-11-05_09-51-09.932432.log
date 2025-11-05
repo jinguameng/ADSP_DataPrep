@@ -1,0 +1,22 @@
+INFO [2025-11-05 09:51:09] $x
+INFO [2025-11-05 09:51:09] list(CDEs = unique(nic_cdes$e165_ID), `AM Volumes` = unique(nic_am_vols$e165_ID), 
+INFO [2025-11-05 09:51:09]     `PM Volumes` = unique(nic_pm_vols$e165_ID))
+INFO [2025-11-05 09:51:09] 
+INFO [2025-11-05 09:51:09] $filename
+INFO [2025-11-05 09:51:09] NULL
+INFO [2025-11-05 09:51:09] 
+INFO [2025-11-05 09:51:09] $fill
+INFO [2025-11-05 09:51:09] c("#E69F00", "#56B4E9", "#009E73")
+INFO [2025-11-05 09:51:09] 
+INFO [2025-11-05 09:51:09] $alpha
+INFO [2025-11-05 09:51:09] [1] 0.6
+INFO [2025-11-05 09:51:09] 
+INFO [2025-11-05 09:51:09] $cex
+INFO [2025-11-05 09:51:09] [1] 1.5
+INFO [2025-11-05 09:51:09] 
+INFO [2025-11-05 09:51:09] $cat.cex
+INFO [2025-11-05 09:51:09] [1] 1.2
+INFO [2025-11-05 09:51:09] 
+INFO [2025-11-05 09:51:09] $main
+INFO [2025-11-05 09:51:09] [1] "Overlap of Unique Individuals Across Imaging Datasets"
+INFO [2025-11-05 09:51:09] 

@@ -27,7 +27,7 @@ if (!is.null(dev.list())) dev.off()  # close any open plotting devices
 ## directory: can extend to the main CNT folder
 directory <- "/Users/mengnazhang/Desktop/ADSP_DataPrep_local/"
 
-## set ACT path (the folder where PRADI raw files located)
+## set ACT path (the folder where ACT raw files located)
 act_directory <- paste0(directory,"ACT/Phenotype/2025/Raw/")
 
 ## output path
@@ -2263,9 +2263,9 @@ commonColsDetect(cols2check)
 
 # Clean Imaging Datasets
 
-```{r eval=FALSE}
-png("plots/venn_plot.png", width = 2000, height = 2000, res = 300)
-venn.diagram(
+```{r}
+
+venn1 <- venn.diagram(
   x = list(
     `CDEs` = unique(nic_cdes$e165_ID),
     `AM Volumes` = unique(nic_am_vols$e165_ID),
@@ -2278,11 +2278,12 @@ venn.diagram(
   cat.cex = 1.2,
   main = "Overlap of Unique Individuals Across Imaging Datasets"
 )
-dev.off()
+grid.newpage()
+grid.draw(venn1)
 
 ```
 
-![image-Venn-Diagram](plots/venn_plot.png)\
+
 
 Based on the diagram above, I don't think it is necessary trying to merge the three imaging datasets, I will just save the original file separately. 
 
